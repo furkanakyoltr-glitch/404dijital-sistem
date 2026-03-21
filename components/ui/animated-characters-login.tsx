@@ -19,7 +19,7 @@ const CHARACTERS: Character[] = [
 
 interface EyePos { x: number; y: number }
 
-export function AnimatedCharactersLogin({ onLogin, type = 'musteri' }: { onLogin: (data: any) => void; type?: 'musteri' | 'admin' }) {
+export function AnimatedCharactersLogin({ onLogin, type = 'musteri' }: { onLogin: (data: any) => Promise<boolean | void>; type?: 'musteri' | 'admin' }) {
   const [kasaNo, setKasaNo] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
