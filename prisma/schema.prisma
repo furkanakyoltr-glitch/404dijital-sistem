@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id                String       @id @default(cuid())
+  email             String       @unique
+  password          String
+  name              String
+  role              String       @default("admin")
+  avatar            String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  atananGorevler    KanbanKart[] @relation("Atanan")
+  olusturanGorevler KanbanKart[] @relation("Olusturan")
+  atananTodolar     Todo[]
+  teklifler         Teklif[]
+  etkinlikler       Etkinlik[]
+}
+
+model Musteri {
+  id               String       @id @default(cuid())
+  firmaAdi         String
+  yetkiliKisi      String
+  yetkiliUnvan     String?
+  telefon          String
+  email            String
+  adres            String?
+  vergiDairesi     String?
+  vergiNo          String?
+  kasaNo           String       @unique
+  sifre            String
+  durum            String       @default("bekliyor")
+  notlar           String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  teklifler        Teklif[]
+  kanbanKartlari   KanbanKart[]
+  timelineOlaylari Timeline[]
+  todolar          Todo[]
+  etkinlikler      Etkinlik[]
+  gelirler         Gelir[]
+  giderler         Gider[]
+  projeler         Proje[]
+}
+
+model Teklif {
+  id               String    @id @default(cuid())
+  teklifNo         String    @unique
+  musteriId        String
+  musteri          Musteri   @relation(fields: [musteriId], references: [id], onDelete: Cascade)
+  paketKategori    String
+  paketAdi         String
+  paketDetay       String?
+  fiyat            Float
+  ekGiderler       Json?
+  islerListesi     Json?
+  indirim          Float?    @default(0)
+  kdvOrani         Float?    @default(20)
+  toplam           Float
+  gecerlilikTarihi DateTime
+  durum            String    @default("bekliyor")
+  onayTarihi       DateTime?
+  redTarihi        DateTime?
+  olusturanAdminId String?
+  olusturanAdmin   Admin?    @relation(fields: [olusturanAdminId], references: [id])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model KanbanKart {
+  id          String    @id @default(cuid())
+  musteriId   String
+  musteri     Musteri   @relation(fields: [musteriId], references: [id], onDelete: Cascade)
+  baslik      String
+  aciklama    String?
+  sutun       String
+  etiket      String?
+  renk        String?
+  sonTarih    DateTime?
+  atananId    String?
+  atanan      Admin?    @relation("Atanan", fields: [atananId], references: [id])
+  olusturanId String?
+  olusturan   Admin?    @relation("Olusturan", fields: [olusturanId], references: [id])
+  sira        Int       @default(0)
+  yorumlar    Json?
+  altGorevler Json?
+  dosyalar    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Timeline {
+  id          String    @id @default(cuid())
+  musteriId   String
+  musteri     Musteri   @relation(fields: [musteriId], references: [id], onDelete: Cascade)
+  baslik      String
+  aciklama    String?
+  baslangic   DateTime
+  bitis       DateTime?
+  tamamlandi  Boolean   @default(false)
+  ilerleme    Int       @default(0)
+  renk        String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Todo {
+  id         String    @id @default(cuid())
+  musteriId  String
+  musteri    Musteri   @relation(fields: [musteriId], references: [id], onDelete: Cascade)
+  icerik     String
+  tamamlandi Boolean   @default(false)
+  sonTarih   DateTime?
+  atananId   String?
+  atanan     Admin?    @relation(fields: [atananId], references: [id])
+  sira       Int       @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Etkinlik {
+  id          String    @id @default(cuid())
+  musteriId   String?
+  musteri     Musteri?  @relation(fields: [musteriId], references: [id], onDelete: SetNull)
+  baslik      String
+  aciklama    String?
+  baslangic   DateTime
+  bitis       DateTime?
+  tumGun      Boolean   @default(false)
+  renk        String?
+  olusturanId String?
+  olusturan   Admin?    @relation(fields: [olusturanId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Gelir {
+  id             String    @id @default(cuid())
+  musteriId      String?
+  musteri        Musteri?  @relation(fields: [musteriId], references: [id])
+  musteriAdi     String?
+  gelirTuru      String
+  tutar          Float
+  kdvOrani       Float
+  kdvDahil       Boolean   @default(true)
+  netTutar       Float
+  tarih          DateTime
+  aciklama       String?
+  dekontNo       String?
+  dekontUrl      String?
+  odemeYontemi   String?
+  banka          String?
+  tahsilatDurumu String
+  kismiTutar     Float?
+  vadeTarihi     DateTime?
+  projeId        String?
+  proje          Proje?    @relation(fields: [projeId], references: [id])
+  wpMesajId      String?
+  onayDurumu     String    @default("onaylandi")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Gider {
+  id           String    @id @default(cuid())
+  kategori     String
+  altKategori  String?
+  tutar        Float
+  kdvOrani     Float?
+  kdvDahil     Boolean   @default(true)
+  netTutar     Float
+  tarih        DateTime
+  aciklama     String?
+  fisNo        String?
+  fisUrl       String?
+  odemeYontemi String?
+  banka        String?
+  odemeDurumu  String
+  kismiTutar   Float?
+  vadeTarihi   DateTime?
+  musteriId    String?
+  musteri      Musteri?  @relation(fields: [musteriId], references: [id])
+  projeId      String?
+  proje        Proje?    @relation(fields: [projeId], references: [id])
+  wpMesajId    String?
+  onayDurumu   String    @default("onaylandi")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model WPMesaj {
+  id            String    @id @default(cuid())
+  mesaj         String
+  telNo         String
+  tarih         DateTime  @default(now())
+  islemTipi     String?
+  tutar         Float?
+  kategori      String?
+  aciklama      String?
+  ilgiliGelirId String?
+  ilgiliGiderId String?
+  durum         String    @default("bekliyor")
+  notlar        String?
+  createdAt     DateTime  @default(now())
+}
+
+model BankaHesabi {
+  id        String   @id @default(cuid())
+  ad        String
+  hesapNo   String?
+  iban      String?
+  bakiye    Float?
+  createdAt DateTime @default(now())
+}
+
+model Proje {
+  id         String    @id @default(cuid())
+  musteriId  String
+  musteri    Musteri   @relation(fields: [musteriId], references: [id])
+  ad         String
+  baslangic  DateTime?
+  bitis      DateTime?
+  butce      Float?
+  createdAt  DateTime  @default(now())
+  gelirler   Gelir[]
+  giderler   Gider[]
+}
