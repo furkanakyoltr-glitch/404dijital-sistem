@@ -6,14 +6,18 @@ import { AnimatedCharactersLogin } from '@/components/ui/animated-characters-log
 export default function AdminGirisPage() {
   const router = useRouter()
 
-  const handleLogin = async ({ kasaNo }: { kasaNo: string }) => {
+  const handleLogin = async ({ kasaNo, password }: { kasaNo: string; password: string }) => {
     const result = await signIn('credentials', {
       email: kasaNo,
-      password: '',
+      password,
       type: 'admin',
       redirect: false,
     })
-    if (result?.ok) router.push('/admin')
+    if (result?.ok) {
+      router.push('/admin')
+      return true
+    }
+    return false
   }
 
   return (

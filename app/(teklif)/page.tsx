@@ -6,9 +6,18 @@ import { AnimatedCharactersLogin } from '@/components/ui/animated-characters-log
 export default function TeklifLoginPage() {
   const router = useRouter()
 
-  const handleLogin = async ({ kasaNo, type }: { kasaNo: string; type: string }) => {
-    // signIn is handled inside the component via next-auth
-    router.push('/kasa')
+  const handleLogin = async ({ kasaNo, password }: { kasaNo: string; password: string }) => {
+    const result = await signIn('credentials', {
+      email: kasaNo,
+      password,
+      type: 'musteri',
+      redirect: false,
+    })
+    if (result?.ok) {
+      router.push('/kasa')
+      return true
+    }
+    return false
   }
 
   return <AnimatedCharactersLogin onLogin={handleLogin} type="musteri" />

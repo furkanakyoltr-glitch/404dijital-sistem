@@ -75,13 +75,10 @@ export function AnimatedCharactersLogin({ onLogin, type = 'musteri' }: { onLogin
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/auth/callback/credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kasaNo, password, type }),
-      })
-      if (!res.ok) throw new Error('Giriş başarısız')
-      onLogin({ kasaNo, type })
+      const result = await onLogin({ kasaNo, password, type })
+      if (result === false) {
+        setError('Kasa no veya şifre hatalı. Lütfen tekrar deneyin.')
+      }
     } catch {
       setError('Kasa no veya şifre hatalı. Lütfen tekrar deneyin.')
     } finally {
