@@ -24,6 +24,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter()
   const pathname = usePathname()
 
+  if (pathname === '/admin/giris') return <>{children}</>
+
   if (status === 'loading') return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-[#1a1a1a] border-t-transparent rounded-full"></div></div>
   if (status === 'unauthenticated') { router.push('/admin/giris'); return null }
   if ((session?.user as any)?.type !== 'admin') { router.push('/admin/giris'); return null }
