@@ -35,7 +35,7 @@ model Musteri {
   vergiNo          String?
   kasaNo           String       @unique
   sifre            String
-  durum            String       @default("bekliyor")
+  durum            String       @default("odeme_alinacak")
   notlar           String?
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
@@ -57,6 +57,7 @@ model Teklif {
   paketKategori    String
   paketAdi         String
   paketDetay       String?
+  stratejiNotu     String?
   fiyat            Float
   ekGiderler       Json?
   islerListesi     Json?

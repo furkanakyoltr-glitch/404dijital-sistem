@@ -30,7 +30,7 @@ interface FormData {
   // Step 4
   ekGiderler: { aciklama: string; tutar: number }[]
   // Step 5
-  fiyat: number; indirim: number; indirimTipi: 'yuzde' | 'sabit'; kdvOrani: number; gecerlilikTarihi: string; odemeKosullari: string
+  fiyat: number; indirim: number; indirimTipi: 'yuzde' | 'sabit'; kdvOrani: number; gecerlilikTarihi: string; odemeKosullari: string; stratejiNotu: string
   // Step 6
   kasaNo: string; sifre: string; sendEmail: boolean
 }
@@ -52,7 +52,7 @@ export default function TeklifOlusturPage() {
     islerListesi: [],
     ekGiderler: [],
     fiyat: 0, indirim: 0, indirimTipi: 'sabit', kdvOrani: 20,
-    gecerlilikTarihi: defaultDate.toISOString().split('T')[0], odemeKosullari: 'Peşin',
+    gecerlilikTarihi: defaultDate.toISOString().split('T')[0], odemeKosullari: 'Peşin', stratejiNotu: '',
     kasaNo: generateKasaNo(), sifre: generatePassword(), sendEmail: true,
   })
 
@@ -88,6 +88,9 @@ export default function TeklifOlusturPage() {
         setResult({ kasaNo: data.kasaNo, sifre: data.sifre })
         setSubmitted(true)
       }
+    } catch (err) {
+      alert('Teklif oluşturulamadı. Konsolu kontrol et.')
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -317,6 +320,19 @@ export default function TeklifOlusturPage() {
                 </select>
               </div>
             </div>
+            {/* Strateji Notu */}
+            <div className="md:col-span-2 mt-2">
+              <label className="block text-xs font-semibold text-[#333] mb-1 font-montserrat uppercase tracking-wider">Strateji Notu / Müşteri Açıklaması</label>
+              <textarea
+                rows={5}
+                placeholder="Müşteri hakkında detaylı strateji notları, hedefler, özel istekler, yapılacak işler hakkında açıklama..."
+                value={form.stratejiNotu}
+                onChange={e => setField('stratejiNotu', e.target.value)}
+                className="w-full border border-[#eaeaea] rounded-xl px-4 py-3 text-sm font-montserrat focus:outline-none focus:ring-2 focus:ring-[#1a1a1a] resize-none"
+              />
+              <p className="text-xs text-[#999] mt-1 font-montserrat">Bu not teklif sayfasında görüntülenir ve PDF'e dahil edilir.</p>
+            </div>
+
             {/* Özet */}
             <div className="bg-[#f8f9fa] rounded-xl p-5 space-y-2 text-sm font-montserrat">
               <div className="flex justify-between text-[#555]"><span>Paket Ücreti</span><span>₺{form.fiyat.toLocaleString('tr-TR')}</span></div>

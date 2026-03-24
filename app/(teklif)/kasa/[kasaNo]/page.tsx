@@ -13,6 +13,7 @@ interface TeklifDetay {
   paketAdi: string
   paketKategori: string
   paketDetay: string
+  stratejiNotu?: string
   islerListesi: { is: string; tamamlandi: boolean }[]
   ekGiderler: { aciklama: string; tutar: number }[]
   fiyat: number
@@ -92,7 +93,9 @@ export default function TeklifDetayPage() {
   }
 
   const handlePdfIndir = () => {
+    document.title = `Teklif-${teklif?.teklifNo || ''}-${teklif?.firmaAdi || ''}`
     window.print()
+    setTimeout(() => { document.title = '404 Dijital' }, 1000)
   }
 
   if (loading) {
@@ -125,9 +128,19 @@ export default function TeklifDetayPage() {
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] py-8 px-4">
-      <div className="max-w-3xl mx-auto">
+      <style>{`
+        @media print {
+          body { background: white !important; }
+          .no-print { display: none !important; }
+          .print-page { max-width: 100% !important; padding: 0 !important; }
+          .bg-\\[\\#1a1a1a\\] { background: #1a1a1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .bg-\\[\\#f8f9fa\\] { background: white !important; }
+          @page { margin: 1.5cm; size: A4; }
+        }
+      `}</style>
+      <div className="max-w-3xl mx-auto print-page">
         {/* Back */}
-        <button onClick={() => router.push('/kasa')} className="flex items-center gap-2 text-[#555] hover:text-[#1a1a1a] mb-6 font-montserrat text-sm transition-colors">
+        <button onClick={() => router.push('/kasa')} className="flex items-center gap-2 text-[#555] hover:text-[#1a1a1a] mb-6 font-montserrat text-sm transition-colors no-print">
           <ArrowLeft size={16} /> Kasaya Geri Dön
         </button>
 
@@ -206,8 +219,16 @@ export default function TeklifDetayPage() {
           </div>
         </div>
 
+        {/* Strateji Notu */}
+        {teklif.stratejiNotu && (
+          <div className="bg-white rounded-2xl border border-[#eaeaea] p-6 mb-6">
+            <h3 className="font-bebas text-xl tracking-wider text-[#1a1a1a] mb-4">STRATEJİ NOTU</h3>
+            <p className="text-sm font-montserrat text-[#555] whitespace-pre-wrap leading-relaxed">{teklif.stratejiNotu}</p>
+          </div>
+        )}
+
         {/* Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 no-print">
           {!onaylandi && teklif.durum !== 'onaylandi' ? (
             <button
               onClick={handleOnayla}

@@ -11,7 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const t = musteri.teklifler[0]
   return NextResponse.json({
     id: t.id, teklifNo: t.teklifNo, firmaAdi: musteri.firmaAdi, yetkiliKisi: musteri.yetkiliKisi,
-    paketAdi: t.paketAdi, paketKategori: t.paketKategori, paketDetay: t.paketDetay,
+    paketAdi: t.paketAdi, paketKategori: t.paketKategori, paketDetay: t.paketDetay, stratejiNotu: t.stratejiNotu,
     islerListesi: t.islerListesi, ekGiderler: t.ekGiderler,
     fiyat: t.fiyat, indirim: t.indirim, kdvOrani: t.kdvOrani, toplam: t.toplam,
     durum: t.durum, gecerlilikTarihi: t.gecerlilikTarihi, createdAt: t.createdAt,

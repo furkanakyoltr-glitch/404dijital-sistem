@@ -1,14 +1,15 @@
 "use client"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Search, Filter, Plus, Edit, BarChart2, Mail } from 'lucide-react'
+import { Search, Plus, Edit, BarChart2, Mail, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/utils'
 
 const DURUM_BADGE: Record<string, any> = {
   aktif: { variant: 'success', label: 'Aktif' },
   bekliyor: { variant: 'warning', label: 'Beklemede' },
-  arsiv: { variant: 'info', label: 'Arşiv' },
+  odeme_alinacak: { variant: 'info', label: 'Ödeme Alınacak' },
+  arsiv: { variant: 'outline', label: 'Arşiv' },
 }
 
 export default function MusterilerPage() {
@@ -16,6 +17,8 @@ export default function MusterilerPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [durumFilter, setDurumFilter] = useState('')
+  const [silinecek, setSilinecek] = useState<string | null>(null)
+  const [silmeLoading, setSilmeLoading] = useState(false)
 
   useEffect(() => {
     fetchMusteriler()
@@ -33,16 +36,55 @@ export default function MusterilerPage() {
     } catch {
       setMusteriler([
         { id: '1', firmaAdi: 'ABC Şirketi', kasaNo: '404-001', durum: 'aktif', telefon: '+90 555 111 22 33', email: 'abc@firma.com', teklifler: [{ paketAdi: 'Gold Paket', toplam: 60000 }], updatedAt: new Date() },
-        { id: '2', firmaAdi: 'XYZ Ltd.', kasaNo: '404-002', durum: 'bekliyor', telefon: '+90 555 444 55 66', email: 'xyz@firma.com', teklifler: [{ paketAdi: 'Giriş Paketi', toplam: 42000 }], updatedAt: new Date() },
-        { id: '3', firmaAdi: 'DEF A.Ş.', kasaNo: '404-003', durum: 'arsiv', telefon: '+90 555 777 88 99', email: 'def@firma.com', teklifler: [], updatedAt: new Date() },
+        { id: '2', firmaAdi: 'XYZ Ltd.', kasaNo: '404-002', durum: 'odeme_alinacak', telefon: '+90 555 444 55 66', email: 'xyz@firma.com', teklifler: [{ paketAdi: 'Giriş Paketi', toplam: 42000 }], updatedAt: new Date() },
       ])
     } finally {
       setLoading(false)
     }
   }
 
+  const handleSil = async (id: string) => {
+    setSilmeLoading(true)
+    try {
+      const res = await fetch(`/api/musteriler/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setMusteriler(prev => prev.filter(m => m.id !== id))
+        setSilinecek(null)
+      }
+    } finally {
+      setSilmeLoading(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
+      {/* Silme Onay Modal */}
+      {silinecek && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+            <h3 className="font-bebas text-2xl tracking-wider text-[#1a1a1a] mb-2">MÜŞTERİYİ SİL</h3>
+            <p className="text-[#555] font-montserrat text-sm mb-6">
+              Bu müşteriyi silmek istediğine emin misin? Tüm teklif, kanban, todo ve timeline verileri de silinecek. Bu işlem geri alınamaz.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleSil(silinecek)}
+                disabled={silmeLoading}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-xl px-6 py-3 font-montserrat font-bold text-sm transition-colors disabled:opacity-60"
+              >
+                {silmeLoading ? 'SİLİNİYOR...' : 'EVET, SİL'}
+              </button>
+              <button
+                onClick={() => setSilinecek(null)}
+                className="flex-1 border-2 border-[#eaeaea] text-[#555] rounded-xl px-6 py-3 font-montserrat font-bold text-sm hover:border-[#1a1a1a] transition-colors"
+              >
+                İPTAL
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top Bar */}
       <div className="flex flex-wrap gap-4 items-center justify-between">
         <div className="flex gap-3 flex-1 min-w-0">
@@ -63,6 +105,7 @@ export default function MusterilerPage() {
           >
             <option value="">Tüm Durumlar</option>
             <option value="aktif">Aktif</option>
+            <option value="odeme_alinacak">Ödeme Alınacak</option>
             <option value="bekliyor">Beklemede</option>
             <option value="arsiv">Arşiv</option>
           </select>
@@ -130,6 +173,13 @@ export default function MusterilerPage() {
                           <a href={`mailto:${m.email}`} className="p-1.5 hover:bg-[#f0f0f0] rounded-lg transition-colors" title="Mail">
                             <Mail size={14} className="text-[#555]" />
                           </a>
+                          <button
+                            onClick={() => setSilinecek(m.id)}
+                            className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Sil"
+                          >
+                            <Trash2 size={14} className="text-red-400" />
+                          </button>
                         </div>
                       </td>
                     </tr>
