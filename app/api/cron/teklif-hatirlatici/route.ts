@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { sendTeklifWP, sendFurkanBildirim } from '@/lib/whatsapp'
+import { sendFurkanBildirim } from '@/lib/whatsapp'
+
+const WA_TOKEN = process.env.WA_TOKEN
+const WA_PHONE_NUMBER_ID = process.env.WA_PHONE_NUMBER_ID
+
+async function sendWAMessage(to: string, text: string) {
+  if (!WA_TOKEN || !WA_PHONE_NUMBER_ID) return
+  const phone = to.replace(/\s+/g, '').replace(/^0/, '90').replace(/^\+/, '')
+  await fetch(`https://graph.facebook.com/v19.0/${WA_PHONE_NUMBER_ID}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${WA_TOKEN}` },
+    body: JSON.stringify({ messaging_product: 'whatsapp', to: phone, type: 'text', text: { body: text } }),
+  })
+}
 
 // Railway cron veya harici bir cron servisi tarafından çağrılır
 // Örnek: her 2 dakikada bir GET /api/cron/teklif-hatirlatici?secret=...
@@ -12,12 +25,11 @@ export async function GET(req: NextRequest) {
   }
 
   const besMinuteAgo = new Date(Date.now() - 5 * 60 * 1000)
-  const onMinuteAgo = new Date(Date.now() - 10 * 60 * 1000)
 
   // WP gönderilmiş, 5+ dk geçmiş, bekliyor durumunda, hatırlatıcı henüz gönderilmemiş
   const bekleyenTeklifler = await prisma.teklif.findMany({
     where: {
-      wpGonderimZamani: { lte: besMinuteAgo, gte: onMinuteAgo },
+      wpGonderimZamani: { lte: besMinuteAgo },
       hatirlaticiGonderildi: false,
       durum: 'bekliyor',
     },
@@ -38,14 +50,7 @@ export async function GET(req: NextRequest) {
       `Onaylamak için "Onaylıyorum ${teklif.teklifNo}" yazabilirsiniz.\n` +
       `Sorularınız için: *+90 544 684 40 67*`
 
-    await sendTeklifWP({
-      telefon: musteri.telefon,
-      yetkiliKisi: musteri.yetkiliKisi,
-      firmaAdi: musteri.firmaAdi,
-      kasaNo: teklif.teklifNo,
-      paketAdi: teklif.paketAdi,
-      toplam: teklif.toplam,
-    })
+    await sendWAMessage(musteri.telefon, hatirlatmaMetni)
 
     // Furkan'a beklemede bildirimi
     await sendFurkanBildirim(
