@@ -3,7 +3,7 @@ import { getToken } from 'next-auth/jwt'
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  const hostname = req.headers.get('host') || ''
+  const hostname = req.headers.get('x-forwarded-host') || req.headers.get('host') || ''
 
   // admin.404dijital.com → /admin/* path'e yönlendir
   if (hostname.startsWith('admin.')) {
