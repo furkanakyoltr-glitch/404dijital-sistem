@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { generatePassword } from '@/lib/utils'
 import { sendTeklifMaili } from '@/lib/mail'
+import { sendTeklifWP } from '@/lib/whatsapp'
 
 async function generateUniqueKasaNo(): Promise<string> {
   for (let i = 0; i < 20; i++) {
@@ -69,28 +70,26 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // WhatsApp/Make webhook — teklifi müşteri telefonuna gönder
-    const makeUrl = process.env.MAKE_TEKLIF_WEBHOOK_URL
-    if (makeUrl && telefon) {
+    // WhatsApp — teklifi müşteri telefonuna gönder
+    if (sendWhatsapp !== false && telefon) {
       try {
-        const teklifLink = `https://teklif.404dijital.com/${kasaNo}`
-        await fetch(makeUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'teklif_gonder',
-            telefon: telefon.replace(/\s+/g, '').replace(/^0/, '+90'),
-            firmaAdi,
-            yetkiliKisi,
-            kasaNo,
-            paketAdi,
-            toplam: parseFloat(String(toplam)),
-            teklifLink,
-            furkanNo: '+905446844067',
-          }),
+        const wpOk = await sendTeklifWP({
+          telefon,
+          yetkiliKisi,
+          firmaAdi,
+          kasaNo,
+          paketAdi,
+          toplam: parseFloat(String(toplam)),
         })
+        if (wpOk) {
+          // WP gönderim zamanını kaydet (5 dk sonra hatırlatıcı için)
+          await prisma.teklif.update({
+            where: { id: teklif.id },
+            data: { wpGonderimZamani: new Date() },
+          })
+        }
       } catch (wpErr) {
-        console.error('Make webhook hatası:', wpErr)
+        console.error('WP gönderim hatası:', wpErr)
       }
     }
 
