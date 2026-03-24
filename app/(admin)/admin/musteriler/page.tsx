@@ -110,10 +110,16 @@ export default function MusterilerPage() {
             <option value="arsiv">Arşiv</option>
           </select>
         </div>
-        <Link href="/admin/teklif-olustur" className="btn-primary text-sm flex items-center gap-2">
-          <Plus size={16} />
-          YENİ MÜŞTERİ / TEKLİF
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/admin/musteriler/ekle" className="border-2 border-[#1a1a1a] text-[#1a1a1a] rounded-xl px-4 py-2 text-sm font-montserrat font-bold flex items-center gap-2 hover:bg-[#1a1a1a] hover:text-white transition-all">
+            <Plus size={16} />
+            MÜŞTERİ EKLE
+          </Link>
+          <Link href="/admin/teklif-olustur" className="btn-primary text-sm flex items-center gap-2">
+            <Plus size={16} />
+            YENİ TEKLİF
+          </Link>
+        </div>
       </div>
 
       {/* Table */}

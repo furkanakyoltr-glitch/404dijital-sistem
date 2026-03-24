@@ -87,9 +87,11 @@ export default function TeklifOlusturPage() {
       if (data.success) {
         setResult({ kasaNo: data.kasaNo, sifre: data.sifre })
         setSubmitted(true)
+      } else {
+        alert(`Teklif oluşturulamadı: ${data.error || 'Bilinmeyen hata'}`)
       }
     } catch (err) {
-      alert('Teklif oluşturulamadı. Konsolu kontrol et.')
+      alert('Sunucu bağlantı hatası. Lütfen tekrar deneyin.')
       console.error(err)
     } finally {
       setLoading(false)
