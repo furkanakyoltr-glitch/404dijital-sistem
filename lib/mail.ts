@@ -8,12 +8,21 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  connectionTimeout: 8000,
+  socketTimeout: 8000,
+  greetingTimeout: 8000,
 })
 
 export async function sendMail({ to, subject, html }: { to: string | string[]; subject: string; html: string }) {
-  const toArray = Array.isArray(to) ? to : [to]
+  const smtpPass = process.env.SMTP_PASS
+  if (!smtpPass || smtpPass === 'changeme') {
+    console.warn('SMTP_PASS ayarlı değil, mail atlanıyor.')
+    return
+  }
+  const toArray = (Array.isArray(to) ? to : [to]).filter(Boolean)
+  if (toArray.length === 0) return
   return transporter.sendMail({
-    from: `"404 Dijital" <${process.env.MAIL_FROM}>`,
+    from: `"404 Dijital" <${process.env.SMTP_USER}>`,
     to: toArray.join(', '),
     subject,
     html,
