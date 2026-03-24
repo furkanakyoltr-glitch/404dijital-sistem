@@ -12,6 +12,7 @@ import '../globals.css'
 const NAV_ITEMS = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/admin/musteriler', icon: Users, label: 'Müşteriler' },
+  { href: '/admin/teklifler', icon: TrendingUp, label: 'Teklifler' },
   { href: '/admin/teklif-olustur', icon: FileText, label: 'Teklif Oluştur' },
   { href: '/admin/muhasebe', icon: BookOpen, label: 'Muhasebe' },
   { href: '/admin/takvim', icon: Calendar, label: 'Takvim' },

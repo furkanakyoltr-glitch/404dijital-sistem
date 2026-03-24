@@ -25,6 +25,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any)?.type !== 'admin') return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
-  await prisma.musteri.delete({ where: { id: params.id } })
+  const id = params.id
+  // Cascade olmayan ilişkileri önce temizle
+  await prisma.gelir.updateMany({ where: { musteriId: id }, data: { musteriId: null } })
+  await prisma.gider.updateMany({ where: { musteriId: id }, data: { musteriId: null } })
+  await prisma.proje.deleteMany({ where: { musteriId: id } })
+  await prisma.musteri.delete({ where: { id } })
   return NextResponse.json({ success: true })
 }

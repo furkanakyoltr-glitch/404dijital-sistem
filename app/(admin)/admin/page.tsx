@@ -32,11 +32,11 @@ export default function AdminDashboard() {
   const haftalikToplam = haftalikVeri.reduce((s, d) => s + d.deger, 0)
 
   const STAT_CARDS = ozet ? [
-    { label: 'Aktif Müşteri', value: ozet.aktifMusteri, icon: Users, color: '#3b82f6', change: `/${ozet.toplamMusteri}`, up: true },
-    { label: 'Bu Ayki Gelir', value: ozet.buAyGelir >= 1000 ? `₺${(ozet.buAyGelir / 1000).toFixed(0)}K` : `₺${ozet.buAyGelir.toLocaleString('tr-TR')}`, icon: TrendingUp, color: '#22c55e', change: '', up: true },
-    { label: 'Ortalama ROI', value: `%${ozet.ortalamaROI}`, icon: BarChart3, color: '#f59e0b', change: '', up: true },
-    { label: 'Bekleyen Teklif', value: ozet.bekleyenTeklif, icon: FileText, color: '#f97316', change: '', up: false },
-    { label: 'Tamamlanma', value: `%${ozet.tamamlanmaOrani}`, icon: CheckCircle, color: '#8b5cf6', change: '', up: true },
+    { label: 'Aktif Müşteri', value: ozet.aktifMusteri, icon: Users, color: '#3b82f6', change: `/${ozet.toplamMusteri}`, up: true, href: '/admin/musteriler?durum=aktif' },
+    { label: 'Bu Ayki Gelir', value: ozet.buAyGelir >= 1000 ? `₺${(ozet.buAyGelir / 1000).toFixed(0)}K` : `₺${ozet.buAyGelir.toLocaleString('tr-TR')}`, icon: TrendingUp, color: '#22c55e', change: '', up: true, href: '/admin/muhasebe/gelir' },
+    { label: 'Ortalama ROI', value: `%${ozet.ortalamaROI}`, icon: BarChart3, color: '#f59e0b', change: '', up: true, href: '/admin/musteriler' },
+    { label: 'Bekleyen Teklif', value: ozet.bekleyenTeklif, icon: FileText, color: '#f97316', change: '', up: false, href: '/admin/teklifler' },
+    { label: 'Tamamlanma', value: `%${ozet.tamamlanmaOrani}`, icon: CheckCircle, color: '#8b5cf6', change: '', up: true, href: '/admin/musteriler' },
   ] : []
 
   return (
@@ -104,8 +104,8 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-            {STAT_CARDS.map(({ label, value, icon: Icon, color, change, up }, i) => (
-              <div key={i} className="bg-white rounded-xl border border-[#eaeaea] p-4">
+            {STAT_CARDS.map(({ label, value, icon: Icon, color, change, up, href }, i) => (
+              <Link key={i} href={href} className="bg-white rounded-xl border border-[#eaeaea] p-4 hover:border-[#1a1a1a] hover:shadow-sm transition-all">
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: color + '20' }}>
                     <Icon size={16} style={{ color }} />
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="font-bebas text-2xl text-[#1a1a1a] tracking-wider">{value}</div>
                 <p className="text-[#999] text-xs font-montserrat mt-0.5">{label}</p>
-              </div>
+              </Link>
             ))}
           </div>
 
