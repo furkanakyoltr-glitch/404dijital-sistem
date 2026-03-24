@@ -5,15 +5,10 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const hostname = req.headers.get('x-forwarded-host') || req.headers.get('host') || ''
 
-  // admin.404dijital.com → /admin/* path'e yönlendir
+  // admin.404dijital.com → Worker zaten /admin/* path'e yönlendiriyor
+  // Burada sadece auth kontrolü yap
   if (hostname.startsWith('admin.')) {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-    // /admin prefix olmayan path'leri rewrite et
-    if (!pathname.startsWith('/admin') && !pathname.startsWith('/api')) {
-      const newPath = pathname === '/' ? '/admin' : `/admin${pathname}`
-      return NextResponse.rewrite(new URL(newPath, req.url))
-    }
-    // Auth kontrolü
     if (!token && !pathname.includes('/giris')) {
       return NextResponse.redirect(new URL('/admin/giris', req.url))
     }
@@ -23,20 +18,13 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // teklif.404dijital.com → /kasa/* path'e yönlendir
+  // teklif.404dijital.com → Worker zaten /kasa/* path'e yönlendiriyor
+  // Kasa sayfaları public — müşteriler direkt kasaNo linki ile giriyor
   if (hostname.startsWith('teklif.')) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-    if (!pathname.startsWith('/kasa') && !pathname.startsWith('/api') && !pathname.startsWith('/_next')) {
-      const newPath = pathname === '/' ? '/kasa' : `/kasa${pathname}`
-      return NextResponse.rewrite(new URL(newPath, req.url))
-    }
-    if (!token && !pathname.startsWith('/api')) {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
     return NextResponse.next()
   }
 
-  // Normal /admin/* ve /kasa/* koruması (404dijital.com üzerinden erişim)
+  // Normal /admin/* koruması (404dijital.com üzerinden erişim)
   if (pathname.startsWith('/admin')) {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
     if (!token && !pathname.includes('/giris')) {
@@ -44,13 +32,6 @@ export async function middleware(req: NextRequest) {
     }
     if (token && (token as any).type !== 'admin' && !pathname.includes('/giris')) {
       return NextResponse.redirect(new URL('/admin/giris', req.url))
-    }
-  }
-
-  if (pathname.startsWith('/kasa')) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-    if (!token) {
-      return NextResponse.redirect(new URL('/', req.url))
     }
   }
 
