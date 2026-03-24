@@ -70,23 +70,43 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // WhatsApp — teklifi müşteri telefonuna gönder
+    // WhatsApp — Make webhook üzerinden müşteriye teklif gönder
     if (sendWhatsapp !== false && telefon) {
       try {
-        const wpOk = await sendTeklifWP({
-          telefon,
-          yetkiliKisi,
-          firmaAdi,
-          kasaNo,
-          paketAdi,
-          toplam: parseFloat(String(toplam)),
-        })
-        if (wpOk) {
-          // WP gönderim zamanını kaydet (5 dk sonra hatırlatıcı için)
-          await prisma.teklif.update({
-            where: { id: teklif.id },
-            data: { wpGonderimZamani: new Date() },
+        const makeUrl = process.env.MAKE_TEKLIF_WEBHOOK_URL
+        const teklifLink = `https://teklif.404dijital.com/${kasaNo}`
+        // Telefonu uluslararası formata çevir (Make → WA API için)
+        const telefonFormatli = telefon
+          .replace(/\s+/g, '')
+          .replace(/^\+/, '')
+          .replace(/^0/, '90')
+
+        if (makeUrl) {
+          const makeRes = await fetch(makeUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              telefon: telefonFormatli,
+              yetkiliKisi,
+              firmaAdi,
+              kasaNo,
+              paketAdi,
+              toplam: parseFloat(String(toplam)).toLocaleString('tr-TR'),
+              teklifLink,
+            }),
           })
+          if (makeRes.ok) {
+            await prisma.teklif.update({
+              where: { id: teklif.id },
+              data: { wpGonderimZamani: new Date() },
+            })
+          }
+        } else {
+          // Fallback: direkt WA API
+          const wpOk = await sendTeklifWP({ telefon, yetkiliKisi, firmaAdi, kasaNo, paketAdi, toplam: parseFloat(String(toplam)) })
+          if (wpOk) {
+            await prisma.teklif.update({ where: { id: teklif.id }, data: { wpGonderimZamani: new Date() } })
+          }
         }
       } catch (wpErr) {
         console.error('WP gönderim hatası:', wpErr)
