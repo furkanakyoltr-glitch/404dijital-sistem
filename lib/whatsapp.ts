@@ -71,7 +71,7 @@ export async function sendTeklifWP(params: {
   toplam: number
 }) {
   const { telefon, yetkiliKisi, firmaAdi, kasaNo, paketAdi, toplam } = params
-  const teklifLink = `https://teklif.404dijital.com/${kasaNo}`
+  const teklifLink = `https://teklif.404dijital.com/kasa/${kasaNo}`
   const toplamStr = toplam.toLocaleString('tr-TR')
 
   // Template mesajı gönder (herhangi bir numaraya çalışır)

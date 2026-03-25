@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     if (sendWhatsapp !== false && telefon) {
       try {
         const makeUrl = process.env.MAKE_TEKLIF_WEBHOOK_URL
-        const teklifLink = `https://teklif.404dijital.com/${kasaNo}`
+        const teklifLink = `https://teklif.404dijital.com/kasa/${kasaNo}`
         // Telefonu uluslararası formata çevir (Make → WA API için)
         const telefonFormatli = telefon
           .replace(/\s+/g, '')
