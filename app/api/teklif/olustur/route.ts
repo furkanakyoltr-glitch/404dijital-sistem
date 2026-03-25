@@ -28,8 +28,14 @@ export async function POST(req: NextRequest) {
     const {
       firmaAdi, yetkiliKisi, yetkiliUnvan, telefon, email, adres, vergiDairesi, vergiNo, notlar,
       paketKategori, paketAdi, paketDetay, stratejiNotu, fiyat, ekGiderler, islerListesi,
-      indirim, kdvOrani, toplam, gecerlilikTarihi, sendEmail, sendWhatsapp
+      indirim, indirimTipi, kdvOrani, toplam, gecerlilikTarihi, sendEmail, sendWhatsapp
     } = body
+
+    // indirim her zaman TL olarak kaydet (yüzde tipiyse dönüştür)
+    const araToplam = parseFloat(String(fiyat || 0)) + ((ekGiderler as any[])?.reduce((s: number, e: any) => s + (e.tutar || 0), 0) || 0)
+    const indirimTL = indirimTipi === 'yuzde'
+      ? araToplam * parseFloat(String(indirim || 0)) / 100
+      : parseFloat(String(indirim || 0))
 
     const kasaNo = await generateUniqueKasaNo()
     const sifre = generatePassword()
@@ -50,7 +56,7 @@ export async function POST(req: NextRequest) {
         teklifNo: kasaNo, musteriId: musteri.id, paketKategori, paketAdi,
         paketDetay: paketDetay || null, stratejiNotu: stratejiNotu || null,
         fiyat: parseFloat(String(fiyat)), ekGiderler, islerListesi,
-        indirim: parseFloat(String(indirim || 0)),
+        indirim: indirimTL,
         kdvOrani: parseFloat(String(kdvOrani || 20)),
         toplam: parseFloat(String(toplam)),
         gecerlilikTarihi: new Date(gecerlilikTarihi),
@@ -70,50 +76,25 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // WhatsApp — Make webhook üzerinden müşteriye teklif gönder
+    // WhatsApp — direkt WA Cloud API
+    let wpDurum = 'gonderilmedi'
     if (sendWhatsapp !== false && telefon) {
       try {
-        const makeUrl = process.env.MAKE_TEKLIF_WEBHOOK_URL
-        const teklifLink = `https://teklif.404dijital.com/kasa/${kasaNo}`
-        // Telefonu uluslararası formata çevir (Make → WA API için)
-        const telefonFormatli = telefon
-          .replace(/\s+/g, '')
-          .replace(/^\+/, '')
-          .replace(/^0/, '90')
-
-        if (makeUrl) {
-          const makeRes = await fetch(makeUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              telefon: telefonFormatli,
-              yetkiliKisi,
-              firmaAdi,
-              kasaNo,
-              paketAdi,
-              toplam: parseFloat(String(toplam)).toLocaleString('tr-TR'),
-              teklifLink,
-            }),
-          })
-          if (makeRes.ok) {
-            await prisma.teklif.update({
-              where: { id: teklif.id },
-              data: { wpGonderimZamani: new Date() },
-            })
-          }
+        const wpOk = await sendTeklifWP({ telefon, yetkiliKisi, firmaAdi, kasaNo, paketAdi, toplam: parseFloat(String(toplam)) })
+        if (wpOk) {
+          await prisma.teklif.update({ where: { id: teklif.id }, data: { wpGonderimZamani: new Date() } })
+          wpDurum = 'gonderildi'
         } else {
-          // Fallback: direkt WA API
-          const wpOk = await sendTeklifWP({ telefon, yetkiliKisi, firmaAdi, kasaNo, paketAdi, toplam: parseFloat(String(toplam)) })
-          if (wpOk) {
-            await prisma.teklif.update({ where: { id: teklif.id }, data: { wpGonderimZamani: new Date() } })
-          }
+          wpDurum = 'hata'
+          console.error('WP gönderilemedi — sendTeklifWP false döndü. Telefon:', telefon)
         }
       } catch (wpErr) {
+        wpDurum = 'hata'
         console.error('WP gönderim hatası:', wpErr)
       }
     }
 
-    return NextResponse.json({ success: true, kasaNo, sifre, musteriId: musteri.id, teklifId: teklif.id })
+    return NextResponse.json({ success: true, kasaNo, sifre, musteriId: musteri.id, teklifId: teklif.id, wpDurum })
   } catch (err: any) {
     console.error('Teklif oluşturma hatası:', err)
     return NextResponse.json({ error: err.message || 'Sunucu hatası' }, { status: 500 })

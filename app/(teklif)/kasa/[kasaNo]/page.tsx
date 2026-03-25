@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession, signIn } from 'next-auth/react'
 import { CheckCircle, MessageCircle, Download, ArrowLeft, Lock } from 'lucide-react'
 import { formatDate, formatCurrency } from '@/lib/utils'
 
@@ -27,18 +27,35 @@ interface TeklifDetay {
 
 export default function TeklifDetayPage() {
   const { kasaNo } = useParams()
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const [teklif, setTeklif] = useState<TeklifDetay | null>(null)
   const [loading, setLoading] = useState(true)
   const [onayLoading, setOnayLoading] = useState(false)
   const [onaylandi, setOnaylandi] = useState(false)
 
+  // Şifre modal state
+  const [sifreModal, setSifreModal] = useState(false)
+  const [sifre, setSifre] = useState('')
+  const [sifreLoading, setSifreLoading] = useState(false)
+  const [sifreHata, setSifreHata] = useState('')
+
+  const userType = (session?.user as any)?.type
+  const userKasaNo = (session?.user as any)?.kasaNo
+
   useEffect(() => {
-    fetchTeklif()
-  }, [kasaNo])
+    if (status === 'loading') return
+    const authorized = session && (userType === 'admin' || userKasaNo === kasaNo)
+    if (!authorized) {
+      setSifreModal(true)
+      setLoading(false)
+    } else {
+      fetchTeklif()
+    }
+  }, [status, session, kasaNo])
 
   const fetchTeklif = async () => {
+    setLoading(true)
     try {
       const res = await fetch(`/api/teklif/${kasaNo}`)
       if (!res.ok) throw new Error('Bulunamadı')
@@ -46,32 +63,29 @@ export default function TeklifDetayPage() {
       setTeklif(data)
       if (data.durum === 'onaylandi') setOnaylandi(true)
     } catch {
-      // Demo
-      setTeklif({
-        id: '1',
-        teklifNo: kasaNo as string,
-        firmaAdi: 'Demo Firma A.Ş.',
-        yetkiliKisi: 'Ahmet Yılmaz',
-        paketAdi: 'Gold Paket',
-        paketKategori: 'Ciro Artırma',
-        paketDetay: 'Aylık kapsamlı dijital pazarlama paketi',
-        islerListesi: [
-          { is: 'Facebook & Instagram reklam yönetimi', tamamlandi: false },
-          { is: '8 Reels videosu prodüksiyon', tamamlandi: false },
-          { is: 'Aylık performans raporu', tamamlandi: false },
-        ],
-        ekGiderler: [],
-        fiyat: 50000,
-        indirim: 0,
-        kdvOrani: 20,
-        toplam: 60000,
-        durum: 'bekliyor',
-        gecerlilikTarihi: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        createdAt: new Date().toISOString(),
-      })
+      setTeklif(null)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSifreGiris = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSifreLoading(true)
+    setSifreHata('')
+    const result = await signIn('credentials', {
+      email: kasaNo as string,
+      password: sifre,
+      type: 'musteri',
+      redirect: false,
+    })
+    if (result?.ok) {
+      setSifreModal(false)
+      fetchTeklif()
+    } else {
+      setSifreHata('Şifre hatalı. Lütfen tekrar deneyin.')
+    }
+    setSifreLoading(false)
   }
 
   const handleOnayla = async () => {
@@ -96,6 +110,49 @@ export default function TeklifDetayPage() {
     document.title = `Teklif-${teklif?.teklifNo || ''}-${teklif?.firmaAdi || ''}`
     window.print()
     setTimeout(() => { document.title = '404 Dijital' }, 1000)
+  }
+
+  // Şifre modal
+  if (sifreModal) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-6">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 text-green-400 text-xs font-mono mb-4">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              ENCRYPTED CONNECTION
+            </div>
+            <h1 className="font-bebas text-4xl tracking-[4px] text-white mb-1">404 SECURE</h1>
+            <p className="text-[#ffc107] font-mono text-sm">KASA #{kasaNo}</p>
+          </div>
+          <form onSubmit={handleSifreGiris} className="space-y-4">
+            <div>
+              <label className="block text-xs font-mono text-gray-400 mb-2 uppercase tracking-wider">Şifrenizi Girin</label>
+              <input
+                type="password"
+                value={sifre}
+                onChange={e => setSifre(e.target.value)}
+                placeholder="••••••••"
+                autoFocus
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm font-mono placeholder:text-gray-600 focus:outline-none focus:border-[#ffc107]/50 text-center tracking-[8px]"
+              />
+            </div>
+            {sifreHata && <p className="text-red-400 text-xs font-mono text-center">{sifreHata}</p>}
+            <button
+              type="submit"
+              disabled={sifreLoading || !sifre.trim()}
+              className="w-full bg-[#ffc107] hover:bg-[#e6b000] text-black font-bebas text-lg tracking-wider rounded-xl py-4 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              <Lock size={18} />
+              {sifreLoading ? 'GİRİŞ YAPILIYOR...' : 'KASAYI AÇ'}
+            </button>
+          </form>
+          <p className="text-gray-600 font-mono text-xs mt-6 text-center">
+            Şifrenizi 404 Dijital ekibinden alabilirsiniz
+          </p>
+        </div>
+      </div>
+    )
   }
 
   if (loading) {
@@ -124,7 +181,6 @@ export default function TeklifDetayPage() {
   const indirimTutari = teklif.indirim || 0
   const kdvMatrahi = araToplam - indirimTutari
   const kdvTutari = kdvMatrahi * (teklif.kdvOrani / 100)
-  const genelToplam = kdvMatrahi + kdvTutari
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] py-8 px-4">
@@ -214,7 +270,7 @@ export default function TeklifDetayPage() {
             </div>
             <div className="flex justify-between text-[#1a1a1a] font-bold text-xl border-t-2 border-[#1a1a1a] pt-3 mt-3">
               <span className="font-bebas tracking-wider">GENEL TOPLAM</span>
-              <span className="font-bebas">{genelToplam.toLocaleString('tr-TR')} ₺</span>
+              <span className="font-bebas">{teklif.toplam.toLocaleString('tr-TR')} ₺</span>
             </div>
           </div>
         </div>

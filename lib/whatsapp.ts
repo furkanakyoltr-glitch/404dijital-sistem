@@ -55,7 +55,7 @@ async function sendWATemplate(to: string, params: string[]): Promise<boolean> {
     )
     if (!res.ok) {
       const err = await res.text()
-      console.error('WA template hatası:', err)
+      console.error('WA template hatası — telefon:', formatPhone(to), 'hata:', err)
       return false
     }
     return true
