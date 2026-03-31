@@ -38,6 +38,55 @@ export const metadata: Metadata = {
   verification: { google: '' },
 }
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://404dijital.com/#organization',
+      name: '404 Dijital',
+      url: 'https://404dijital.com',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://404dijital.com/images/og-image.jpg',
+      },
+      description: 'Türkiye\'nin sonuç odaklı reklam ajansı. Meta Ads, Google Ads, video prodüksiyon ve marka stratejisi.',
+      areaServed: 'TR',
+      inLanguage: 'tr',
+      sameAs: ['https://www.instagram.com/404dijital'],
+    },
+    {
+      '@type': 'LocalBusiness',
+      '@id': 'https://404dijital.com/#business',
+      name: '404 Dijital Reklam Ajansı',
+      url: 'https://404dijital.com',
+      image: 'https://404dijital.com/images/og-image.jpg',
+      description: 'Ciro artırma, sosyal medya yönetimi ve 360° pazarlama paketleriyle işletmenizi büyütüyoruz.',
+      priceRange: '₺₺₺',
+      areaServed: { '@type': 'Country', name: 'Türkiye' },
+      serviceType: ['Meta Ads', 'Google Ads', 'Video Prodüksiyon', 'Marka Stratejisi', 'Sosyal Medya Yönetimi'],
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Dijital Pazarlama Hizmetleri',
+        itemListElement: [
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Ciro Artırma Paketi', description: 'Meta Ads ve Google Ads ile doğrudan satış odaklı büyüme. 35.000₺/ay\'dan başlayan fiyatlar.' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Sosyal Medya Yönetimi', description: 'Instagram, TikTok ve Meta platformlarında profesyonel içerik ve yönetim. 30.000₺/ay\'dan başlayan fiyatlar.' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: '360° Pazarlama', description: 'Reklam, içerik, video prodüksiyon ve strateji dahil kapsamlı paket. 50.000₺/ay\'dan başlayan fiyatlar.' } },
+          { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'E-Ticaret Reklamı', description: 'E-ticaret siteleri için performans odaklı reklam yönetimi.' } },
+        ],
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://404dijital.com/#website',
+      url: 'https://404dijital.com',
+      name: '404 Dijital',
+      inLanguage: 'tr',
+      publisher: { '@id': 'https://404dijital.com/#organization' },
+    },
+  ],
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="tr">
@@ -45,6 +94,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body>
         <AuthProvider>{children}</AuthProvider>
