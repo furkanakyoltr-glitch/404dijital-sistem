@@ -116,22 +116,21 @@ export default function HomePage() {
   const handleHeroSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormSubmitted(true)
-    // Send notification
-    await fetch('/api/iletisim', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'analiz', ...formData }),
-    }).catch(() => {})
+    const w3payload = { access_key: '3c20d34e-3dfe-4ba8-a445-2265ac77ddcb', subject: `Ucretsiz Analiz Talebi - ${formData.isletmeAdi}`, from_name: '404 Dijital Form', message: `Isletme: ${formData.isletmeAdi}\nTelefon: ${formData.telefon}`, email: 'form@404dijital.com' }
+    await Promise.all([
+      fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(w3payload) }).catch(() => {}),
+      fetch('/api/iletisim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'analiz', ...formData }) }).catch(() => {}),
+    ])
   }
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setContactSubmitted(true)
-    await fetch('/api/iletisim', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'iletisim', ...contactForm }),
-    }).catch(() => {})
+    const w3payload = { access_key: '3c20d34e-3dfe-4ba8-a445-2265ac77ddcb', subject: `Iletisim Formu - ${contactForm.isim}`, from_name: '404 Dijital Form', message: `Isim: ${contactForm.isim}\nEposta: ${contactForm.email}\nTelefon: ${contactForm.telefon}\nMesaj: ${contactForm.mesaj}`, email: contactForm.email || 'form@404dijital.com' }
+    await Promise.all([
+      fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(w3payload) }).catch(() => {}),
+      fetch('/api/iletisim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'iletisim', ...contactForm }) }).catch(() => {}),
+    ])
   }
 
   return (
