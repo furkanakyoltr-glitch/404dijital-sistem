@@ -35,6 +35,7 @@ model Musteri {
   vergiNo          String?
   kasaNo           String       @unique
   sifre            String
+  magicToken       String?      @unique
   durum            String       @default("odeme_alinacak")
   notlar           String?
   createdAt        DateTime     @default(now())

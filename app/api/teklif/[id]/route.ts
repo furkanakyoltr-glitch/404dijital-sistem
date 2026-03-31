@@ -5,12 +5,27 @@ import prisma from '@/lib/prisma'
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params
+  const token = req.nextUrl.searchParams.get('token')
+
+  // Magic token ile şifresiz erişim
+  if (token) {
+    const musteri = await prisma.musteri.findFirst({ where: { kasaNo: id, magicToken: token } })
+    if (musteri) {
+      const t = (await prisma.teklif.findFirst({ where: { musteriId: musteri.id }, orderBy: { createdAt: 'desc' } }))!
+      return NextResponse.json({
+        id: t.id, teklifNo: t.teklifNo, firmaAdi: musteri.firmaAdi, yetkiliKisi: musteri.yetkiliKisi,
+        paketAdi: t.paketAdi, paketKategori: t.paketKategori, paketDetay: t.paketDetay, stratejiNotu: t.stratejiNotu,
+        islerListesi: t.islerListesi, ekGiderler: t.ekGiderler,
+        fiyat: t.fiyat, indirim: t.indirim, kdvOrani: t.kdvOrani, toplam: t.toplam,
+        durum: t.durum, gecerlilikTarihi: t.gecerlilikTarihi, createdAt: t.createdAt,
+      })
+    }
+  }
 
   const session = await getServerSession(authOptions)
   const userType = (session?.user as any)?.type
   const userKasaNo = (session?.user as any)?.kasaNo
 
-  // Admin veya kendi kasasını açan müşteri erişebilir
   if (!session || (userType !== 'admin' && userKasaNo !== id)) {
     return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
   }

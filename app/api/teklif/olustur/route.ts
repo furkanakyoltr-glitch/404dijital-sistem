@@ -40,13 +40,14 @@ export async function POST(req: NextRequest) {
     const kasaNo = await generateUniqueKasaNo()
     const sifre = generatePassword()
     const hashedSifre = await bcrypt.hash(sifre, 10)
+    const magicToken = require('crypto').randomBytes(32).toString('hex')
 
     const musteri = await prisma.musteri.create({
       data: {
         firmaAdi, yetkiliKisi, yetkiliUnvan: yetkiliUnvan || null,
         telefon, email, adres: adres || null,
         vergiDairesi: vergiDairesi || null, vergiNo: vergiNo || null, notlar: notlar || null,
-        kasaNo, sifre: hashedSifre,
+        kasaNo, sifre: hashedSifre, magicToken,
         durum: 'odeme_alinacak',
       }
     })
@@ -80,7 +81,7 @@ export async function POST(req: NextRequest) {
     let wpDurum = 'gonderilmedi'
     if (sendWhatsapp !== false && telefon) {
       try {
-        const wpOk = await sendTeklifWP({ telefon, yetkiliKisi, firmaAdi, kasaNo, paketAdi, toplam: parseFloat(String(toplam)) })
+        const wpOk = await sendTeklifWP({ telefon, yetkiliKisi, firmaAdi, kasaNo, paketAdi, toplam: parseFloat(String(toplam)), magicToken })
         if (wpOk) {
           await prisma.teklif.update({ where: { id: teklif.id }, data: { wpGonderimZamani: new Date() } })
           wpDurum = 'gonderildi'
