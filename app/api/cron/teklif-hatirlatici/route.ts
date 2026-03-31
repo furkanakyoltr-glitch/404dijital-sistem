@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { sendFurkanBildirim } from '@/lib/whatsapp'
+import { sendOnayAdminBildirim } from '@/lib/whatsapp'
 
 const WA_TOKEN = process.env.WA_TOKEN
 const WA_PHONE_NUMBER_ID = process.env.WA_PHONE_NUMBER_ID
@@ -53,9 +53,7 @@ export async function GET(req: NextRequest) {
     await sendWAMessage(musteri.telefon, hatirlatmaMetni)
 
     // Furkan'a beklemede bildirimi
-    await sendFurkanBildirim(
-      `⏳ Teklif Beklemede\n${musteri.firmaAdi} (${teklif.teklifNo}) henüz onay vermedi.\nTutar: ₺${teklif.toplam.toLocaleString('tr-TR')}\nTelefon: ${musteri.telefon}`
-    )
+    await sendOnayAdminBildirim(musteri.firmaAdi, teklif.teklifNo)
 
     await prisma.teklif.update({
       where: { id: teklif.id },
