@@ -3,11 +3,13 @@ import { useState, useEffect, useRef } from 'react'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { WhatsAppFloat } from '@/components/layout/whatsapp-float'
-import { ThreeBackground } from '@/components/ui/three-background'
+import { HorizonHero } from '@/components/ui/horizon-hero'
 import { TransitionLayer } from '@/components/ui/transition-layer'
 import { SpinningLogos } from '@/components/ui/spinning-logos'
 import { PricingCard } from '@/components/ui/pricing-card'
 import { Send, Phone, MapPin, Mail, ArrowRight, TrendingUp, Users, BarChart3, Award } from 'lucide-react'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _unused = { TrendingUp, Users, BarChart3, Award }
 
 // Pricing data
 const CIRO_PAKETLER = [
@@ -108,20 +110,8 @@ const STATS = [
 export default function HomePage() {
   const [isYearly, setIsYearly] = useState(false)
   const [activePackageTab, setActivePackageTab] = useState('ciro')
-  const [formData, setFormData] = useState({ isletmeAdi: '', telefon: '' })
   const [contactForm, setContactForm] = useState({ isim: '', email: '', telefon: '', mesaj: '' })
-  const [formSubmitted, setFormSubmitted] = useState(false)
   const [contactSubmitted, setContactSubmitted] = useState(false)
-
-  const handleHeroSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setFormSubmitted(true)
-    const w3payload = { access_key: '3c20d34e-3dfe-4ba8-a445-2265ac77ddcb', subject: `Ucretsiz Analiz Talebi - ${formData.isletmeAdi}`, from_name: '404 Dijital Form', message: `Isletme: ${formData.isletmeAdi}\nTelefon: ${formData.telefon}`, email: 'form@404dijital.com' }
-    await Promise.all([
-      fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(w3payload) }).catch(() => {}),
-      fetch('/api/iletisim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'analiz', ...formData }) }).catch(() => {}),
-    ])
-  }
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -140,71 +130,7 @@ export default function HomePage() {
       <WhatsAppFloat />
 
       {/* HERO */}
-      <section id="home" className="relative min-h-screen bg-[#f8f9fa] overflow-hidden flex items-center">
-        <ThreeBackground />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 w-full">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-[#1a1a1a] text-white text-xs font-montserrat font-bold px-4 py-2 rounded-full mb-6 tracking-wider">
-                <TrendingUp size={14} />
-                %850+ ORTALAMA ROI
-              </div>
-              <p className="text-[#4a4a4a] font-montserrat font-semibold text-lg mb-2 tracking-wider uppercase">
-                Sosyal Medya Değil, Reklam Ajansı!
-              </p>
-              <h1 className="font-bebas text-5xl md:text-7xl text-[#1a1a1a] leading-none tracking-wider mb-6">
-                SATIŞLARINIZI<br />ARTTIRMAK İÇİN<br />HAREKETE GEÇİN
-              </h1>
-              <p className="text-[#555] font-montserrat text-base mb-8 leading-relaxed">
-                Ücretsiz analiz ile işletmenizin büyüme potansiyelini keşfedin.<br />
-                <strong>24 saat içinde geri dönüş garantisi.</strong>
-              </p>
-
-              {!formSubmitted ? (
-                <form onSubmit={handleHeroSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md">
-                  <input
-                    type="text"
-                    placeholder="İşletme Adı"
-                    value={formData.isletmeAdi}
-                    onChange={e => setFormData(p => ({ ...p, isletmeAdi: e.target.value }))}
-                    className="flex-1 border-2 border-[#eaeaea] rounded-xl px-4 py-3 text-sm font-montserrat focus:outline-none focus:border-[#1a1a1a]"
-                    required
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Telefon Numarası"
-                    value={formData.telefon}
-                    onChange={e => setFormData(p => ({ ...p, telefon: e.target.value }))}
-                    className="flex-1 border-2 border-[#eaeaea] rounded-xl px-4 py-3 text-sm font-montserrat focus:outline-none focus:border-[#1a1a1a]"
-                    required
-                  />
-                  <button type="submit" className="btn-primary whitespace-nowrap text-xs">
-                    ÜCRETSİZ ANALİZ İSTE
-                  </button>
-                </form>
-              ) : (
-                <div className="bg-green-50 border border-green-200 rounded-xl px-6 py-4 max-w-md">
-                  <p className="text-green-700 font-montserrat font-semibold">✅ Talebiniz alındı!</p>
-                  <p className="text-green-600 text-sm mt-1">24 saat içinde sizi arayacağız.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 gap-4">
-              {STATS.map(({ icon: Icon, value, label }, i) => (
-                <div key={i} className="bg-white rounded-2xl p-6 border border-[#eaeaea] shadow-sm hover:shadow-md transition-shadow">
-                  <div className="w-10 h-10 bg-[#1a1a1a] rounded-xl flex items-center justify-center mb-3">
-                    <Icon size={20} className="text-white" />
-                  </div>
-                  <div className="font-bebas text-3xl text-[#1a1a1a] tracking-wider">{value}</div>
-                  <div className="text-[#555] text-sm font-montserrat mt-1">{label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <HorizonHero />
 
       {/* SPINNING LOGOS */}
       <div className="bg-white border-y border-[#eaeaea] py-4 overflow-hidden">
