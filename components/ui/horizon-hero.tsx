@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
-import { gsap } from 'gsap'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
@@ -284,24 +283,26 @@ export function HorizonHero({ onFormSubmit }: HorizonHeroProps) {
     }
   }, [])
 
-  // GSAP intro
+  // GSAP intro — dynamic import (SSR/build-safe)
   useEffect(() => {
     if (!isReady) return
-    const els = [menuRef.current, titleRef.current, subtitleRef.current, formRef.current, progressRef.current].filter(Boolean)
-    gsap.set(els, { visibility: 'visible' })
-
-    const tl = gsap.timeline()
-    if (menuRef.current) tl.from(menuRef.current, { x: -60, opacity: 0, duration: 1, ease: 'power3.out' })
-    if (titleRef.current) {
-      tl.from(titleRef.current.querySelectorAll('.tc'), { y: 120, opacity: 0, duration: 1.4, stagger: 0.04, ease: 'power4.out' }, '-=0.5')
-    }
-    if (subtitleRef.current) {
-      tl.from(subtitleRef.current.querySelectorAll('.sl'), { y: 40, opacity: 0, duration: 1, stagger: 0.2, ease: 'power3.out' }, '-=0.8')
-    }
-    if (formRef.current) tl.from(formRef.current, { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.4')
-    if (progressRef.current) tl.from(progressRef.current, { opacity: 0, y: 20, duration: 0.8 }, '-=0.4')
-
-    return () => { tl.kill() }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let tl: any = null
+    import('gsap').then(({ gsap }) => {
+      const els = [menuRef.current, titleRef.current, subtitleRef.current, formRef.current, progressRef.current].filter(Boolean)
+      gsap.set(els, { visibility: 'visible' })
+      tl = gsap.timeline()
+      if (menuRef.current) tl.from(menuRef.current, { x: -60, opacity: 0, duration: 1, ease: 'power3.out' })
+      if (titleRef.current) {
+        tl.from(titleRef.current.querySelectorAll('.tc'), { y: 120, opacity: 0, duration: 1.4, stagger: 0.04, ease: 'power4.out' }, '-=0.5')
+      }
+      if (subtitleRef.current) {
+        tl.from(subtitleRef.current.querySelectorAll('.sl'), { y: 40, opacity: 0, duration: 1, stagger: 0.2, ease: 'power3.out' }, '-=0.8')
+      }
+      if (formRef.current) tl.from(formRef.current, { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out' }, '-=0.4')
+      if (progressRef.current) tl.from(progressRef.current, { opacity: 0, y: 20, duration: 0.8 }, '-=0.4')
+    })
+    return () => { tl?.kill() }
   }, [isReady])
 
   // Scroll
