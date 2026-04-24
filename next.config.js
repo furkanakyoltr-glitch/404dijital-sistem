@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  transpilePackages: ['gsap'],
   images: {
     domains: ['404dijital.com', 'teklif.404dijital.com', 'admin.404dijital.com'],
   },
