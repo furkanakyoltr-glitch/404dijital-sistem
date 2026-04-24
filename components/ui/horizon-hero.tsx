@@ -286,17 +286,22 @@ export function HorizonHero({ onFormSubmit }: HorizonHeroProps) {
   // Intro animasyonu — saf CSS transition (gsap bağımlılığı yok)
   useEffect(() => {
     if (!isReady) return
-    const els = [menuRef.current, titleRef.current, subtitleRef.current, formRef.current, progressRef.current].filter((el): el is HTMLElement => el !== null)
-    els.forEach((el, i) => {
+    const animate = (el: HTMLElement | null, delay: number) => {
+      if (!el) return
       el.style.visibility = 'visible'
       el.style.opacity = '0'
       el.style.transform = 'translateY(24px)'
-      el.style.transition = `opacity 0.8s ease ${i * 0.15}s, transform 0.8s ease ${i * 0.15}s`
+      el.style.transition = `opacity 0.8s ease ${delay}s, transform 0.8s ease ${delay}s`
       requestAnimationFrame(() => {
         el.style.opacity = '1'
         el.style.transform = 'translateY(0)'
       })
-    })
+    }
+    animate(menuRef.current, 0)
+    animate(titleRef.current, 0.15)
+    animate(subtitleRef.current, 0.3)
+    animate(formRef.current, 0.45)
+    animate(progressRef.current, 0.6)
   }, [isReady])
 
   // Scroll
