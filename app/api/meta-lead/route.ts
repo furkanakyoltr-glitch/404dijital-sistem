@@ -92,14 +92,6 @@ async function sendWA(to: string, text: string) {
   })
 }
 
-async function getLeadFields(pageId: string, formId: string, leadId: string) {
-  const token = WA_TOKEN
-  const res = await fetch(
-    `https://graph.facebook.com/v22.0/${leadId}?fields=field_data&access_token=${process.env.META_PAGE_TOKEN || token}`
-  )
-  return res.json()
-}
-
 // GET: Meta webhook doğrulama
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -188,8 +180,7 @@ export async function POST(req: NextRequest) {
     })
 
     // Furkan'a WA bildirimi
-    const mudurAdiStr = butce === '1m+' ? '⭐ VIP (Admin Paneli)' : mudurAdi(mudurId)
-    const waMsg = `🎯 Yeni Meta Lead!\n\n👤 ${isim || 'Bilinmiyor'}\n📱 ${telefon || '—'}\n💰 Bütçe: ${budgetLabel(butce)}\n👔 Atanan: ${mudurAdiStr}`
+    const waMsg = `🎯 Yeni Meta Lead!\n\n👤 ${isim || 'Bilinmiyor'}\n📱 ${telefon || '—'}\n💰 Bütçe: ${budgetLabel(butce)}\n👔 Atanan: ${mudurAdi(mudurId)}`
 
     await sendWA(FURKAN_WA, waMsg).catch(e => console.error('WA bildirim hatası:', e.message))
 
