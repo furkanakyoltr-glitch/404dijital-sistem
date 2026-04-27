@@ -18,22 +18,24 @@ const MUDURLER = {
 }
 
 // Bütçe aralığı → müdür ataması
-type BudgetRange = '0-100k' | '100-500k' | '500k-1m' | '1m+'
+// 404 Strateji Formu seçenekleri:
+//   "24.000 TL - 40.000 TL ..."  → ali/hazal (fermuar)
+//   "40.000 TL - 75.000 TL ..."  → seray
+//   "75.000 TL ve üzeri ..."     → anar
+type BudgetRange = '24k-40k' | '40k-75k' | '75k+'
 
 function parseBudget(raw: string): BudgetRange {
-  const s = raw.toLowerCase().replace(/[.\s]/g, '')
-  if (s.includes('1m') || s.includes('1.000.000') || parseInt(s) >= 1000000) return '1m+'
-  if (s.includes('500k') || s.includes('500000') || parseInt(s) >= 500000) return '500k-1m'
-  if (s.includes('100k') || s.includes('100000') || parseInt(s) >= 100000) return '100-500k'
-  return '0-100k'
+  const s = raw.toLowerCase().replace(/\s/g, '')
+  if (s.includes('75.000') || s.includes('75k') || s.includes('veüzeri') || s.includes('üzeri')) return '75k+'
+  if (s.includes('40.000') || s.includes('40k') || s.includes('kapsamlı') || s.includes('ileri')) return '40k-75k'
+  return '24k-40k'
 }
 
 function budgetLabel(range: BudgetRange): string {
   const map: Record<BudgetRange, string> = {
-    '0-100k': '0 – 100.000 ₺',
-    '100-500k': '100.000 – 500.000 ₺',
-    '500k-1m': '500.000 – 1.000.000 ₺',
-    '1m+': '1.000.000 ₺+',
+    '24k-40k': '24.000 – 40.000 ₺',
+    '40k-75k': '40.000 – 75.000 ₺',
+    '75k+': '75.000 ₺ ve üzeri',
   }
   return map[range]
 }
@@ -150,16 +152,14 @@ export async function POST(req: NextRequest) {
     let mudurId: string
     let hedef: string
 
-    if (butce === '1m+') {
-      hedef = 'lead:vip'
-      mudurId = ''
-    } else if (butce === '500k-1m') {
+    if (butce === '75k+') {
       mudurId = MUDURLER.anar
       hedef = `lead:${MUDURLER.anar}`
-    } else if (butce === '100-500k') {
+    } else if (butce === '40k-75k') {
       mudurId = MUDURLER.seray
       hedef = `lead:${MUDURLER.seray}`
     } else {
+      // 24k-40k → fermuar Ali/Hazal
       mudurId = await fermuarMudur()
       hedef = `lead:${mudurId}`
     }
