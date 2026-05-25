@@ -232,7 +232,7 @@ export function HorizonHero({ onFormSubmit }: HorizonHeroProps) {
 
     // Animate — capped at 30fps to keep main thread responsive
     let lastFrame = 0
-    const animate = (now: number) => {
+    const animate = (now: number = 0) => {
       refs.animationId = requestAnimationFrame(animate)
       if (now - lastFrame < 33) return
       lastFrame = now
