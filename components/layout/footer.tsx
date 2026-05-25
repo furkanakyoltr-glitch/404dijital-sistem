@@ -42,6 +42,7 @@ export function Footer() {
                 </li>
               ))}
               <li><a href="https://404strateji.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">404 Strateji</a></li>
+              <li><a href="/blog" className="hover:text-white transition-colors">Blog</a></li>
             </ul>
           </div>
 

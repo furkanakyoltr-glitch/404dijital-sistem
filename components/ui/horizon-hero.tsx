@@ -82,9 +82,9 @@ export function HorizonHero({ onFormSubmit }: HorizonHeroProps) {
     refs.camera.position.z = 100
     refs.camera.position.y = 20
 
-    refs.renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, antialias: false, alpha: true })
+    refs.renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current, antialias: true, alpha: true })
     refs.renderer.setSize(window.innerWidth, window.innerHeight)
-    refs.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1))
+    refs.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     refs.renderer.toneMapping = THREE.ACESFilmicToneMapping
     refs.renderer.toneMappingExposure = 0.5
 
@@ -94,7 +94,7 @@ export function HorizonHero({ onFormSubmit }: HorizonHeroProps) {
 
     // Stars
     for (let layer = 0; layer < 3; layer++) {
-      const count = 2000
+      const count = 5000
       const geo = new THREE.BufferGeometry()
       const positions = new Float32Array(count * 3)
       const colors = new Float32Array(count * 3)

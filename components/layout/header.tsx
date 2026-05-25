@@ -1,10 +1,13 @@
 "use client"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const pathname = usePathname()
+  const isHome = pathname === '/'
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -12,11 +15,25 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const scrollTo = (id: string) => {
+  const handleNav = (id: string) => {
     setMobileOpen(false)
-    const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    if (isHome) {
+      const el = document.getElementById(id)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      window.location.href = `/#${id}`
+    }
   }
+
+  const navLeft = [
+    { label: 'Biz Kimiz?', id: 'about' },
+    { label: 'Nasıl Çalışıyoruz?', id: 'process' },
+  ]
+  const navRight = [
+    { label: 'Paketlerimiz', id: 'packages' },
+    { label: 'VANTAGE LAB', id: 'vantage' },
+    { label: 'İletişim', id: 'contact' },
+  ]
 
   return (
     <nav
@@ -25,33 +42,44 @@ export function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+
           {/* Left nav */}
           <div className="hidden md:flex items-center gap-1">
-            <button onClick={() => scrollTo('about')} className="nav-btn">Biz Kimiz?</button>
-            <button onClick={() => scrollTo('process')} className="nav-btn">Nasıl Çalışıyoruz?</button>
+            {navLeft.map(({ label, id }) => (
+              <button key={id} onClick={() => handleNav(id)} className="nav-btn">{label}</button>
+            ))}
           </div>
 
           {/* Logo */}
-          <button
-            onClick={() => scrollTo('home')}
-            className="font-bebas text-2xl text-white tracking-[4px] hover:text-gold transition-colors"
-          >
-            404 DİJİTAL
-          </button>
+          {isHome ? (
+            <button
+              onClick={() => handleNav('home')}
+              className="font-bebas text-2xl text-white tracking-[4px] hover:text-gold transition-colors"
+            >
+              404 DİJİTAL
+            </button>
+          ) : (
+            <Link href="/" className="font-bebas text-2xl text-white tracking-[4px] hover:text-gold transition-colors">
+              404 DİJİTAL
+            </Link>
+          )}
 
           {/* Right nav */}
           <div className="hidden md:flex items-center gap-1">
-            <button onClick={() => scrollTo('packages')} className="nav-btn">Paketlerimiz</button>
+            {navRight.map(({ label, id }) => (
+              <button key={id} onClick={() => handleNav(id)} className="nav-btn">{label}</button>
+            ))}
             <a href="https://404strateji.com" target="_blank" rel="noopener noreferrer" className="nav-btn">Strateji</a>
-            <button onClick={() => scrollTo('vantage')} className="nav-btn">VANTAGE LAB</button>
-            <button onClick={() => scrollTo('contact')} className="nav-btn">İletişim</button>
+            <Link href="/blog" className={`nav-btn ${pathname.startsWith('/blog') ? 'text-[#ffc107]' : ''}`}>
+              Blog
+            </Link>
           </div>
 
           {/* Mobile menu button */}
           <button className="md:hidden text-white p-2" onClick={() => setMobileOpen(!mobileOpen)}>
-            <div className="w-6 h-0.5 bg-white mb-1.5"></div>
-            <div className="w-6 h-0.5 bg-white mb-1.5"></div>
-            <div className="w-6 h-0.5 bg-white"></div>
+            <div className="w-6 h-0.5 bg-white mb-1.5" />
+            <div className="w-6 h-0.5 bg-white mb-1.5" />
+            <div className="w-6 h-0.5 bg-white" />
           </button>
         </div>
       </div>
@@ -59,14 +87,17 @@ export function Header() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden bg-black/95 border-t border-white/10 px-4 py-4 flex flex-col gap-2">
-          {[['Biz Kimiz?','about'],['Nasıl Çalışıyoruz?','process'],['Paketlerimiz','packages'],['VANTAGE LAB','vantage'],['İletişim','contact']].map(([label, id]) => (
-            <button key={id} onClick={() => scrollTo(id)} className="text-white text-left py-2 border-b border-white/10 font-montserrat font-semibold hover:text-yellow-400 transition-colors">
+          {[...navLeft, ...navRight].map(({ label, id }) => (
+            <button key={id} onClick={() => handleNav(id)} className="text-white text-left py-2 border-b border-white/10 font-montserrat font-semibold hover:text-yellow-400 transition-colors">
               {label}
             </button>
           ))}
           <a href="https://404strateji.com" target="_blank" rel="noopener noreferrer" className="text-white py-2 font-montserrat font-semibold hover:text-yellow-400 transition-colors">
             Strateji
           </a>
+          <Link href="/blog" onClick={() => setMobileOpen(false)} className="text-white py-2 font-montserrat font-semibold hover:text-yellow-400 transition-colors">
+            Blog
+          </Link>
         </div>
       )}
     </nav>
