@@ -5,16 +5,6 @@ const nextConfig = {
   images: {
     domains: ['404dijital.com', 'teklif.404dijital.com', 'admin.404dijital.com'],
   },
-  async redirects() {
-    return [
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'web-production-2c9f7.up.railway.app' }],
-        destination: 'https://404dijital.com/:path*',
-        permanent: true,
-      },
-    ]
-  },
   async headers() {
     return [
       {
