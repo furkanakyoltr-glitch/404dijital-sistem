@@ -24,8 +24,8 @@ module.exports = {
         accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
       },
       fontFamily: {
-        'bebas': ['Bebas Neue', 'sans-serif'],
-        'montserrat': ['Montserrat', 'sans-serif'],
+        'bebas': ['var(--font-bebas)', 'sans-serif'],
+        'montserrat': ['var(--font-montserrat)', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
