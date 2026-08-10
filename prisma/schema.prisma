@@ -223,6 +223,21 @@ model BankaHesabi {
   createdAt DateTime @default(now())
 }
 
+model Lead {
+  id           String   @id @default(cuid())
+  adSoyad      String?
+  firmaAdi     String?
+  telefon      String?
+  email        String?
+  hizmetIlgisi String?
+  mesaj        String?
+  kaynak       String   @default("Web Sitesi")
+  durum        String   @default("yeni_lead")
+  takipNotu    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model Proje {
   id         String    @id @default(cuid())
   musteriId  String

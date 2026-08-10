@@ -4,13 +4,14 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
-  LayoutDashboard, Users, FileText, Calendar, Bell, 
+  LayoutDashboard, Users, FileText, Calendar, Bell, Inbox,
   LogOut, Menu, X, TrendingUp, BookOpen, ChevronRight
 } from 'lucide-react'
 import '../globals.css'
 
 const NAV_ITEMS = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/admin/leadler', icon: Inbox, label: 'Leadler' },
   { href: '/admin/musteriler', icon: Users, label: 'Müşteriler' },
   { href: '/admin/teklifler', icon: TrendingUp, label: 'Teklifler' },
   { href: '/admin/teklif-olustur', icon: FileText, label: 'Teklif Oluştur' },
