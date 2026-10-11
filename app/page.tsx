@@ -105,6 +105,16 @@ const STATS = [
   { icon: Award, value: '4+', label: 'Yıl Deneyim' },
 ]
 
+function trackLeadConversion() {
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    ;(window as any).gtag('event', 'conversion', {
+      send_to: 'AW-17698873591/yAnSCKjX2bgbEPfBvfdB',
+      value: 1.0,
+      currency: 'TRY',
+    })
+  }
+}
+
 export default function HomePage() {
   const [formData, setFormData] = useState({ isletmeAdi: '', telefon: '' })
   const [formSubmitted, setFormSubmitted] = useState(false)
@@ -117,6 +127,7 @@ export default function HomePage() {
     e.preventDefault()
     setFormSubmitted(true)
     const w3payload = { access_key: '3c20d34e-3dfe-4ba8-a445-2265ac77ddcb', subject: `Ucretsiz Analiz Talebi - ${formData.isletmeAdi}`, from_name: '404 Dijital Form', message: `Isletme: ${formData.isletmeAdi}\nTelefon: ${formData.telefon}`, email: 'form@404dijital.com' }
+    trackLeadConversion()
     await Promise.all([
       fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(w3payload) }).catch(() => {}),
       fetch('/api/iletisim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'analiz', ...formData }) }).catch(() => {}),
@@ -127,6 +138,7 @@ export default function HomePage() {
     e.preventDefault()
     setContactSubmitted(true)
     const w3payload = { access_key: '3c20d34e-3dfe-4ba8-a445-2265ac77ddcb', subject: `Iletisim Formu - ${contactForm.isim}`, from_name: '404 Dijital Form', message: `Isim: ${contactForm.isim}\nEposta: ${contactForm.email}\nTelefon: ${contactForm.telefon}\nMesaj: ${contactForm.mesaj}`, email: contactForm.email || 'form@404dijital.com' }
+    trackLeadConversion()
     await Promise.all([
       fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(w3payload) }).catch(() => {}),
       fetch('/api/iletisim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'iletisim', ...contactForm }) }).catch(() => {}),
