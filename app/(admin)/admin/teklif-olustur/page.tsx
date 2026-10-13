@@ -1,6 +1,6 @@
 "use client"
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Check, ArrowRight, ArrowLeft, Send } from 'lucide-react'
 import { generateKasaNo, generatePassword } from '@/lib/utils'
 
@@ -36,7 +36,17 @@ interface FormData {
 }
 
 export default function TeklifOlusturPage() {
+  return (
+    <Suspense fallback={null}>
+      <TeklifOlusturForm />
+    </Suspense>
+  )
+}
+
+function TeklifOlusturForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const leadId = searchParams.get('leadId')
   const [step, setStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -46,8 +56,13 @@ export default function TeklifOlusturPage() {
   defaultDate.setDate(defaultDate.getDate() + 30)
 
   const [form, setForm] = useState<FormData>({
-    firmaAdi: '', yetkiliKisi: '', yetkiliUnvan: '', telefon: '', email: '',
-    adres: 'Çınarlı 1572/1. Sk. No:33 35170 Konak/İzmir', vergiDairesi: '', vergiNo: '', notlar: '',
+    firmaAdi: searchParams.get('firmaAdi') || '',
+    yetkiliKisi: searchParams.get('yetkiliKisi') || '',
+    yetkiliUnvan: '',
+    telefon: searchParams.get('telefon') || '',
+    email: searchParams.get('email') || '',
+    adres: 'Çınarlı 1572/1. Sk. No:33 35170 Konak/İzmir', vergiDairesi: '', vergiNo: '',
+    notlar: searchParams.get('notlar') || '',
     paketKategori: '', paketKey: '', paketAdi: '',
     islerListesi: [],
     ekGiderler: [],
@@ -81,7 +96,7 @@ export default function TeklifOlusturPage() {
       const res = await fetch('/api/teklif/olustur', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, toplam: genelToplam }),
+        body: JSON.stringify({ ...form, toplam: genelToplam, leadId }),
       })
       const data = await res.json()
       if (data.success) {
