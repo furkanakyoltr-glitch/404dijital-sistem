@@ -3,11 +3,14 @@ import { useState, useEffect, useRef } from 'react'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { WhatsAppFloat } from '@/components/layout/whatsapp-float'
+import { StickyCtaBar } from '@/components/layout/sticky-cta-bar'
 import { ThreeBackground } from '@/components/ui/three-background'
 import { TransitionLayer } from '@/components/ui/transition-layer'
 import { SpinningLogos } from '@/components/ui/spinning-logos'
 import { PricingCard } from '@/components/ui/pricing-card'
 import { SocialProof } from '@/components/ui/social-proof'
+import { ProblemSection } from '@/components/ui/problem-section'
+import { FaqSection } from '@/components/ui/faq-section'
 import { Send, Phone, MapPin, Mail, ArrowRight, TrendingUp, Users, BarChart3, Award } from 'lucide-react'
 import { trackLeadConversion } from '@/lib/tracking'
 
@@ -143,6 +146,7 @@ export default function HomePage() {
       <TransitionLayer />
       <Header />
       <WhatsAppFloat />
+      <StickyCtaBar />
 
       {/* HERO */}
       <section id="home" className="relative min-h-screen bg-[#f8f9fa] overflow-hidden flex items-center">
@@ -160,9 +164,12 @@ export default function HomePage() {
               <h1 className="font-bebas text-5xl md:text-7xl text-[#1a1a1a] leading-none tracking-wider mb-6">
                 SATIŞLARINIZI<br />ARTTIRMAK İÇİN<br />HAREKETE GEÇİN
               </h1>
-              <p className="text-[#555] font-montserrat text-base mb-8 leading-relaxed">
+              <p className="text-[#555] font-montserrat text-base mb-4 leading-relaxed">
                 Ücretsiz analiz ile işletmenizin büyüme potansiyelini keşfedin.<br />
                 <strong>24 saat içinde geri dönüş garantisi.</strong>
+              </p>
+              <p className="text-[#999] font-montserrat text-xs mb-8 flex items-center gap-1.5">
+                <span className="text-green-600">✓</span> Zorunlu uzun vadeli sözleşme yok — istediğin an bırakabilirsin.
               </p>
               {!formSubmitted ? (
                 <form onSubmit={handleHeroSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md">
@@ -208,6 +215,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <ProblemSection />
 
       {/* SPINNING LOGOS */}
       <div className="bg-white border-y border-[#eaeaea] py-4 overflow-hidden">
@@ -405,6 +414,8 @@ export default function HomePage() {
           </button>
         </div>
       </section>
+
+      <FaqSection />
 
       {/* CONTACT */}
       <section id="contact" className="py-24 bg-[#f8f9fa]">
