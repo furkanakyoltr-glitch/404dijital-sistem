@@ -21,7 +21,14 @@ export async function GET(req: NextRequest) {
   ]
 
   const [data, total] = await Promise.all([
-    prisma.lead.findMany({ where, orderBy: { createdAt: 'desc' } }),
+    prisma.lead.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        notlar: { orderBy: { createdAt: 'desc' }, include: { olusturan: { select: { name: true } } } },
+        musteri: { select: { id: true, kasaNo: true, firmaAdi: true } },
+      },
+    }),
     prisma.lead.count({ where }),
   ])
 
