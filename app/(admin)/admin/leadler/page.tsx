@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect, useCallback } from 'react'
-import { Search } from 'lucide-react'
+import Link from 'next/link'
+import { Search, FileText, CheckCircle2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/utils'
 import { LEAD_DURUMLAR, leadDurumLabel } from '@/lib/leads'
@@ -22,6 +23,7 @@ export default function LeadlerPage() {
   const [search, setSearch] = useState('')
   const [durumFilter, setDurumFilter] = useState('')
   const [notDraft, setNotDraft] = useState<Record<string, string>>({})
+  const [notSaving, setNotSaving] = useState<Record<string, boolean>>({})
 
   const fetchLeads = useCallback(async () => {
     setLoading(true)
@@ -48,15 +50,36 @@ export default function LeadlerPage() {
     })
   }
 
-  const handleTakipNotuSave = async (id: string) => {
-    const takipNotu = notDraft[id]
-    if (takipNotu === undefined) return
-    await fetch(`/api/leads/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ takipNotu }),
+  const handleNotEkle = async (id: string) => {
+    const icerik = (notDraft[id] || '').trim()
+    if (!icerik) return
+    setNotSaving(prev => ({ ...prev, [id]: true }))
+    try {
+      const res = await fetch(`/api/leads/${id}/notlar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ icerik }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setLeads(prev => prev.map(l => (l.id === id ? { ...l, notlar: [data.not, ...(l.notlar || [])] } : l)))
+        setNotDraft(prev => ({ ...prev, [id]: '' }))
+      }
+    } finally {
+      setNotSaving(prev => ({ ...prev, [id]: false }))
+    }
+  }
+
+  const teklifOlusturUrl = (lead: any) => {
+    const params = new URLSearchParams({
+      leadId: lead.id,
+      firmaAdi: lead.firmaAdi || '',
+      yetkiliKisi: lead.adSoyad || '',
+      telefon: lead.telefon || '',
+      email: lead.email || '',
+      notlar: lead.mesaj || '',
     })
-    setLeads(prev => prev.map(l => (l.id === id ? { ...l, takipNotu } : l)))
+    return `/admin/teklif-olustur?${params.toString()}`
   }
 
   return (
@@ -98,14 +121,15 @@ export default function LeadlerPage() {
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Kaynak</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Tarih</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Durum</th>
-                <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Takip Notu</th>
+                <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Takip Geçmişi</th>
+                <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Aksiyon</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={10} className="text-center py-12 text-[#999]">Yükleniyor...</td></tr>
+                <tr><td colSpan={11} className="text-center py-12 text-[#999]">Yükleniyor...</td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan={10} className="text-center py-12 text-[#999]">Lead bulunamadı</td></tr>
+                <tr><td colSpan={11} className="text-center py-12 text-[#999]">Lead bulunamadı</td></tr>
               ) : (
                 leads.map(lead => (
                   <tr key={lead.id} className="border-b border-[#f0f0f0] hover:bg-[#f8f9fa] transition-colors align-top">
@@ -131,15 +155,55 @@ export default function LeadlerPage() {
                         <Badge variant={DURUM_BADGE[lead.durum] || 'outline'}>{leadDurumLabel(lead.durum)}</Badge>
                       </div>
                     </td>
-                    <td className="px-4 py-3 min-w-[200px]">
-                      <textarea
-                        defaultValue={lead.takipNotu || ''}
-                        onChange={e => setNotDraft(prev => ({ ...prev, [lead.id]: e.target.value }))}
-                        onBlur={() => handleTakipNotuSave(lead.id)}
-                        placeholder="Takip notu ekle..."
-                        rows={2}
-                        className="w-full border border-[#eaeaea] rounded-lg px-2 py-1.5 text-xs font-montserrat focus:outline-none focus:ring-2 focus:ring-[#1a1a1a]"
-                      />
+                    <td className="px-4 py-3 min-w-[240px]">
+                      <div className="space-y-1.5 max-h-32 overflow-y-auto mb-2">
+                        {(lead.notlar || []).length === 0 ? (
+                          <p className="text-xs text-[#999] italic">Henüz not yok.</p>
+                        ) : (
+                          lead.notlar.map((n: any) => (
+                            <div key={n.id} className="bg-[#f8f9fa] rounded-lg px-2.5 py-1.5">
+                              <p className="text-xs text-[#1a1a1a]">{n.icerik}</p>
+                              <p className="text-[10px] text-[#999] mt-0.5">
+                                {formatDate(n.createdAt)}{n.olusturan?.name ? ` — ${n.olusturan.name}` : ''}
+                              </p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                      <div className="flex gap-1.5">
+                        <input
+                          type="text"
+                          value={notDraft[lead.id] || ''}
+                          onChange={e => setNotDraft(prev => ({ ...prev, [lead.id]: e.target.value }))}
+                          onKeyDown={e => { if (e.key === 'Enter') handleNotEkle(lead.id) }}
+                          placeholder="Not ekle..."
+                          className="flex-1 border border-[#eaeaea] rounded-lg px-2 py-1.5 text-xs font-montserrat focus:outline-none focus:ring-2 focus:ring-[#1a1a1a]"
+                        />
+                        <button
+                          onClick={() => handleNotEkle(lead.id)}
+                          disabled={notSaving[lead.id]}
+                          className="bg-[#1a1a1a] text-white text-xs font-bold px-3 rounded-lg disabled:opacity-50"
+                        >
+                          Ekle
+                        </button>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {lead.musteri ? (
+                        <Link
+                          href={`/admin/musteriler/${lead.musteri.id}`}
+                          className="inline-flex items-center gap-1.5 text-xs font-montserrat font-semibold text-green-600"
+                        >
+                          <CheckCircle2 size={14} /> Müşteri Oldu
+                        </Link>
+                      ) : (
+                        <Link
+                          href={teklifOlusturUrl(lead)}
+                          className="inline-flex items-center gap-1.5 bg-[#1a1a1a] text-white text-xs font-montserrat font-bold px-3 py-2 rounded-lg hover:bg-black transition-colors"
+                        >
+                          <FileText size={14} /> Teklif Oluştur
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 ))
