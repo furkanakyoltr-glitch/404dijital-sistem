@@ -7,8 +7,13 @@ export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any)?.type !== 'admin') return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
 
-  const sohbetler = await prisma.wPSohbet.findMany({
-    orderBy: { sonMesajZamani: 'desc' },
-  })
-  return NextResponse.json({ data: sohbetler })
+  try {
+    const sohbetler = await prisma.wPSohbet.findMany({
+      orderBy: { sonMesajZamani: 'desc' },
+    })
+    return NextResponse.json({ data: sohbetler })
+  } catch (err) {
+    console.error('WPSohbet sorgu hatası (migration henüz uygulanmamış olabilir):', err)
+    return NextResponse.json({ data: [] })
+  }
 }
