@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const {
       firmaAdi, yetkiliKisi, yetkiliUnvan, telefon, email, adres, vergiDairesi, vergiNo, notlar,
       paketKategori, paketAdi, paketDetay, stratejiNotu, fiyat, ekGiderler, islerListesi,
-      indirim, indirimTipi, kdvOrani, toplam, gecerlilikTarihi, sendEmail, sendWhatsapp
+      indirim, indirimTipi, kdvOrani, toplam, gecerlilikTarihi, sendEmail, sendWhatsapp, leadId
     } = body
 
     // indirim her zaman TL olarak kaydet (yüzde tipiyse dönüştür)
@@ -92,6 +92,26 @@ export async function POST(req: NextRequest) {
       } catch (wpErr) {
         wpDurum = 'hata'
         console.error('WP gönderim hatası:', wpErr)
+      }
+    }
+
+    // Lead'den oluşturulduysa: bağla, durumu güncelle, geçmişe not düş
+    if (leadId) {
+      try {
+        const yeniDurum = (sendEmail !== false || wpDurum === 'gonderildi') ? 'teklif_gonderildi' : 'teklif_hazirlaniyor'
+        await prisma.lead.update({
+          where: { id: leadId },
+          data: { musteriId: musteri.id, durum: yeniDurum },
+        })
+        await prisma.leadNot.create({
+          data: {
+            leadId,
+            icerik: `Teklif oluşturuldu: ${paketAdi} — ${parseFloat(String(toplam)).toLocaleString('tr-TR')}₺ (Kasa: ${kasaNo})`,
+            olusturanId: (session.user as any).id || null,
+          },
+        })
+      } catch (linkErr) {
+        console.error('Lead bağlama hatası:', linkErr)
       }
     }
 
