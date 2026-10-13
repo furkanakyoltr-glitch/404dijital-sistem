@@ -7,16 +7,17 @@ import { ThreeBackground } from '@/components/ui/three-background'
 import { TransitionLayer } from '@/components/ui/transition-layer'
 import { SpinningLogos } from '@/components/ui/spinning-logos'
 import { PricingCard } from '@/components/ui/pricing-card'
+import { SocialProof } from '@/components/ui/social-proof'
 import { Send, Phone, MapPin, Mail, ArrowRight, TrendingUp, Users, BarChart3, Award } from 'lucide-react'
 import { trackLeadConversion } from '@/lib/tracking'
 
 // Pricing data
 const CIRO_PAKETLER = [
   {
-    name: 'Giriş Paketi',
-    monthlyPrice: 35000,
-    yearlyPrice: 28000,
-    features: ['6 Reels Videosu', '12 Grafik Tasarım', 'Reklam Hesabı Kontrolü', 'Özel Satış Stratejisi', 'Aylık Performans Raporu'],
+    name: 'Platinum Paket',
+    monthlyPrice: 75000,
+    yearlyPrice: 60000,
+    features: ['12 Reels Videosu', '24 Grafik Tasarım', 'Tam Reklam Yönetimi', 'Influencer Koordinasyonu', 'Öncelikli Destek Hattı'],
   },
   {
     name: 'Gold Paket',
@@ -26,19 +27,19 @@ const CIRO_PAKETLER = [
     isPopular: true,
   },
   {
-    name: 'Platinum Paket',
-    monthlyPrice: 75000,
-    yearlyPrice: 60000,
-    features: ['12 Reels Videosu', '24 Grafik Tasarım', 'Tam Reklam Yönetimi', 'Influencer Koordinasyonu', 'Öncelikli Destek Hattı'],
+    name: 'Giriş Paketi',
+    monthlyPrice: 35000,
+    yearlyPrice: 28000,
+    features: ['6 Reels Videosu', '12 Grafik Tasarım', 'Reklam Hesabı Kontrolü', 'Özel Satış Stratejisi', 'Aylık Performans Raporu'],
   },
 ]
 
 const SOSYAL_PAKETLER = [
   {
-    name: 'Giriş',
-    monthlyPrice: 30000,
-    yearlyPrice: 24000,
-    features: ['4 Reels / Kısa Video', '12 Feed Görseli', 'Instagram & Facebook Yönetimi', 'Etiket & Hashtag Stratejisi', 'Aylık İçerik Takvimi'],
+    name: 'Platinum',
+    monthlyPrice: 65000,
+    yearlyPrice: 52000,
+    features: ['14 Reels + 2 Uzun Form Video', '30 Feed Görseli', '5 Platform (IG, TT, FB, LinkedIn, X)', '7/24 Topluluk Yönetimi', 'Aylık Büyüme Strateji Sunumu', 'Influencer İşbirlikleri'],
   },
   {
     name: 'Gold',
@@ -48,19 +49,19 @@ const SOSYAL_PAKETLER = [
     isPopular: true,
   },
   {
-    name: 'Platinum',
-    monthlyPrice: 65000,
-    yearlyPrice: 52000,
-    features: ['14 Reels + 2 Uzun Form Video', '30 Feed Görseli', '5 Platform (IG, TT, FB, LinkedIn, X)', '7/24 Topluluk Yönetimi', 'Aylık Büyüme Strateji Sunumu', 'Influencer İşbirlikleri'],
+    name: 'Giriş',
+    monthlyPrice: 30000,
+    yearlyPrice: 24000,
+    features: ['4 Reels / Kısa Video', '12 Feed Görseli', 'Instagram & Facebook Yönetimi', 'Etiket & Hashtag Stratejisi', 'Aylık İçerik Takvimi'],
   },
 ]
 
 const UC_ALTMIS_PAKETLER = [
   {
-    name: '360 Gold',
-    monthlyPrice: 50000,
-    yearlyPrice: 40000,
-    features: ['Sosyal Medya Yönetimi', 'Google & Meta Reklam Yönetimi', 'E-posta Pazarlama Otomasyonu', 'SEO Temel Optimizasyon', 'Marka Tutarlılığı Denetimi'],
+    name: '360 Platinum',
+    monthlyPrice: 110000,
+    yearlyPrice: 88000,
+    features: ['Pro özellikleri +', 'Özel Marka Stratejisti Ataması', 'PR & Medya İlişkileri', 'Lansmanlar & Etkinlik Pazarlaması', 'Yıllık Büyüme Planı & CFO Raporu', 'Öncelikli Yönetici Destek Hattı'],
   },
   {
     name: '360 Pro',
@@ -71,10 +72,10 @@ const UC_ALTMIS_PAKETLER = [
     badge: 'EN KAPSAMLI',
   },
   {
-    name: '360 Platinum',
-    monthlyPrice: 110000,
-    yearlyPrice: 88000,
-    features: ['Pro özellikleri +', 'Özel Marka Stratejisti Ataması', 'PR & Medya İlişkileri', 'Lansmanlar & Etkinlik Pazarlaması', 'Yıllık Büyüme Planı & CFO Raporu', 'Öncelikli Yönetici Destek Hattı'],
+    name: '360 Gold',
+    monthlyPrice: 50000,
+    yearlyPrice: 40000,
+    features: ['Sosyal Medya Yönetimi', 'Google & Meta Reklam Yönetimi', 'E-posta Pazarlama Otomasyonu', 'SEO Temel Optimizasyon', 'Marka Tutarlılığı Denetimi'],
   },
 ]
 
@@ -182,7 +183,7 @@ export default function HomePage() {
                     required
                   />
                   <button type="submit" className="btn-primary whitespace-nowrap text-xs">
-                    ÜCRETSİZ ANALİZ İSTE
+                    HEMEN BAŞVUR, 24 SAATTE ARAYALIM
                   </button>
                 </form>
               ) : (
@@ -212,6 +213,8 @@ export default function HomePage() {
       <div className="bg-white border-y border-[#eaeaea] py-4 overflow-hidden">
         <SpinningLogos />
       </div>
+
+      <SocialProof />
 
       {/* ABOUT */}
       <section id="about" className="py-24 bg-white">
