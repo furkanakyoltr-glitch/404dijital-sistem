@@ -10,12 +10,17 @@ export async function POST(req: NextRequest) {
   await prisma.teklif.updateMany({ where: { musteriId: musteri.id, durum: 'bekliyor' }, data: { durum: 'onaylandi', onayTarihi: new Date() } })
 
   // Bu müşteri bir lead'den geldiyse: durumu "kazandı" yap, geçmişe not düş
-  const bagliLead = await prisma.lead.findUnique({ where: { musteriId: musteri.id } })
-  if (bagliLead) {
-    await prisma.lead.update({ where: { id: bagliLead.id }, data: { durum: 'kazandi' } })
-    await prisma.leadNot.create({
-      data: { leadId: bagliLead.id, icerik: `Teklif onaylandı — müşteri aktif oldu (Kasa: ${kasaNo}).` },
-    })
+  // (migration henüz uygulanmadıysa sessizce atla — asıl onay akışını bozmasın)
+  try {
+    const bagliLead = await prisma.lead.findUnique({ where: { musteriId: musteri.id } })
+    if (bagliLead) {
+      await prisma.lead.update({ where: { id: bagliLead.id }, data: { durum: 'kazandi' } })
+      await prisma.leadNot.create({
+        data: { leadId: bagliLead.id, icerik: `Teklif onaylandı — müşteri aktif oldu (Kasa: ${kasaNo}).` },
+      })
+    }
+  } catch (leadSyncErr) {
+    console.error('Lead senkronizasyon hatası (onay akışını etkilemez):', leadSyncErr)
   }
 
   sendOnayAdminBildirim(musteri.firmaAdi, kasaNo).catch(() => {})
