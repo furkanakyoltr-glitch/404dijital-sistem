@@ -8,6 +8,7 @@ import { TransitionLayer } from '@/components/ui/transition-layer'
 import { SpinningLogos } from '@/components/ui/spinning-logos'
 import { PricingCard } from '@/components/ui/pricing-card'
 import { Send, Phone, MapPin, Mail, ArrowRight, TrendingUp, Users, BarChart3, Award } from 'lucide-react'
+import { trackLeadConversion } from '@/lib/tracking'
 
 // Pricing data
 const CIRO_PAKETLER = [
@@ -105,15 +106,6 @@ const STATS = [
   { icon: Award, value: '4+', label: 'Yıl Deneyim' },
 ]
 
-function trackLeadConversion() {
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    ;(window as any).gtag('event', 'conversion', {
-      send_to: 'AW-17698873591/yAnSCKjX2bgbEPfBvfdB',
-      value: 1.0,
-      currency: 'TRY',
-    })
-  }
-}
 
 export default function HomePage() {
   const [formData, setFormData] = useState({ isletmeAdi: '', telefon: '' })
