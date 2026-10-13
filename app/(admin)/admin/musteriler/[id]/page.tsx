@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { Phone, Mail, MapPin, Hash } from 'lucide-react'
+import { Phone, Mail, MapPin, Hash, Copy, Check, KeyRound, Link as LinkIcon } from 'lucide-react'
 import { KanbanBoard } from '@/components/ui/kanban-board'
 import { TimelineGantt } from '@/components/ui/timeline-gantt'
 import { TodoList } from '@/components/ui/todo-list'
@@ -12,6 +12,30 @@ export default function MusteriDetayPage() {
   const { id } = useParams()
   const [musteri, setMusteri] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [copied, setCopied] = useState<'link' | 'sifre' | null>(null)
+  const [sifirlaniyor, setSifirlaniyor] = useState(false)
+  const [yeniSifre, setYeniSifre] = useState<string | null>(null)
+
+  const kasaLinki = musteri ? `${typeof window !== 'undefined' ? window.location.origin : ''}/kasa/${musteri.kasaNo}?token=${musteri.magicToken}` : ''
+
+  const kopyala = (text: string, tip: 'link' | 'sifre') => {
+    navigator.clipboard.writeText(text)
+    setCopied(tip)
+    setTimeout(() => setCopied(null), 2000)
+  }
+
+  const sifreSifirla = async () => {
+    if (!confirm('Mevcut şifre geçersiz olacak ve yeni bir şifre oluşturulacak. Devam edilsin mi?')) return
+    setSifirlaniyor(true)
+    try {
+      const res = await fetch(`/api/musteriler/${id}/sifre-sifirla`, { method: 'POST' })
+      const data = await res.json()
+      if (data.success) setYeniSifre(data.sifre)
+      else alert(data.error || 'Şifre sıfırlanamadı')
+    } finally {
+      setSifirlaniyor(false)
+    }
+  }
 
   useEffect(() => {
     fetch(`/api/musteriler/${id}`)
@@ -61,6 +85,47 @@ export default function MusteriDetayPage() {
               <p className="text-[#555] text-xs font-montserrat">{musteri.teklifler[0].paketAdi}</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Kasa Girişi */}
+      <div className="bg-white rounded-2xl border border-[#eaeaea] p-6">
+        <h3 className="font-bebas text-xl tracking-wider text-[#1a1a1a] mb-4 flex items-center gap-2">
+          <KeyRound size={18} /> KASA GİRİŞİ
+        </h3>
+        <p className="text-[#999] text-xs font-montserrat mb-4">
+          Şifreler güvenlik nedeniyle tersine okunamayacak şekilde saklanır — tekrar gösterilemez, sadece sıfırlanabilir.
+          Şifreye hiç gerek kalmadan aşağıdaki şifresiz giriş linkini müşteriye gönderebilirsiniz.
+        </p>
+
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-semibold text-[#999] mb-1.5 font-montserrat uppercase tracking-wider">Şifresiz Giriş Linki</label>
+            <div className="flex gap-2">
+              <input readOnly value={kasaLinki} className="flex-1 border border-[#eaeaea] rounded-lg px-3 py-2 text-xs font-mono text-[#555] bg-[#f8f9fa]" />
+              <button onClick={() => kopyala(kasaLinki, 'link')} className="flex items-center gap-1.5 bg-[#1a1a1a] text-white text-xs font-montserrat font-bold px-3 rounded-lg hover:bg-black transition-colors">
+                {copied === 'link' ? <Check size={14} /> : <Copy size={14} />} {copied === 'link' ? 'Kopyalandı' : 'Kopyala'}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 pt-1">
+            <button
+              onClick={sifreSifirla}
+              disabled={sifirlaniyor}
+              className="flex items-center gap-1.5 border-2 border-[#1a1a1a] text-[#1a1a1a] text-xs font-montserrat font-bold px-4 py-2 rounded-lg hover:bg-[#1a1a1a] hover:text-white transition-colors disabled:opacity-50"
+            >
+              <KeyRound size={14} /> {sifirlaniyor ? 'Sıfırlanıyor...' : 'Şifreyi Sıfırla'}
+            </button>
+            {yeniSifre && (
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                <span className="text-xs font-montserrat text-green-700">Yeni şifre: <strong className="font-mono">{yeniSifre}</strong></span>
+                <button onClick={() => kopyala(yeniSifre, 'sifre')} className="text-green-700">
+                  {copied === 'sifre' ? <Check size={14} /> : <Copy size={14} />}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
