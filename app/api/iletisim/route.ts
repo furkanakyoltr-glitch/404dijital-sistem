@@ -11,6 +11,11 @@ export async function POST(req: NextRequest) {
         telefon: body.telefon,
         kaynak: 'Web Sitesi - Hızlı Analiz Formu',
       })
+    } else if (body.type === 'newsletter') {
+      await createLead({
+        email: body.email,
+        kaynak: 'Web Sitesi - Haber Bülteni',
+      })
     } else {
       await createLead({
         adSoyad: body.isim,
