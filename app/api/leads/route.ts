@@ -20,17 +20,27 @@ export async function GET(req: NextRequest) {
     { telefon: { contains: arama, mode: 'insensitive' } },
   ]
 
-  const [data, total] = await Promise.all([
-    prisma.lead.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        notlar: { orderBy: { createdAt: 'desc' }, include: { olusturan: { select: { name: true } } } },
-        musteri: { select: { id: true, kasaNo: true, firmaAdi: true } },
-      },
-    }),
-    prisma.lead.count({ where }),
-  ])
+  let data, total
+  try {
+    ;[data, total] = await Promise.all([
+      prisma.lead.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          notlar: { orderBy: { createdAt: 'desc' }, include: { olusturan: { select: { name: true } } } },
+          musteri: { select: { id: true, kasaNo: true, firmaAdi: true } },
+        },
+      }),
+      prisma.lead.count({ where }),
+    ])
+  } catch (err) {
+    // Migration henüz uygulanmadıysa (notlar/musteri alanları yoksa) eski haliyle dön
+    console.error('Lead notlar/musteri include hatası, temel sorguya düşülüyor:', err)
+    ;[data, total] = await Promise.all([
+      prisma.lead.findMany({ where, orderBy: { createdAt: 'desc' } }),
+      prisma.lead.count({ where }),
+    ])
+  }
 
   return NextResponse.json({ data, total })
 }
