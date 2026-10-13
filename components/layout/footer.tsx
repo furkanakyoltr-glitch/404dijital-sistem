@@ -1,13 +1,19 @@
 "use client"
 import { useState } from 'react'
+import { trackContactClick } from '@/lib/tracking'
 
 export function Footer() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitted(true)
+    fetch('/api/iletisim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'newsletter', email }),
+    }).catch(() => {})
     setEmail('')
   }
 
@@ -27,6 +33,7 @@ export function Footer() {
               <a href="https://facebook.com/404-Dijital-61557160807361" target="_blank" rel="noopener noreferrer"
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#ffc107] hover:text-black transition-all text-sm font-bold">FB</a>
               <a href="https://wa.me/905446844067" target="_blank" rel="noopener noreferrer"
+                onClick={() => trackContactClick('whatsapp')}
                 className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#25D366] transition-all text-sm font-bold">WA</a>
             </div>
           </div>
@@ -63,7 +70,7 @@ export function Footer() {
               <p className="text-[#ffc107] text-sm mb-6">✅ Abone oldunuz! Teşekkürler.</p>
             )}
             <div className="space-y-2 text-gray-400 text-sm">
-              <p>📞 <a href="tel:+905446844067" className="hover:text-white">+90 544 684 40 67</a></p>
+              <p>📞 <a href="tel:+905446844067" onClick={() => trackContactClick('phone')} className="hover:text-white">+90 544 684 40 67</a></p>
               <p>📧 <a href="mailto:info@404dijital.com" className="hover:text-white">info@404dijital.com</a></p>
               <p>📍 Çınarlı 1572/1. Sk. No:33 35170 Konak/İzmir</p>
             </div>
