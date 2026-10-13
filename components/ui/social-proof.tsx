@@ -1,6 +1,5 @@
 "use client"
 import { ExternalLink } from 'lucide-react'
-import { InstagramEmbed } from './instagram-embed'
 
 const SONUCLAR = [
   {
@@ -51,19 +50,16 @@ const PRODUKSIYON = [
     title: 'Çok Düzgün Bir Kız',
     desc: 'Çekimini üstlendiğimiz kısa film onlarca ödül aldı.',
     href: 'https://www.instagram.com/cokduzgunbirkizkisafilm/reel/DNdoDrbs8ge/',
-    embed: true,
   },
   {
     title: 'Sinematik Reklam Çekimi',
     desc: 'İzmir\'de eşi benzeri görülmemiş sinematik bir reklam filmi ortaya çıkardık.',
     href: 'https://www.instagram.com/p/DOB6FMvDORL/',
-    embed: true,
   },
   {
     title: 'Perdeki Kısa Film',
     desc: 'Prodüksiyonunda yer aldığımız, ödüllü bir kısa film.',
     href: 'https://www.instagram.com/perdekisafilm/reels/',
-    embed: false,
   },
 ]
 
@@ -107,29 +103,24 @@ export function SocialProof() {
           <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-2">SADECE REKLAM DEĞİL</p>
           <h3 className="font-bebas text-3xl text-[#1a1a1a] tracking-wider">ÖDÜLLÜ PRODÜKSİYON İŞİMİZ</h3>
         </div>
-        <div className="grid md:grid-cols-3 gap-6 items-start">
+        <div className="grid md:grid-cols-3 gap-6">
           {PRODUKSIYON.map((p, i) => (
-            <div key={i} className="bg-[#1a1a1a] rounded-2xl p-6 flex flex-col">
+            <a
+              key={i}
+              href={p.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group bg-[#1a1a1a] rounded-2xl p-6 hover:bg-black transition-colors flex flex-col"
+            >
               <span className="inline-block bg-[#ffc107] text-black text-[10px] font-bold px-3 py-1 rounded-full tracking-wider uppercase mb-4 w-fit">
                 Ödüllü
               </span>
               <h4 className="font-bebas text-xl tracking-wider text-white mb-2">{p.title}</h4>
-              <p className="text-gray-400 text-xs font-montserrat leading-relaxed mb-4">{p.desc}</p>
-              {p.embed ? (
-                <div className="rounded-xl overflow-hidden bg-white">
-                  <InstagramEmbed url={p.href} />
-                </div>
-              ) : (
-                <a
-                  href={p.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-[#ffc107] text-xs font-montserrat font-semibold opacity-70 hover:opacity-100 transition-opacity mt-auto"
-                >
-                  İzle <ExternalLink size={12} />
-                </a>
-              )}
-            </div>
+              <p className="text-gray-400 text-xs font-montserrat leading-relaxed flex-1">{p.desc}</p>
+              <div className="flex items-center gap-1 text-[#ffc107] text-xs font-montserrat font-semibold mt-4 opacity-70 group-hover:opacity-100 transition-opacity">
+                İzle <ExternalLink size={12} />
+              </div>
+            </a>
           ))}
         </div>
 
