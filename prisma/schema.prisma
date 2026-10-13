@@ -216,6 +216,30 @@ model WPMesaj {
   createdAt     DateTime  @default(now())
 }
 
+model WPSohbet {
+  id             String          @id @default(cuid())
+  telNo          String          @unique
+  isim           String?
+  kaynak         String          @default("whatsapp")
+  sonMesaj       String?
+  sonMesajZamani DateTime?
+  okunmadi       Boolean         @default(false)
+  mesajlar       WPSohbetMesaj[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model WPSohbetMesaj {
+  id              String   @id @default(cuid())
+  sohbetId        String
+  sohbet          WPSohbet @relation(fields: [sohbetId], references: [id], onDelete: Cascade)
+  yon             String
+  icerik          String
+  gonderenAdminId String?
+  waMesajId       String?
+  createdAt       DateTime @default(now())
+}
+
 model BankaHesabi {
   id        String   @id @default(cuid())
   ad        String
