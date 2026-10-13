@@ -16,7 +16,7 @@ export default function MusteriDetayPage() {
   const [sifirlaniyor, setSifirlaniyor] = useState(false)
   const [yeniSifre, setYeniSifre] = useState<string | null>(null)
 
-  const kasaLinki = musteri ? `${typeof window !== 'undefined' ? window.location.origin : ''}/kasa/${musteri.kasaNo}?token=${musteri.magicToken}` : ''
+  const kasaLinki = musteri ? `https://teklif.404dijital.com/kasa/${musteri.kasaNo}?token=${musteri.magicToken}` : ''
 
   const kopyala = (text: string, tip: 'link' | 'sifre') => {
     navigator.clipboard.writeText(text)
