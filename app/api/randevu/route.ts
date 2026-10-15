@@ -7,9 +7,10 @@ import prisma from '@/lib/prisma'
 const GUNLER = ['2026-10-16', '2026-10-17', '2026-10-18']
 const SAATLER = ['12:00', '12:45', '13:30', '14:15', '15:00', '15:45', '16:30', '17:15']
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions)
-  const admin = (session?.user as any)?.type === 'admin'
+  const internalKey = req.headers.get('x-internal-key')
+  const admin = (session?.user as any)?.type === 'admin' || (!!internalKey && internalKey === process.env.INTERNAL_API_KEY)
 
   const kayitlar = await prisma.randevu.findMany({ orderBy: [{ tarih: 'asc' }, { saat: 'asc' }] })
 
