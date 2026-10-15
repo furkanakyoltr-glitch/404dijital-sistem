@@ -235,6 +235,8 @@ model WPSohbetMesaj {
   sohbet          WPSohbet @relation(fields: [sohbetId], references: [id], onDelete: Cascade)
   yon             String
   icerik          String
+  medyaTipi       String?
+  medyaAdi        String?
   gonderenAdminId String?
   waMesajId       String?
   createdAt       DateTime @default(now())
@@ -289,3 +291,4 @@ model Proje {
   gelirler   Gelir[]
   giderler   Gider[]
 }
+
