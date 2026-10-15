@@ -6,7 +6,7 @@ function formatPhone(to: string): string {
   return to.replace(/\s+/g, '').replace(/^\+/, '').replace(/^0/, '90')
 }
 
-async function sendWATemplate(to: string, templateName: string, params: string[]): Promise<boolean> {
+export async function sendWATemplate(to: string, templateName: string, params: string[]): Promise<boolean> {
   if (!WA_TOKEN || !WA_PHONE_NUMBER_ID) return false
   try {
     const res = await fetch(
