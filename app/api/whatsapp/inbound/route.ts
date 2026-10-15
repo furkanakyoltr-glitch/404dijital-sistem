@@ -36,18 +36,32 @@ export async function POST(req: NextRequest) {
         for (const msg of value.messages || []) {
           const telNo = normalizeTel(msg.from)
           const isim = contact?.profile?.name
-          const icerik =
-            msg.text?.body ??
-            (msg.type ? `[${msg.type}] (metin dışı mesaj — WhatsApp uygulamasından görüntüleyin)` : '(boş mesaj)')
+
+          let icerik = msg.text?.body ?? ''
+          let medyaTipi: string | null = null
+          let medyaAdi: string | null = null
+          let waMedyaId: string | null = null
+
+          if (msg.type === 'image' || msg.type === 'document') {
+            const medya = msg[msg.type]
+            medyaTipi = msg.type
+            medyaAdi = medya?.filename || (msg.type === 'image' ? 'Görsel' : 'Dosya')
+            waMedyaId = medya?.id || null
+            icerik = medya?.caption || ''
+          } else if (!icerik) {
+            icerik = msg.type ? `[${msg.type}] (bu mesaj türü panelde görüntülenemiyor)` : '(boş mesaj)'
+          }
+
+          const sonMesajOzet = medyaTipi === 'image' ? '📷 Görsel' : medyaTipi === 'document' ? `📎 ${medyaAdi}` : icerik
 
           const sohbet = await prisma.wPSohbet.upsert({
             where: { telNo },
-            create: { telNo, isim, sonMesaj: icerik, sonMesajZamani: new Date(), okunmadi: true },
-            update: { isim: isim || undefined, sonMesaj: icerik, sonMesajZamani: new Date(), okunmadi: true },
+            create: { telNo, isim, sonMesaj: sonMesajOzet, sonMesajZamani: new Date(), okunmadi: true },
+            update: { isim: isim || undefined, sonMesaj: sonMesajOzet, sonMesajZamani: new Date(), okunmadi: true },
           })
 
           await prisma.wPSohbetMesaj.create({
-            data: { sohbetId: sohbet.id, yon: 'gelen', icerik, waMesajId: msg.id },
+            data: { sohbetId: sohbet.id, yon: 'gelen', icerik, medyaTipi, medyaAdi, waMedyaId, waMesajId: msg.id },
           })
         }
       }
