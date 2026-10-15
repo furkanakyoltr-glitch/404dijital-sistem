@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Send, MessageCircle, User } from 'lucide-react'
+import { Send, MessageCircle, User, Paperclip, FileText, X } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
 export default function MesajlarPage() {
@@ -11,7 +11,9 @@ export default function MesajlarPage() {
   const [yeniMesaj, setYeniMesaj] = useState('')
   const [gonderiliyor, setGonderiliyor] = useState(false)
   const [hata, setHata] = useState('')
+  const [seciliDosya, setSeciliDosya] = useState<File | null>(null)
   const mesajSonuRef = useRef<HTMLDivElement>(null)
+  const dosyaInputRef = useRef<HTMLInputElement>(null)
 
   const fetchSohbetler = useCallback(async () => {
     const res = await fetch('/api/whatsapp/sohbetler')
@@ -38,21 +40,38 @@ export default function MesajlarPage() {
     mesajSonuRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [sohbet?.mesajlar?.length])
 
+  const dosyaSecildi = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const dosya = e.target.files?.[0]
+    if (dosya) setSeciliDosya(dosya)
+    e.target.value = ''
+  }
+
   const gonder = async () => {
+    if (!seciliId) return
     const icerik = yeniMesaj.trim()
-    if (!icerik || !seciliId) return
+    if (!icerik && !seciliDosya) return
     setGonderiliyor(true)
     setHata('')
     try {
-      const res = await fetch('/api/whatsapp/gonder', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sohbetId: seciliId, icerik }),
-      })
+      let res: Response
+      if (seciliDosya) {
+        const form = new FormData()
+        form.append('sohbetId', seciliId)
+        form.append('dosya', seciliDosya)
+        if (icerik) form.append('caption', icerik)
+        res = await fetch('/api/whatsapp/gonder-medya', { method: 'POST', body: form })
+      } else {
+        res = await fetch('/api/whatsapp/gonder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sohbetId: seciliId, icerik }),
+        })
+      }
       const data = await res.json()
       if (data.success) {
         setSohbet((prev: any) => ({ ...prev, mesajlar: [...prev.mesajlar, data.mesaj] }))
         setYeniMesaj('')
+        setSeciliDosya(null)
         fetchSohbetler()
       } else {
         setHata(data.error || 'Gönderilemedi')
@@ -123,7 +142,17 @@ export default function MesajlarPage() {
                       m.yon === 'giden' ? 'bg-[#1a1a1a] text-white' : 'bg-white border border-[#eaeaea] text-[#1a1a1a]'
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">{m.icerik}</p>
+                    {m.medyaTipi && (
+                      <div className={`flex items-center gap-2 mb-1 ${m.icerik ? 'pb-2 border-b border-white/15' : ''}`}>
+                        {m.medyaTipi === 'image' ? (
+                          <span className="text-base">📷</span>
+                        ) : (
+                          <FileText size={15} className="flex-shrink-0" />
+                        )}
+                        <span className="text-xs opacity-80 truncate">{m.medyaAdi || 'Dosya'}</span>
+                      </div>
+                    )}
+                    {m.icerik && <p className="whitespace-pre-wrap">{m.icerik}</p>}
                     <p className={`text-[10px] mt-1 ${m.yon === 'giden' ? 'text-gray-400' : 'text-[#999]'}`}>{formatDate(m.createdAt)}</p>
                   </div>
                 </div>
@@ -133,25 +162,42 @@ export default function MesajlarPage() {
 
             <div className="px-5 py-3 border-t border-[#eaeaea]">
               {hata && <p className="text-xs text-red-500 font-montserrat mb-2">{hata}</p>}
+              {seciliDosya && (
+                <div className="flex items-center gap-2 bg-[#f8f9fa] border border-[#eaeaea] rounded-lg px-3 py-2 mb-2 text-xs font-montserrat">
+                  <FileText size={14} className="flex-shrink-0 text-[#666]" />
+                  <span className="flex-1 truncate text-[#1a1a1a]">{seciliDosya.name}</span>
+                  <button onClick={() => setSeciliDosya(null)} className="text-[#999] hover:text-[#1a1a1a]">
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
               <div className="flex gap-2">
+                <input ref={dosyaInputRef} type="file" accept=".pdf,image/*" className="hidden" onChange={dosyaSecildi} />
+                <button
+                  onClick={() => dosyaInputRef.current?.click()}
+                  title="PDF veya görsel ekle"
+                  className="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-full border border-[#eaeaea] text-[#666] hover:bg-[#f8f9fa] transition-colors"
+                >
+                  <Paperclip size={16} />
+                </button>
                 <input
                   type="text"
                   value={yeniMesaj}
                   onChange={e => setYeniMesaj(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') gonder() }}
-                  placeholder="Mesaj yaz..."
+                  placeholder={seciliDosya ? 'Dosya için açıklama (opsiyonel)...' : 'Mesaj yaz...'}
                   className="flex-1 border border-[#eaeaea] rounded-full px-4 py-2.5 text-sm font-montserrat focus:outline-none focus:ring-2 focus:ring-[#1a1a1a]"
                 />
                 <button
                   onClick={gonder}
-                  disabled={gonderiliyor || !yeniMesaj.trim()}
+                  disabled={gonderiliyor || (!yeniMesaj.trim() && !seciliDosya)}
                   className="bg-[#1a1a1a] text-white rounded-full w-11 h-11 flex items-center justify-center disabled:opacity-40 flex-shrink-0"
                 >
                   <Send size={16} />
                 </button>
               </div>
               <p className="text-[10px] text-[#999] font-montserrat mt-1.5">
-                WhatsApp kuralı: müşterinin son 24 saat içinde mesaj atmış olması gerekir, aksi halde serbest metin gönderilemez.
+                WhatsApp kuralı: müşterinin son 24 saat içinde mesaj atmış olması gerekir, aksi halde serbest metin/dosya gönderilemez. PDF ve görsel ekleyebilirsin (maks. 15MB).
               </p>
             </div>
           </>
