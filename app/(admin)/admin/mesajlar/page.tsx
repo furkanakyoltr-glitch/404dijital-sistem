@@ -142,7 +142,30 @@ export default function MesajlarPage() {
                       m.yon === 'giden' ? 'bg-[#1a1a1a] text-white' : 'bg-white border border-[#eaeaea] text-[#1a1a1a]'
                     }`}
                   >
-                    {m.medyaTipi && (
+                    {m.medyaTipi && m.yon === 'gelen' && m.waMedyaId && (
+                      <div className={`mb-1 ${m.icerik ? 'pb-2 border-b border-[#eaeaea]' : ''}`}>
+                        {m.medyaTipi === 'image' ? (
+                          <a href={`/api/whatsapp/medya/${m.id}`} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={`/api/whatsapp/medya/${m.id}`}
+                              alt={m.medyaAdi || 'Görsel'}
+                              className="max-w-full rounded-lg max-h-64 object-contain border border-[#eaeaea]"
+                            />
+                          </a>
+                        ) : (
+                          <a
+                            href={`/api/whatsapp/medya/${m.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-[#1a1a1a] hover:underline"
+                          >
+                            <FileText size={15} className="flex-shrink-0" />
+                            <span className="text-xs truncate">{m.medyaAdi || 'Dosya'}</span>
+                          </a>
+                        )}
+                      </div>
+                    )}
+                    {m.medyaTipi && !(m.yon === 'gelen' && m.waMedyaId) && (
                       <div className={`flex items-center gap-2 mb-1 ${m.icerik ? 'pb-2 border-b border-white/15' : ''}`}>
                         {m.medyaTipi === 'image' ? (
                           <span className="text-base">📷</span>
