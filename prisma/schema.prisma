@@ -292,3 +292,16 @@ model Proje {
   giderler   Gider[]
 }
 
+
+model Randevu {
+  id         String   @id @default(cuid())
+  tarih      String
+  saat       String
+  adaySoyad  String
+  telefon    String
+  pozisyon   String   @default("Satış Yöneticisi")
+  notlar     String?
+  createdAt  DateTime @default(now())
+
+  @@unique([tarih, saat])
+}
