@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import { sendWATemplate } from '@/lib/whatsapp'
+import { sendWATemplateDetayli } from '@/lib/whatsapp'
 
 function telNoFormat(telefon: string): string {
   const temiz = telefon.replace(/\s+/g, '')
@@ -11,8 +11,8 @@ function telNoFormat(telefon: string): string {
 }
 
 async function logVeGonder(telefon: string, isim: string | undefined, templateName: string, params: string[], onizlemeMetni?: string) {
-  const basarili = await sendWATemplate(telefon, templateName, params)
-  if (!basarili) return { telefon, ok: false }
+  const sonuc = await sendWATemplateDetayli(telefon, templateName, params)
+  if (!sonuc.ok) return { telefon, ok: false, hata: sonuc.hata }
 
   const telNo = telNoFormat(telefon)
   const icerik = onizlemeMetni || `[Şablon: ${templateName}] ${params.join(' | ')}`
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         where: { telefon: { not: null } },
         select: { telefon: true, adSoyad: true, firmaAdi: true, email: true },
       })
-      const sonuclar: { telefon: string; ok: boolean }[] = []
+      const sonuclar: { telefon: string; ok: boolean; hata?: string }[] = []
       for (const lead of leadler) {
         if (!lead.telefon) continue
         const params = parametreAlanlari.map(alan => ((lead as any)[alan] || '').toString())
