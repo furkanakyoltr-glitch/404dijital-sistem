@@ -315,3 +315,14 @@ model RandevuAyar {
   slotDakika    Int      @default(30)
   updatedAt     DateTime @updatedAt
 }
+
+model WASablon {
+  id               String   @id @default(cuid())
+  baslik           String
+  kategori         String   @default("Genel")
+  metaTemplateName String
+  parametreler     String   @default("[]")
+  onizlemeMetni    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
