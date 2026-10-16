@@ -306,3 +306,12 @@ model Randevu {
 
   @@unique([tarih, saat])
 }
+
+model RandevuAyar {
+  id            String   @id @default("singleton")
+  gunler        String   @default("[]")
+  baslangicSaat String   @default("09:00")
+  bitisSaat     String   @default("18:00")
+  slotDakika    Int      @default(30)
+  updatedAt     DateTime @updatedAt
+}
