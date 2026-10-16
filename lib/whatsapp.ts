@@ -156,3 +156,37 @@ export async function sendWAFile(
   const gonder = await sendWAMediaMessage(to, yukle.mediaId, tip, dosyaAdi, caption)
   return { ...gonder, tip }
 }
+
+export async function sendWATemplateDetayli(to: string, templateName: string, params: string[]): Promise<{ ok: boolean; hata?: string }> {
+  if (!WA_TOKEN || !WA_PHONE_NUMBER_ID) return { ok: false, hata: 'WA_TOKEN/WA_PHONE_NUMBER_ID tanımlı değil' }
+  try {
+    const res = await fetch(
+      `https://graph.facebook.com/v19.0/${WA_PHONE_NUMBER_ID}/messages`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${WA_TOKEN}` },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to: formatPhone(to),
+          type: 'template',
+          template: {
+            name: templateName,
+            language: { code: 'tr' },
+            components: params.length ? [{ type: 'body', parameters: params.map(text => ({ type: 'text', text })) }] : [],
+          },
+        }),
+      }
+    )
+    if (!res.ok) {
+      const hataMetni = await res.text()
+      console.error('WA template detaylı hata:', templateName, hataMetni)
+      let hata = hataMetni
+      try { hata = JSON.parse(hataMetni)?.error?.error_user_msg || JSON.parse(hataMetni)?.error?.message || hataMetni } catch {}
+      return { ok: false, hata }
+    }
+    return { ok: true }
+  } catch (e: any) {
+    console.error('WA template detaylı fetch hatası:', e)
+    return { ok: false, hata: e?.message || 'Bağlantı hatası' }
+  }
+}
