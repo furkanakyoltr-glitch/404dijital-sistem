@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     const sablon = await prisma.wASablon.findUnique({ where: { id: sablonId } })
     if (!sablon) return NextResponse.json({ error: 'Şablon bulunamadı' }, { status: 404 })
-    const parametreAlanlari: string[] = JSON.parse(sablon.parametreler)
+    const degiskenler: { etiket: string; kaynak: string }[] = JSON.parse(sablon.parametreler)
 
     if (hedef === 'tek') {
       if (!telefon?.trim()) return NextResponse.json({ error: 'Telefon zorunlu' }, { status: 400 })
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       const sonuclar: { telefon: string; ok: boolean; hata?: string }[] = []
       for (const lead of leadler) {
         if (!lead.telefon) continue
-        const params = parametreAlanlari.map(alan => ((lead as any)[alan] || '').toString())
+        const params = degiskenler.map(d => (d.kaynak ? (lead as any)[d.kaynak] : '') || '')
         const sonuc = await logVeGonder(lead.telefon, lead.adSoyad || undefined, sablon.metaTemplateName, params, sablon.onizlemeMetni || undefined)
         sonuclar.push(sonuc)
       }
