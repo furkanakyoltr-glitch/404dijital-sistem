@@ -190,3 +190,69 @@ export async function sendWATemplateDetayli(to: string, templateName: string, pa
     return { ok: false, hata: e?.message || 'Bağlantı hatası' }
   }
 }
+
+const WABA_ID = '1381364330434940'
+
+function sablonAdiUret(baslik: string): string {
+  const temel = baslik
+    .toLocaleLowerCase('tr')
+    .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 40)
+  return `${temel}_${Date.now().toString().slice(-5)}`
+}
+
+// Panelden yeni WhatsApp mesaj şablonu oluşturup Meta'ya onay için gönderir.
+// govde içindeki {{1}}, {{2}}... placeholder'lar örnek değerlerle birlikte iletilmeli.
+export async function metaSablonOlustur(params: {
+  baslik: string
+  kategori: 'MARKETING' | 'UTILITY'
+  govde: string
+  ornekDegerler: string[]
+}): Promise<{ ok: boolean; templateId?: string; templateName?: string; durum?: string; hata?: string }> {
+  if (!WA_TOKEN) return { ok: false, hata: 'WA_TOKEN tanımlı değil' }
+  const templateName = sablonAdiUret(params.baslik)
+  try {
+    const body: any = {
+      name: templateName,
+      language: 'tr',
+      category: params.kategori,
+      components: [
+        {
+          type: 'BODY',
+          text: params.govde,
+          ...(params.ornekDegerler.length ? { example: { body_text: [params.ornekDegerler] } } : {}),
+        },
+      ],
+    }
+    const res = await fetch(`https://graph.facebook.com/v19.0/${WABA_ID}/message_templates`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${WA_TOKEN}` },
+      body: JSON.stringify(body),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      console.error('Meta şablon oluşturma hatası:', data)
+      return { ok: false, hata: data?.error?.error_user_msg || data?.error?.message || 'Meta şablon oluşturulamadı' }
+    }
+    return { ok: true, templateId: data.id, templateName, durum: data.status || 'PENDING' }
+  } catch (e: any) {
+    console.error('Meta şablon oluşturma fetch hatası:', e)
+    return { ok: false, hata: e?.message || 'Bağlantı hatası' }
+  }
+}
+
+export async function metaSablonDurumGetir(templateId: string): Promise<{ ok: boolean; durum?: string; hata?: string }> {
+  if (!WA_TOKEN) return { ok: false, hata: 'WA_TOKEN tanımlı değil' }
+  try {
+    const res = await fetch(`https://graph.facebook.com/v19.0/${templateId}?fields=status`, {
+      headers: { Authorization: `Bearer ${WA_TOKEN}` },
+    })
+    const data = await res.json()
+    if (!res.ok) return { ok: false, hata: data?.error?.message || 'Durum alınamadı' }
+    return { ok: true, durum: data.status }
+  } catch (e: any) {
+    return { ok: false, hata: e?.message || 'Bağlantı hatası' }
+  }
+}
