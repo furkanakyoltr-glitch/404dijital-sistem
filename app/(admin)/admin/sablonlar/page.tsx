@@ -1,13 +1,14 @@
 "use client"
-import { useEffect, useState } from 'react'
-import { Plus, Send, Trash2, Loader2, X, Users, Phone, RefreshCw } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Plus, Send, Trash2, Loader2, X, Users, Phone, RefreshCw, ChevronDown } from 'lucide-react'
 
+type Degisken = { etiket: string; kaynak: string }
 type Sablon = {
   id: string
   baslik: string
   kategori: string
   metaTemplateName: string
-  parametreler: string[]
+  parametreler: Degisken[]
   onizlemeMetni: string | null
   govde: string | null
   metaDurum: string
@@ -23,8 +24,23 @@ const DURUM_RENK: Record<string, string> = {
 const DURUM_METIN: Record<string, string> = {
   mevcut: 'Mevcut (manuel)',
   PENDING: 'Meta onayı bekleniyor',
-  APPROVED: 'Onaylandı',
-  REJECTED: 'Reddedildi',
+  APPROVED: 'Onaylandı, gönderime hazır',
+  REJECTED: 'Meta reddetti',
+}
+const KATEGORI_SECENEKLERI = ['Satış Mesajları', 'Görüşme Mesajları', 'Bilgilendirme', 'Genel']
+const KAYNAK_SECENEKLERI = [
+  { deger: 'adSoyad', etiket: 'Ad Soyad (lead kaydından)' },
+  { deger: 'firmaAdi', etiket: 'Firma Adı (lead kaydından)' },
+  { deger: 'email', etiket: 'E-posta (lead kaydından)' },
+  { deger: '', etiket: 'Gönderirken elle gireceğim' },
+]
+
+function metindenDegiskenleriBul(metin: string): string[] {
+  const bulunan: string[] = []
+  const regex = /\[([^\]]+)\]/g
+  let m
+  while ((m = regex.exec(metin))) bulunan.push(m[1])
+  return bulunan
 }
 
 export default function SablonlarPage() {
@@ -35,13 +51,11 @@ export default function SablonlarPage() {
 
   const [baslik, setBaslik] = useState('')
   const [kategori, setKategori] = useState('Genel')
-  const [metaOlustur, setMetaOlustur] = useState(true)
-  const [metaTemplateName, setMetaTemplateName] = useState('')
-  const [metaKategori, setMetaKategori] = useState<'MARKETING' | 'UTILITY'>('MARKETING')
-  const [govde, setGovde] = useState('')
-  const [parametreler, setParametreler] = useState('')
-  const [ornekDegerler, setOrnekDegerler] = useState('')
-  const [onizlemeMetni, setOnizlemeMetni] = useState('')
+  const [metin, setMetin] = useState('')
+  const [kaynaklar, setKaynaklar] = useState<Record<string, string>>({})
+  const [ornekler, setOrnekler] = useState<Record<string, string>>({})
+  const [gelismisAcik, setGelismisAcik] = useState(false)
+  const [mevcutSablonAdi, setMevcutSablonAdi] = useState('')
   const [kaydediliyor, setKaydediliyor] = useState(false)
   const [kaydetHata, setKaydetHata] = useState('')
 
@@ -53,6 +67,8 @@ export default function SablonlarPage() {
   const [sonuc, setSonuc] = useState<any>(null)
   const [durumYenileniyor, setDurumYenileniyor] = useState<string | null>(null)
 
+  const degiskenler = useMemo(() => Array.from(new Set(metindenDegiskenleriBul(metin))), [metin])
+
   const veriGetir = () => {
     setYukleniyor(true)
     fetch('/api/sablonlar')
@@ -62,30 +78,48 @@ export default function SablonlarPage() {
   }
   useEffect(() => { veriGetir() }, [])
 
+  const formuSifirla = () => {
+    setBaslik(''); setKategori('Genel'); setMetin(''); setKaynaklar({}); setOrnekler({})
+    setGelismisAcik(false); setMevcutSablonAdi(''); setKaydetHata('')
+  }
+
   const sablonKaydet = async () => {
     if (!baslik.trim()) return
-    if (metaOlustur && !govde.trim()) return
-    if (!metaOlustur && !metaTemplateName.trim()) return
     setKaydediliyor(true)
     setKaydetHata('')
     try {
+      let gonderilecek: any
+      if (gelismisAcik) {
+        if (!mevcutSablonAdi.trim()) { setKaydetHata('Meta şablon adını gir'); setKaydediliyor(false); return }
+        gonderilecek = {
+          baslik, kategori, metaOlustur: false,
+          metaTemplateName: mevcutSablonAdi,
+          parametreler: degiskenler.map(d => ({ etiket: d, kaynak: kaynaklar[d] || '' })),
+          onizlemeMetni: metin.replace(/\[([^\]]+)\]/g, (_, d) => ornekler[d] || d),
+        }
+      } else {
+        if (!metin.trim()) { setKaydetHata('Mesaj metnini yaz'); setKaydediliyor(false); return }
+        const eksikOrnek = degiskenler.find(d => !ornekler[d]?.trim())
+        if (eksikOrnek) { setKaydetHata(`"${eksikOrnek}" için örnek değer gir (Meta onayı bunu istiyor)`); setKaydediliyor(false); return }
+        let sayac = 0
+        const govde = metin.replace(/\[([^\]]+)\]/g, () => `{{${++sayac}}}`)
+        const ornekDegerler = degiskenler.map(d => ornekler[d])
+        gonderilecek = {
+          baslik, kategori, metaOlustur: true, metaKategori: 'MARKETING',
+          govde, ornekDegerler,
+          parametreler: degiskenler.map(d => ({ etiket: d, kaynak: kaynaklar[d] || '' })),
+          onizlemeMetni: metin.replace(/\[([^\]]+)\]/g, (_, d) => ornekler[d] || d),
+        }
+      }
+
       const res = await fetch('/api/sablonlar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          baslik, kategori,
-          parametreler: parametreler.split(',').map(p => p.trim()).filter(Boolean),
-          onizlemeMetni,
-          metaOlustur,
-          metaTemplateName: metaOlustur ? undefined : metaTemplateName,
-          govde: metaOlustur ? govde : undefined,
-          metaKategori,
-          ornekDegerler: ornekDegerler.split(',').map(p => p.trim()).filter(Boolean),
-        }),
+        body: JSON.stringify(gonderilecek),
       })
       const data = await res.json()
       if (!data.success) { setKaydetHata(data.error || 'Kaydedilemedi'); return }
-      setBaslik(''); setKategori('Genel'); setMetaTemplateName(''); setGovde(''); setParametreler(''); setOrnekDegerler(''); setOnizlemeMetni('')
+      formuSifirla()
       setYeniAcik(false)
       veriGetir()
     } finally { setKaydediliyor(false) }
@@ -163,9 +197,8 @@ export default function SablonlarPage() {
                     <p className="font-montserrat font-bold text-sm text-[#1a1a1a]">{s.baslik}</p>
                     <button onClick={() => sablonSil(s.id)} className="text-[#ccc] hover:text-red-500"><Trash2 size={14} /></button>
                   </div>
-                  <p className="text-xs text-[#999] font-montserrat mb-1">Meta şablon: {s.metaTemplateName}</p>
-                  {s.parametreler.length > 0 && (
-                    <p className="text-xs text-[#999] font-montserrat mb-2">Parametreler: {s.parametreler.join(', ')}</p>
+                  {s.onizlemeMetni && (
+                    <p className="text-xs text-[#777] font-montserrat mb-2 line-clamp-2">{s.onizlemeMetni}</p>
                   )}
                   <div className="flex items-center gap-2 mb-3">
                     <span className={`text-[10px] font-montserrat font-bold px-2 py-1 rounded-full ${DURUM_RENK[s.metaDurum] || 'bg-[#f0f0f0] text-[#555]'}`}>
@@ -196,44 +229,87 @@ export default function SablonlarPage() {
           <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-bebas text-xl tracking-wide">YENİ ŞABLON</h2>
-              <button onClick={() => setYeniAcik(false)}><X size={18} /></button>
+              <button onClick={() => { setYeniAcik(false); formuSifirla() }}><X size={18} /></button>
             </div>
-            <div className="space-y-3">
-              <input value={baslik} onChange={e => setBaslik(e.target.value)} placeholder="Başlık (örn. Fiyat Teklifi Hatırlatma)" className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat" />
-              <input value={kategori} onChange={e => setKategori(e.target.value)} placeholder="Panel kategorisi (örn. Satış Mesajları, Görüşme Mesajları)" className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat" />
 
-              <div className="flex items-center gap-2 bg-[#f8f9fa] rounded-xl p-3">
-                <input type="checkbox" checked={metaOlustur} onChange={e => setMetaOlustur(e.target.checked)} id="metaOlustur" />
-                <label htmlFor="metaOlustur" className="text-xs font-montserrat font-semibold text-[#333]">Meta'da yeni şablon oluştur ve onaya gönder</label>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-montserrat font-bold text-[#555] mb-1">Şablonun adı (sadece sen göreceksin)</label>
+                <input value={baslik} onChange={e => setBaslik(e.target.value)} placeholder="örn. Fiyat Teklifi Hatırlatma" className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat" />
               </div>
 
-              {metaOlustur ? (
-                <>
-                  <select value={metaKategori} onChange={e => setMetaKategori(e.target.value as any)} className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat">
-                    <option value="MARKETING">Pazarlama (MARKETING)</option>
-                    <option value="UTILITY">Bilgilendirme (UTILITY)</option>
-                  </select>
-                  <textarea value={govde} onChange={e => setGovde(e.target.value)} placeholder={'Mesaj metni. Değişken için {{1}}, {{2}}... kullanın.\nÖrn: Merhaba {{1}}, teklifiniz hazır: {{2}}'} className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat" rows={4} />
-                  <input value={ornekDegerler} onChange={e => setOrnekDegerler(e.target.value)} placeholder="Meta onayı için örnek değerler, virgülle (örn. Ahmet,https://link.com)" className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat" />
-                  <p className="text-[11px] text-[#999] font-montserrat">Meta genelde birkaç dakika - birkaç saat içinde onaylıyor. Onaylanana kadar bu şablon gönderim için kilitli görünür.</p>
-                </>
-              ) : (
-                <input value={metaTemplateName} onChange={e => setMetaTemplateName(e.target.value)} placeholder="Meta'da zaten onaylı olan şablon adı (örn. teklif_bildirimi)" className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat" />
+              <div>
+                <label className="block text-xs font-montserrat font-bold text-[#555] mb-1">Kategori</label>
+                <select value={kategori} onChange={e => setKategori(e.target.value)} className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat">
+                  {KATEGORI_SECENEKLERI.map(k => <option key={k} value={k}>{k}</option>)}
+                </select>
+              </div>
+
+              {!gelismisAcik && (
+                <div>
+                  <label className="block text-xs font-montserrat font-bold text-[#555] mb-1">WhatsApp mesajı</label>
+                  <textarea
+                    value={metin}
+                    onChange={e => setMetin(e.target.value)}
+                    placeholder={'Merhaba [İsim], teklifiniz hazır!\n\nKişiye özel bilgi eklemek için köşeli parantez kullan, örn: [İsim], [Firma]'}
+                    className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat"
+                    rows={5}
+                  />
+                  <p className="text-[11px] text-[#999] font-montserrat mt-1">
+                    [İsim] gibi yazdığın her şey, gönderirken gerçek bilgiyle otomatik değişir. Meta bu mesajı inceleyip onaylayacak (genelde birkaç dakika - birkaç saat).
+                  </p>
+
+                  {degiskenler.length > 0 && (
+                    <div className="mt-3 space-y-3 bg-[#f8f9fa] rounded-xl p-3">
+                      <p className="text-xs font-montserrat font-bold text-[#333]">Bulunan değişkenler:</p>
+                      {degiskenler.map(d => (
+                        <div key={d} className="space-y-1.5">
+                          <p className="text-xs font-montserrat font-semibold text-[#1a1a1a]">[{d}]</p>
+                          <select
+                            value={kaynaklar[d] || ''}
+                            onChange={e => setKaynaklar(prev => ({ ...prev, [d]: e.target.value }))}
+                            className="w-full border border-[#eaeaea] rounded-lg px-3 py-2 text-xs font-montserrat bg-white"
+                          >
+                            {KAYNAK_SECENEKLERI.map(k => <option key={k.deger} value={k.deger}>{k.etiket}</option>)}
+                          </select>
+                          <input
+                            value={ornekler[d] || ''}
+                            onChange={e => setOrnekler(prev => ({ ...prev, [d]: e.target.value }))}
+                            placeholder={`Meta onayı için örnek: örn. ${d === 'İsim' || d.toLowerCase().includes('isim') || d.toLowerCase().includes('ad') ? 'Ahmet' : 'Örnek Değer'}`}
+                            className="w-full border border-[#eaeaea] rounded-lg px-3 py-2 text-xs font-montserrat"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
 
-              <input value={parametreler} onChange={e => setParametreler(e.target.value)} placeholder="Toplu gönderimde kullanılacak alanlar, virgülle (örn. adSoyad,firmaAdi)" className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat" />
-              <textarea value={onizlemeMetni} onChange={e => setOnizlemeMetni(e.target.value)} placeholder="Önizleme metni (mesaj kutusunda gösterilecek, opsiyonel)" className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat" rows={2} />
-              <p className="text-[11px] text-[#999] font-montserrat">"Kayıtlı herkese" gönderimde parametreler Lead tablosundaki alan adlarıyla eşleşmeli (adSoyad, firmaAdi, email vb), sırası {`{{1}}`}, {`{{2}}`}... ile aynı olmalı.</p>
+              <button
+                type="button"
+                onClick={() => setGelismisAcik(v => !v)}
+                className="flex items-center gap-1 text-xs font-montserrat text-[#999] hover:text-[#555] pt-1"
+              >
+                <ChevronDown size={12} className={gelismisAcik ? 'rotate-180' : ''} />
+                {gelismisAcik ? 'Yeni mesaj yazmaya geri dön' : 'Meta\'da zaten onaylı bir şablonum var'}
+              </button>
+
+              {gelismisAcik && (
+                <div className="space-y-2">
+                  <input value={mevcutSablonAdi} onChange={e => setMevcutSablonAdi(e.target.value)} placeholder="Meta Business Manager'daki onaylı şablon adı" className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat" />
+                  <p className="text-[11px] text-[#999] font-montserrat">Bu şablonun kaç değişkeni varsa, yukarıdaki mesaj kutusuna aynı sırayla [değişken] yazarak eşleştir.</p>
+                </div>
+              )}
             </div>
 
             {kaydetHata && <p className="text-xs text-red-500 font-montserrat mt-3">{kaydetHata}</p>}
 
             <button
               onClick={sablonKaydet}
-              disabled={kaydediliyor || !baslik.trim() || (metaOlustur ? !govde.trim() : !metaTemplateName.trim())}
+              disabled={kaydediliyor || !baslik.trim()}
               className="w-full mt-5 bg-[#1a1a1a] text-white rounded-xl py-3 text-sm font-montserrat font-bold disabled:opacity-30"
             >
-              {kaydediliyor ? <Loader2 size={16} className="animate-spin mx-auto" /> : metaOlustur ? 'Meta\'ya Gönder ve Kaydet' : 'Kaydet'}
+              {kaydediliyor ? <Loader2 size={16} className="animate-spin mx-auto" /> : gelismisAcik ? 'Kaydet' : 'Onaya Gönder'}
             </button>
           </div>
         </div>
@@ -268,17 +344,17 @@ export default function SablonlarPage() {
                 <input value={gonderIsim} onChange={e => setGonderIsim(e.target.value)} placeholder="İsim (opsiyonel, kayıt için)" className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat" />
                 {gonderAcik.parametreler.map((p, i) => (
                   <input
-                    key={p}
+                    key={p.etiket + i}
                     value={gonderParams[i] || ''}
                     onChange={e => setGonderParams(prev => prev.map((v, idx) => idx === i ? e.target.value : v))}
-                    placeholder={`${p} değeri`}
+                    placeholder={`${p.etiket} değeri`}
                     className="w-full border border-[#eaeaea] rounded-xl px-4 py-2.5 text-sm font-montserrat"
                   />
                 ))}
               </div>
             ) : (
               <p className="text-xs text-[#999] font-montserrat mb-5">
-                Telefon numarası kayıtlı olan tüm leadlere gönderilecek. Parametreler ({gonderAcik.parametreler.join(', ') || 'yok'}) her lead için kendi kaydındaki alanlardan otomatik doldurulur.
+                Telefon numarası kayıtlı olan tüm leadlere gönderilecek. Değişkenler ({gonderAcik.parametreler.map(p => p.etiket).join(', ') || 'yok'}) her lead için kendi kaydından otomatik doldurulur.
               </p>
             )}
 
