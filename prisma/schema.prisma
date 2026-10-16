@@ -329,3 +329,16 @@ model WASablon {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
+
+model Arama {
+  id              String    @id @default(cuid())
+  callSid         String    @unique
+  kimden          String
+  kime            String
+  marka           String    @default("Spok.mp4")
+  durum           String    @default("basladi")
+  sureSaniye      Int?
+  kayitUrl        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
