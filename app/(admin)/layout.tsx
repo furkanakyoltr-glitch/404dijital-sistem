@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
   LayoutDashboard, Users, FileText, Calendar, Bell, Inbox,
-  LogOut, Menu, X, TrendingUp, BookOpen, ChevronRight, MessageCircle
+  LogOut, Menu, X, TrendingUp, BookOpen, ChevronRight, MessageCircle, CalendarClock
 } from 'lucide-react'
 import '../globals.css'
 
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { href: '/admin/teklif-olustur', icon: FileText, label: 'Teklif Oluştur' },
   { href: '/admin/muhasebe', icon: BookOpen, label: 'Muhasebe' },
   { href: '/admin/takvim', icon: Calendar, label: 'Takvim' },
+  { href: '/admin/randevu-ayarlari', icon: CalendarClock, label: 'Randevu Ayarları' },
   { href: '/admin/bildirimler', icon: Bell, label: 'Bildirimler' },
 ]
 
