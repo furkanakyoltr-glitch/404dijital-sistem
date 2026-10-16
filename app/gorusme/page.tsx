@@ -3,10 +3,10 @@ import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Calendar, Clock, Check, Loader2 } from 'lucide-react'
 
-const GUN_ETIKET: Record<string, string> = {
-  '2026-10-16': 'Cuma, 16 Ekim',
-  '2026-10-17': 'Cumartesi, 17 Ekim',
-  '2026-10-18': 'Pazar, 18 Ekim',
+function gunEtiketi(tarih: string): string {
+  const d = new Date(tarih + 'T00:00:00')
+  const etiket = d.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })
+  return etiket.charAt(0).toUpperCase() + etiket.slice(1)
 }
 
 function RandevuForm() {
@@ -69,7 +69,7 @@ function RandevuForm() {
         </div>
         <h1 className="font-bebas text-3xl tracking-wider text-[#1a1a1a] mb-2">RANDEVUNUZ ALINDI</h1>
         <p className="font-montserrat text-sm text-[#555] mb-1">
-          {GUN_ETIKET[tamamlandi.tarih]} günü saat {tamamlandi.saat}
+          {gunEtiketi(tamamlandi.tarih)} günü saat {tamamlandi.saat}
         </p>
         <p className="font-montserrat text-xs text-[#999] mt-4">
           Görüşme için ofisimize bekliyoruz. Değişiklik olursa size WhatsApp üzerinden ulaşacağız.
@@ -116,7 +116,7 @@ function RandevuForm() {
             <div key={gun}>
               <div className="flex items-center gap-2 mb-2.5">
                 <Calendar size={14} className="text-[#999]" />
-                <p className="font-montserrat font-bold text-sm text-[#1a1a1a]">{GUN_ETIKET[gun] || gun}</p>
+                <p className="font-montserrat font-bold text-sm text-[#1a1a1a]">{gunEtiketi(gun)}</p>
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {saatler.map(saat => {
