@@ -4,41 +4,26 @@ import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { takvimeEventEkle, takvimdenMeşgulSaatleriGetir } from '@/lib/googleCalendar'
 
-// Randevu penceresi env ile ayarlanabilir — yeniden deploy etmeden değiştirilebilir.
-const GUN_SAYISI = parseInt(process.env.RANDEVU_GUN_SAYISI || '14', 10)
-const BASLANGIC_SAAT = process.env.RANDEVU_BASLANGIC_SAAT || '09:00'
-const BITIS_SAAT = process.env.RANDEVU_BITIS_SAAT || '18:00'
-const SLOT_DAKIKA = parseInt(process.env.RANDEVU_SLOT_DAKIKA || '30', 10)
-const KAPALI_GUNLER = (process.env.RANDEVU_KAPALI_GUNLER || '0').split(',').map(Number) // 0=Pazar
+async function ayarGetir() {
+  const ayar = await prisma.randevuAyar.findUnique({ where: { id: 'singleton' } })
+  const gunler: string[] = ayar ? JSON.parse(ayar.gunler) : []
+  const baslangicSaat = ayar?.baslangicSaat || '09:00'
+  const bitisSaat = ayar?.bitisSaat || '18:00'
+  const slotDakika = ayar?.slotDakika || 30
 
-function tarihStr(d: Date): string {
-  return d.toISOString().slice(0, 10)
-}
-
-function gunleriHesapla(): string[] {
-  const gunler: string[] = []
-  const bugun = new Date()
-  for (let i = 1; gunler.length < GUN_SAYISI && i < GUN_SAYISI * 2 + 5; i++) {
-    const d = new Date(bugun)
-    d.setDate(bugun.getDate() + i)
-    if (!KAPALI_GUNLER.includes(d.getDay())) gunler.push(tarihStr(d))
-  }
-  return gunler
-}
-
-function saatleriHesapla(): string[] {
-  const [bh, bm] = BASLANGIC_SAAT.split(':').map(Number)
-  const [eh, em] = BITIS_SAAT.split(':').map(Number)
+  const [bh, bm] = baslangicSaat.split(':').map(Number)
+  const [eh, em] = bitisSaat.split(':').map(Number)
   const saatler: string[] = []
   let dakika = bh * 60 + bm
   const bitisDakika = eh * 60 + em
-  while (dakika + SLOT_DAKIKA <= bitisDakika) {
+  while (dakika + slotDakika <= bitisDakika) {
     const h = Math.floor(dakika / 60)
     const m = dakika % 60
     saatler.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
-    dakika += SLOT_DAKIKA
+    dakika += slotDakika
   }
-  return saatler
+
+  return { gunler, saatler, slotDakika }
 }
 
 export async function GET(req: NextRequest) {
@@ -46,8 +31,7 @@ export async function GET(req: NextRequest) {
   const internalKey = req.headers.get('x-internal-key')
   const admin = (session?.user as any)?.type === 'admin' || (!!internalKey && internalKey === process.env.INTERNAL_API_KEY)
 
-  const gunler = gunleriHesapla()
-  const saatler = saatleriHesapla()
+  const { gunler, saatler, slotDakika } = await ayarGetir()
 
   const kayitlar = await prisma.randevu.findMany({
     where: { tarih: { in: gunler } },
@@ -55,12 +39,12 @@ export async function GET(req: NextRequest) {
   })
 
   if (admin) {
-    return NextResponse.json({ gunler, saatler, slotDakika: SLOT_DAKIKA, randevular: kayitlar })
+    return NextResponse.json({ gunler, saatler, slotDakika, randevular: kayitlar })
   }
   return NextResponse.json({
     gunler,
     saatler,
-    slotDakika: SLOT_DAKIKA,
+    slotDakika,
     doluSlotlar: kayitlar.map(r => `${r.tarih}_${r.saat}`),
   })
 }
@@ -72,8 +56,7 @@ export async function POST(req: NextRequest) {
     if (!tarih || !saat || !adaySoyad?.trim() || !telefon?.trim()) {
       return NextResponse.json({ error: 'Eksik bilgi' }, { status: 400 })
     }
-    const gunler = gunleriHesapla()
-    const saatler = saatleriHesapla()
+    const { gunler, saatler, slotDakika } = await ayarGetir()
     if (!gunler.includes(tarih) || !saatler.includes(saat)) {
       return NextResponse.json({ error: 'Geçersiz tarih/saat' }, { status: 400 })
     }
@@ -98,7 +81,7 @@ export async function POST(req: NextRequest) {
     const takvimSonuc = await takvimeEventEkle({
       tarih,
       saat,
-      sureDakika: SLOT_DAKIKA,
+      sureDakika: slotDakika,
       baslik: `${randevu.pozisyon} Görüşmesi — ${randevu.adaySoyad}`,
       aciklama: `Telefon: ${randevu.telefon}${notlar ? `\nNot: ${notlar}` : ''}`,
     })
