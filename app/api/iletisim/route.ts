@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
       await createLead({
         firmaAdi: body.isletmeAdi,
         telefon: body.telefon,
-        kaynak: 'Web Sitesi - Hızlı Analiz Formu',
+        kaynak: body.kaynak || 'Web Sitesi - Hızlı Analiz Formu',
       })
     } else if (body.type === 'newsletter') {
       await createLead({
