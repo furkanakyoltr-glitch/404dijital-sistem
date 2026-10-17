@@ -261,6 +261,7 @@ model Lead {
   hizmetIlgisi String?
   mesaj        String?
   kaynak       String    @default("Web Sitesi")
+  reklamDetay  String?
   durum        String    @default("yeni_lead")
   takipNotu    String?
   musteriId    String?   @unique
