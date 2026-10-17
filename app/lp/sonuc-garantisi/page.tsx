@@ -426,8 +426,8 @@ export default function SonucGarantisiLP() {
 
           <div className="mt-14 pt-10 border-t border-white/10 text-left font-montserrat text-sm text-gray-400 leading-relaxed space-y-4">
             <p className="text-white font-semibold">Not:</p>
-            <p>Buraya kadar okuduysan, muhtemelen daha önce en az bir kere kötü bir ajans deneyimi yaşadın. Ben de bunu biliyorum, çünkü bu şikayeti onlarca kez duydum.</p>
-            <p>Bu yüzden riski ben üstleniyorum: 3 ayda hedeflediğimiz sonucu getiremezsem, o ayın ücretini geri alırsın. Kaybedecek bir şeyin yok.</p>
+            <p>Buraya kadar okuduysan, muhtemelen daha önce en az bir kere kötü bir ajans deneyimi yaşadın. Biz de bunu biliyoruz, çünkü bu şikayeti onlarca kez duyduk.</p>
+            <p>Bu yüzden riski biz üstleniyoruz: 3 ayda hedeflediğimiz sonucu getiremezsek, o ayın ücretini geri alırsın. Kaybedecek bir şeyin yok.</p>
             <p className="text-white font-semibold">Not 2:</p>
             <p>Ayda sadece sınırlı sayıda yeni işletme alıyoruz çünkü her müşteriye gerçekten zaman ayırmak istiyoruz. Yer dolmadan formu doldur.</p>
           </div>
