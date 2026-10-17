@@ -119,6 +119,7 @@ export default function LeadlerPage() {
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Hizmet İlgisi</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Mesaj</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Kaynak</th>
+                <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Reklam Detayı</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Tarih</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Durum</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Takip Geçmişi</th>
@@ -127,9 +128,9 @@ export default function LeadlerPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={11} className="text-center py-12 text-[#999]">Yükleniyor...</td></tr>
+                <tr><td colSpan={12} className="text-center py-12 text-[#999]">Yükleniyor...</td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan={11} className="text-center py-12 text-[#999]">Lead bulunamadı</td></tr>
+                <tr><td colSpan={12} className="text-center py-12 text-[#999]">Lead bulunamadı</td></tr>
               ) : (
                 leads.map(lead => (
                   <tr key={lead.id} className="border-b border-[#f0f0f0] hover:bg-[#f8f9fa] transition-colors align-top">
@@ -140,6 +141,9 @@ export default function LeadlerPage() {
                     <td className="px-4 py-3 text-[#555] whitespace-nowrap">{lead.hizmetIlgisi || '-'}</td>
                     <td className="px-4 py-3 text-[#555] max-w-xs truncate" title={lead.mesaj || ''}>{lead.mesaj || '-'}</td>
                     <td className="px-4 py-3 text-[#999] text-xs whitespace-nowrap">{lead.kaynak}</td>
+                    <td className="px-4 py-3 text-[#999] text-xs max-w-[220px]">
+                      {lead.reklamDetay ? <ReklamDetayi raw={lead.reklamDetay} /> : '-'}
+                    </td>
                     <td className="px-4 py-3 text-[#999] text-xs whitespace-nowrap">{formatDate(lead.createdAt)}</td>
                     <td className="px-4 py-3">
                       <select
@@ -212,6 +216,29 @@ export default function LeadlerPage() {
           </table>
         </div>
       </div>
+    </div>
+  )
+}
+
+function ReklamDetayi({ raw }: { raw: string }) {
+  const params = new URLSearchParams(raw)
+  const kampanya = params.get('utm_campaign')
+  const icerik = params.get('utm_content')
+  const kaynak = params.get('utm_source')
+  const fbclid = params.get('fbclid')
+  const gclid = params.get('gclid')
+
+  if (!kampanya && !icerik && !kaynak && !fbclid && !gclid) {
+    return <span className="truncate block" title={raw}>{raw}</span>
+  }
+
+  return (
+    <div className="space-y-0.5">
+      {kaynak && <p><span className="text-[#ccc]">Kaynak:</span> {kaynak}</p>}
+      {kampanya && <p className="truncate" title={kampanya}><span className="text-[#ccc]">Kampanya:</span> {kampanya}</p>}
+      {icerik && <p className="truncate" title={icerik}><span className="text-[#ccc]">Reklam:</span> {icerik}</p>}
+      {fbclid && <p className="text-[#ccc]">Meta tık ID var</p>}
+      {gclid && <p className="text-[#ccc]">Google tık ID var</p>}
     </div>
   )
 }
