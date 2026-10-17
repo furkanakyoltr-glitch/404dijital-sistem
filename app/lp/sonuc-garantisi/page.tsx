@@ -152,36 +152,37 @@ export default function SonucGarantisiLP() {
         <CTAForm />
       </section>
 
-      {/* PERSONAL LETTER */}
+      {/* MARKA HİKAYESİ */}
       <section className="py-20 bg-white border-t border-[#eaeaea]">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <p className="text-[#999] font-montserrat text-xs uppercase tracking-wider mb-1">Furkan Akyol'dan</p>
-          <p className="text-[#999] font-montserrat text-xs uppercase tracking-wider mb-10">404 Dijital, İzmir</p>
+          <p className="text-[#999] font-montserrat text-xs uppercase tracking-wider mb-10">404 DİJİTAL, İZMİR</p>
 
           <div className="font-montserrat text-[#333] text-base leading-[1.9] space-y-5">
-            <p>Merhaba, ben Furkan.</p>
-            <p>404 Dijital'i kurduğumda elimde ne büyük bir ekip vardı, ne de kalabalık bir bütçe.</p>
-            <p>Vardı sadece: İzmir'de dürüst, sonuç odaklı bir reklam ajansı kurma fikri.</p>
-            <p>O zamanlar piyasaya baktım ve <strong>gerçek bir reklam ajansı bulamadım</strong>.</p>
-            <p>Herkes post paylaşıyordu. Kimse satışa, dönüşüme, somut sonuca odaklanmıyordu.</p>
-            <p>İşletme sahipleri her ay fatura ödüyor, ama telefon çalmıyordu.</p>
-            <p>Ben de bunu değiştirmeye karar verdim.</p>
-            <p>Her kampanyayı net bir satış hedefine bağladık. İçerik için içerik atmadık.</p>
-            <p>Hangi reklamın kaç müşteri getirdiğini gün gün ölçtük, raporladık.</p>
-            <p>Ve sonuçlar gelmeye başladı:</p>
+            <p>Biz 404 Dijital'iz.</p>
+            <p>Google'ın ilk kurulduğu yıllarda, 404 numaralı bir uçuş gerçekleşti.</p>
+            <p>Bu uçaktan bir daha hiç haber alınamadı.</p>
+            <p>Google da, ulaşamadığı sayfalara bu uçuşa bir saygı duruşu olarak <strong>"404 Not Found"</strong> demeye başladı.</p>
+            <p>Biz de İzmir'e döndüğümüzde benzer bir boşluk gördük.</p>
+            <p>Viral olmuş içerikleri taklit etmek üzerine kurulu, işletmelere hiçbir fayda getirmeyen, sadece ay sonunda fatura kesmek için var olan onlarca "sosyal medya ajansı" vardı.</p>
+            <p><strong>Biz bir sosyal medya ajansı değiliz.</strong></p>
+            <p><strong>Biz bir reklam ajansıyız.</strong></p>
+            <p>Reklamcılığın babası sayılan David Ogilvy'nin dediği gibi:</p>
+            <p className="font-bold text-[#1a1a1a]">"Satmıyorsa yaratıcı değildir."</p>
+            <p>Bu felsefeyle, işletmelere maksimum faydayı sağlamak için kurulduk. Kurulduğumuz ilk günden bu yana sektörde emin adımlarla ilerliyoruz.</p>
+            <p>Çünkü inanıyoruz ki: güçlü şehir, güçlü markalarla; güçlü markalar ise güçlü reklamlarla doğar.</p>
+            <p>Her sektörün merkezi sayılan İstanbul'un gölgesinden çıkmak için İzmir'de kurulduk. Ve şu an, tüm Türkiye'ye hizmet verecek bir noktaya doğru evriliyoruz.</p>
+            <p>Ve sonuçlar bunu kanıtlıyor:</p>
             <p>Havuzumolsun'a sadece 20.000₺ reklam bütçesiyle 500.000₺ ciro kazandırdık — <strong>25 kat getiri</strong>.</p>
             <p>Dr. Aycan Akçalı'yı 700 takipçiden başlattık, sağlık sektörünün en katı reklam kurallarına rağmen tek bir uyarı bile almadan büyüttük.</p>
             <p>Ege Estetik Diş'i kuruluşundan beraber yürüttük, Google'da <strong>1.2 milyon görüntülenme</strong> yakaladık.</p>
             <p>BirTvYayin'i sıfırdan 50.000 takipçiye taşıdık.</p>
             <p>Ve bunları sağlık, diş, e-ticaret, gayrimenkul, prodüksiyon ve daha pek çok sektörde tekrar tekrar yaptık.</p>
-            <p>Bugün hâlâ aynı şeye inanıyorum:</p>
-            <p className="font-bold text-[#1a1a1a]">"Reklamcılık sanat değil, satış işidir."</p>
-            <p>Ama şunu da öğrendim: İşletme sahiplerinin çoğu, bana ulaşmadan önce en az bir kere kötü bir ajans deneyimi yaşamış oluyor.</p>
+            <p>Ama şunu da öğrendik: İşletme sahiplerinin çoğu, bize ulaşmadan önce en az bir kere kötü bir ajans deneyimi yaşamış oluyor.</p>
             <p>Para ödüyorlar, sonuç alamıyorlar. Ajans ortadan kayboluyor. Kimse hesap vermiyor.</p>
-            <p>Bu yüzden 404 Dijital'de işleri biraz farklı yapmaya karar verdim.</p>
+            <p>Bu yüzden 404 Dijital'de işleri biraz farklı yapıyoruz.</p>
             <p><strong>Sonucu garanti ediyoruz.</strong></p>
             <p>3 ay boyunca sizinle çalışırız. Birlikte belirlediğimiz nitelikli lead hedefine ulaşamazsak, o ayın yönetim ücretini geri alırsınız.</p>
-            <p>Riski ben üstleniyorum, siz değil.</p>
+            <p>Riski biz üstleniyoruz, siz değil.</p>
             <p>Devam edelim mi?</p>
           </div>
 
