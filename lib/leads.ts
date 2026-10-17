@@ -25,6 +25,7 @@ export async function createLead(data: {
   hizmetIlgisi?: string
   mesaj?: string
   kaynak: string
+  reklamDetay?: string
 }) {
   return prisma.lead.create({
     data: {
@@ -35,6 +36,7 @@ export async function createLead(data: {
       hizmetIlgisi: data.hizmetIlgisi || null,
       mesaj: data.mesaj || null,
       kaynak: data.kaynak,
+      reklamDetay: data.reklamDetay || null,
     },
   })
 }
