@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Phone, MessageCircle, Plus, CheckCircle2, XCircle, ExternalLink, ShieldCheck, Star } from 'lucide-react'
 import { trackLeadConversion, trackContactClick } from '@/lib/tracking'
@@ -53,6 +53,13 @@ export default function SonucGarantisiLP() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
+  const [reklamDetay, setReklamDetay] = useState('')
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const qs = window.location.search
+    if (qs) setReklamDetay(qs.replace(/^\?/, ''))
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
@@ -61,7 +68,7 @@ export default function SonucGarantisiLP() {
       await fetch('/api/iletisim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'analiz', ...formData, kaynak: 'LP - Sonuç Garantisi (Meta Ads)' }),
+        body: JSON.stringify({ type: 'analiz', ...formData, reklamDetay, kaynak: 'LP - Sonuç Garantisi (Meta Ads)' }),
       })
       setSubmitted(true)
     } finally {
