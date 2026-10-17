@@ -149,11 +149,15 @@ export default function SurekliIletisimLP() {
           Parasını alıp ortadan kaybolan ajans deneyimi yaşadıysanız, bu bitti. 404 Dijital'de her hafta elle hazırladığımız raporu WhatsApp'tan atıyoruz, sorularınıza 24 saat içinde dönüş garantisi veriyoruz.
         </p>
 
-        {/* VSL PLACEHOLDER */}
-        <div className="aspect-video bg-[#1a1a1a] rounded-2xl mb-8 flex items-center justify-center max-w-xl mx-auto">
-          <p className="text-white/40 font-montserrat text-sm px-6 text-center">
-            [ VSL / Müşteri Referans Videosu buraya gelecek — Furkan video dosyasını/linkini verince eklenecek ]
-          </p>
+        {/* VSL / MÜŞTERİ REFERANS VİDEOSU */}
+        <div className="aspect-video bg-[#1a1a1a] rounded-2xl mb-8 overflow-hidden max-w-xl mx-auto">
+          <iframe
+            src="https://drive.google.com/file/d/16tYVPfxHzixo8hnYzhrkhVJrsl72axXz/preview"
+            className="w-full h-full"
+            allow="autoplay"
+            allowFullScreen
+            title="Müşteri referans videosu"
+          />
         </div>
 
         <CTAForm />
