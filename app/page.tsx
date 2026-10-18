@@ -1,537 +1,551 @@
 "use client"
-import { useState, useEffect, useRef } from 'react'
-import { Header } from '@/components/layout/header'
-import { Footer } from '@/components/layout/footer'
-import { WhatsAppFloat } from '@/components/layout/whatsapp-float'
-import { StickyCtaBar } from '@/components/layout/sticky-cta-bar'
-import { ThreeBackground } from '@/components/ui/three-background'
-import { TransitionLayer } from '@/components/ui/transition-layer'
-import { SpinningLogos } from '@/components/ui/spinning-logos'
-import { PricingCard } from '@/components/ui/pricing-card'
-import { SocialProof } from '@/components/ui/social-proof'
-import { ProblemSection } from '@/components/ui/problem-section'
-import { FaqSection } from '@/components/ui/faq-section'
-import { Send, Phone, MapPin, Mail, ArrowRight, TrendingUp, Users, BarChart3, Award } from 'lucide-react'
-import { trackLeadConversion } from '@/lib/tracking'
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { Phone, MessageCircle, Plus, CheckCircle2, XCircle, ExternalLink, ShieldCheck, Star } from 'lucide-react'
+import { trackLeadConversion, trackContactClick } from '@/lib/tracking'
 
-// Pricing data
-const CIRO_PAKETLER = [
-  {
-    name: 'Platinum Paket',
-    monthlyPrice: 75000,
-    yearlyPrice: 60000,
-    features: ['12 Reels Videosu', '24 Grafik Tasarım', 'Tam Reklam Yönetimi', 'Influencer Koordinasyonu', 'Öncelikli Destek Hattı'],
-  },
-  {
-    name: 'Gold Paket',
-    monthlyPrice: 50000,
-    yearlyPrice: 40000,
-    features: ['8 Reels Videosu', '16 Grafik Tasarım', 'Gelişmiş Reklam Yönetimi', '6-12 Aylık Yol Haritası', 'Rakip Analizi', 'A/B Test Optimizasyonu'],
-    isPopular: true,
-  },
-  {
-    name: 'Giriş Paketi',
-    monthlyPrice: 35000,
-    yearlyPrice: 28000,
-    features: ['6 Reels Videosu', '12 Grafik Tasarım', 'Reklam Hesabı Kontrolü', 'Özel Satış Stratejisi', 'Aylık Performans Raporu'],
-  },
+const SOSYAL_KANIT = [
+  { stat: '25x', label: 'Reklam Getirisi', title: 'Havuzumolsun', href: 'https://www.instagram.com/havuzumolsun/', logo: '/images/clients/havuzumolsun.jpg' },
+  { stat: '1.2M', label: 'Google Görüntülenme', title: 'Ege Estetik Diş', href: 'https://www.egeestetikdis.com/', logo: '/images/clients/egeestetikdis.png', logoWide: true },
+  { stat: '0 → 50K', label: 'Takipçi Büyümesi', title: 'BirTvYayin', href: 'https://www.instagram.com/birtvyayin/', logo: '/images/clients/birtvyayin.jpg' },
+  { stat: '0₺ Bütçe', label: 'Organik Büyüme', title: 'Ballicams', href: 'https://www.instagram.com/ballicams/', logo: '/images/clients/ballicams.jpg' },
+  { stat: '0 İhlal', label: 'Sağlık Reklamı Uyumu', title: 'Dr. Aycan Akçalı', href: 'https://www.instagram.com/dr.aycanakcali/', logo: '/images/clients/dr-aycanakcali.jpg' },
 ]
 
-const SOSYAL_PAKETLER = [
-  {
-    name: 'Platinum',
-    monthlyPrice: 65000,
-    yearlyPrice: 52000,
-    features: ['14 Reels + 2 Uzun Form Video', '30 Feed Görseli', '5 Platform (IG, TT, FB, LinkedIn, X)', '7/24 Topluluk Yönetimi', 'Aylık Büyüme Strateji Sunumu', 'Influencer İşbirlikleri'],
-  },
-  {
-    name: 'Gold',
-    monthlyPrice: 45000,
-    yearlyPrice: 36000,
-    features: ['8 Reels / Kısa Video', '20 Feed Görseli', 'TikTok + Instagram + Facebook', 'Topluluk Yönetimi', 'Rakip İzleme Raporu', 'Story & Highlights Tasarımı'],
-    isPopular: true,
-  },
-  {
-    name: 'Giriş',
-    monthlyPrice: 30000,
-    yearlyPrice: 24000,
-    features: ['4 Reels / Kısa Video', '12 Feed Görseli', 'Instagram & Facebook Yönetimi', 'Etiket & Hashtag Stratejisi', 'Aylık İçerik Takvimi'],
-  },
+const YORUMLAR = [
+  { yorum: '"Aylarca farklı ajanslarla para yaktıktan sonra 404 Dijital ile ilk kez hesap tablosunda gerçek bir fark gördüm."', isim: 'Gerçek müşteri geri bildirimi' },
+  { yorum: '"Sorduğum her soruya aynı gün cevap alıyorum, önceki ajansımdan 3 hafta cevap bekliyordum."', isim: 'Gerçek müşteri geri bildirimi' },
+  { yorum: '"Reklam hesabım hâlâ benim adıma, istediğim an kontrol edebiliyorum. İlk kez bu kadar şeffaf çalıştım."', isim: 'Gerçek müşteri geri bildirimi' },
 ]
 
-const UC_ALTMIS_PAKETLER = [
-  {
-    name: '360 Platinum',
-    monthlyPrice: 110000,
-    yearlyPrice: 88000,
-    features: ['Pro özellikleri +', 'Özel Marka Stratejisti Ataması', 'PR & Medya İlişkileri', 'Lansmanlar & Etkinlik Pazarlaması', 'Yıllık Büyüme Planı & CFO Raporu', 'Öncelikli Yönetici Destek Hattı'],
-  },
-  {
-    name: '360 Pro',
-    monthlyPrice: 75000,
-    yearlyPrice: 60000,
-    features: ['Gold özellikleri +', 'Satış Hunisi Tasarımı & Yönetimi', 'CRM Entegrasyonu & Lead Takibi', 'SMS & WhatsApp Kampanyaları', 'Conversion Rate Optimizasyonu', 'Haftalık Performans Toplantısı'],
-    isPopular: true,
-    badge: 'EN KAPSAMLI',
-  },
-  {
-    name: '360 Gold',
-    monthlyPrice: 50000,
-    yearlyPrice: 40000,
-    features: ['Sosyal Medya Yönetimi', 'Google & Meta Reklam Yönetimi', 'E-posta Pazarlama Otomasyonu', 'SEO Temel Optimizasyon', 'Marka Tutarlılığı Denetimi'],
-  },
+const KIMIN_ICIN = [
+  'Diş kliniği, estetik merkezi, fizyoterapi gibi bir sağlık işletmeniz var ve bekleme odanızın dolu olmasını istiyorsunuz?',
+  'Emlakçı veya müteahhitsiniz, cebi dolu ve satın almaya hazır alıcılarla konuşmak istiyorsunuz?',
+  'Restoran, kafe veya mekan işletiyorsunuz, masalarınızın her akşam dolu olmasını istiyorsunuz?',
+  'E-ticaret / D2C markanız var, reklam harcadığınız her kuruşun nereye gittiğini bilmek istiyorsunuz?',
+  'Hizmet veya danışmanlık veriyorsunuz, takviminizin "görüşme talebi" ile dolmasını istiyorsunuz?',
+  'Prodüksiyon, üretim veya B2B işindesiniz, telefonun sürekli çalmasını istiyorsunuz?',
 ]
 
-const AD_HIKAYELERI = [
-  {
-    title: 'Volkswagen Think Small (1959)',
-    img: '🚗',
-    content: "1950'lerin Amerika'sında her marka devasa boyutlarda araçlar üretirken Volkswagen Beetle'ın küçüklüğü 'Think Small' sloganıyla avantaja çevrildi. Dönemin en büyük reklamcılık zihinlerinden Bill Bernbach, tüketiciyle dürüst ve doğrudan bir dil kurdu. Ürünün en 'zayıf' noktası en güçlü mesaja dönüştürüldü.",
-    vision: '"Markanızın zayıf gibi görünen yönlerini doğru bir stratejiyle en güçlü satış silahına dönüştürebiliriz. Dürüstlük, her zaman en çok dönüşüm getiren kancadır."',
-  },
-  {
-    title: 'Apple 1984',
-    img: '🍎',
-    content: "Super Bowl'da yayınlanan bu efsanevi reklamda Apple, bir bilgisayar tanıtmadı. Özgürlük için savaşan bir savaşçı anlattı. Ürün özellikleri değil, özgürleştirici ve devrimci bir fikir satıldı. Ridley Scott'ın yönettiği bu film, tek bir yayınla Apple'ı kültürel bir fenomene dönüştürdü.",
-    vision: '"Tüketiciler mantıklarıyla değil, duygularıyla satın alırlar. Sadece ürününüzü değil, o ürünün arkasındaki fikri satmalısınız."',
-  },
-  {
-    title: 'Red Bull Stratos (2012)',
-    img: '🚀',
-    content: "Felix Baumgartner'ın uzaydan 39 km yükseklikten yaptığı tarihi atlayış, 8 milyondan fazla kişi tarafından canlı izlendi. Red Bull, bu etkinlikle sadece bir enerji içeceği satmadı; insan sınırlarını zorlayan bir felsefe yarattı. 'Kanatlandırır' vaadi dünya sahnesinde somutlaştı.",
-    vision: '"Bugünün dijital dünyasında dikkat çekmek için geleneksel sınırları aşmak zorundasınuz. Markanız için sıradan gönderiler paylaşmak yerine, viral olacak o büyük atlayışı kurguluyoruz."',
-  },
+const NELER_VAR = [
+  'Reklam hesabınızın tamamen ücretsiz denetimi — şu an nerede, nasıl para kaybettiğinizi gözünüzle görürsünüz.',
+  'Sektörünüze ve bütçenize özel, geçmiş kampanya verilerine dayanan gerçekçi 3 aylık nitelikli lead hedefi.',
+  'Hangi reklamın kaç nitelikli lead getirdiğini her hafta gün gün gösteren şeffaf rapor.',
+  'Reklam hesabınız baştan sona sizin adınıza — biz sadece yönetiriz, istediğiniz an erişiminizi geri alabilirsiniz.',
+  '3 ay boyunca hedeflediğimiz nitelikli lead sayısına ulaşamazsak, o ayın yönetim ücretini tam iade ediyoruz.',
 ]
 
-const STATS = [
-  { icon: TrendingUp, value: '%850+', label: 'Ortalama ROI' },
-  { icon: Users, value: '50+', label: 'Aktif Müşteri' },
-  { icon: BarChart3, value: '₺12M+', label: 'Yönetilen Reklam Bütçesi' },
-  { icon: Award, value: '4+', label: 'Yıl Deneyim' },
+const SORULAR = [
+  { q: '"3 ayda dönüşüm göremezsem paramı geri alırım" ne anlama geliyor, tam olarak?', a: '3 ay boyunca kampanyayı yönetiriz; görüşmede birlikte belirlediğimiz nitelikli lead hedefine ulaşamazsak, o ay için ödediğiniz yönetim ücretini iade ederiz. Reklam bütçesi bu garantinin dışındadır — o tamamen sizin platform hesabınızda kalır, biz asla elinize para geçirmeden, sizin adınıza açılmış hesaptan harcarız.' },
+  { q: 'Daha önce bir ajansla çalıştım, parayı aldılar sonra ortadan kayboldular. Siz farklı mısınız?', a: 'Her hafta elle hazırladığımız raporu WhatsApp\'tan atıyoruz, sorularınıza 24 saat içinde dönüş garantisi veriyoruz. Reklam hesabınız sizin adınıza açılır — istediğiniz an erişiminizi geri alabilirsiniz, biz sadece yönetiriz.' },
+  { q: 'Dekont veya fatura vermeyen, sözleşmesiz çalışan ajanslar gördüm. Sizde durum ne?', a: 'Her ödeme faturalıdır, her harcama raporludur. Sözleşmemiz net: süre, kapsam, garanti şartları yazılı olarak önceden belirlenir, elden/belgesiz ödeme talep etmeyiz.' },
+  { q: 'Sektörümüzde deneyiminiz var mı?', a: 'Sağlık (sıkı reklam kurallarına tam uyumla), diş kliniği, e-ticaret, gayrimenkul, film prodüksiyon ve yerel hizmet işletmeleri dahil geniş bir portföyümüz var. Yukarıdaki "Rakamlar Konuşur" bölümünde gerçek müşterilerimizi inceleyebilirsiniz.' },
+  { q: 'Uzun vadeli sözleşmeye bağlanmak istemiyorum.', a: 'Zorunlu uzun vadeli sözleşme dayatmıyoruz. Sonuç veremiyorsak sizi tutmamızın bir anlamı yok — ayrılmak istediğiniz an serbestsiniz.' },
+  { q: '"Ayda X lead garantisi" gibi abartılı vaatlerde bulunan ajanslardan çok yoruldum.', a: 'Biz tahmini rakam değil, geçmiş kampanya verilerimizi göstererek konuşuruz. Ücretsiz analiz görüşmesinde sektörünüze ve bütçenize göre gerçekçi bir hedef birlikte belirleriz — kanıtlanamayan hiçbir sayıyı ağzımıza almayız.' },
+  { q: 'Hangi şehirlere hizmet veriyorsunuz?', a: 'Türkiye genelinde hizmet veriyoruz. Merkezimiz İzmir\'de ama müşterilerimizle büyük çoğunlukla online çalışıyoruz — şehir fark etmiyor. Her müşteriye gerçekten zaman ayırabilmek için kasıtlı olarak az sayıda işletmeyle çalışıyoruz, bu yüzden ayda sınırlı sayıda yeni müşteri kabul ediyoruz.' },
+  { q: 'Reklam bütçesi ajans ücretine dahil mi?', a: 'Hayır, tamamen ayrı. Reklam bütçeniz kendi hesabınızda, sizin kontrolünüzde kalır — biz sadece strateji ve yönetimi üstleniriz.' },
+  { q: 'Analiz görüşmesi gerçekten ücretsiz mi, bir yere imza atmam mı gerekecek?', a: 'Tamamen ücretsiz, hiçbir yükümlülük yok. 30 dakikada mevcut durumunuzu, reklam hesabınızı inceleriz ve size gerçekçi bir yol haritası çizeriz. Devam etmek isteyip istemediğinize görüşme sonunda siz karar verirsiniz.' },
+  { q: 'Analiz görüşmesinden sonra ne olacak?', a: 'Görüşmede sizin için anlamlı olup olmadığımıza birlikte karar veririz. Uygunsa, sözleşme ve garanti şartlarını netleştirir, kampanyanızı kurmaya başlarız. Uygun değilse, hiçbir baskı yapmadan yolunuza devam edersiniz.' },
 ]
-
 
 export default function HomePage() {
   const [formData, setFormData] = useState({ isletmeAdi: '', telefon: '' })
-  const [formSubmitted, setFormSubmitted] = useState(false)
-  const [isYearly, setIsYearly] = useState(false)
-  const [activePackageTab, setActivePackageTab] = useState('ciro')
-  const [contactForm, setContactForm] = useState({ isim: '', email: '', telefon: '', mesaj: '' })
-  const [contactSubmitted, setContactSubmitted] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleHeroSubmit = async (e: React.FormEvent) => {
+  const [reklamDetay, setReklamDetay] = useState('')
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const qs = window.location.search
+    if (qs) setReklamDetay(qs.replace(/^\?/, ''))
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setFormSubmitted(true)
-    const w3payload = { access_key: '3c20d34e-3dfe-4ba8-a445-2265ac77ddcb', subject: `Ucretsiz Analiz Talebi - ${formData.isletmeAdi}`, from_name: '404 Dijital Form', message: `Isletme: ${formData.isletmeAdi}\nTelefon: ${formData.telefon}`, email: 'form@404dijital.com' }
+    setSubmitting(true)
     trackLeadConversion()
-    await Promise.all([
-      fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(w3payload) }).catch(() => {}),
-      fetch('/api/iletisim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'analiz', ...formData }) }).catch(() => {}),
-    ])
+    try {
+      await fetch('/api/iletisim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'analiz', ...formData, reklamDetay, kaynak: 'Ana Sayfa' }),
+      })
+      setSubmitted(true)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
-  const handleContactSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setContactSubmitted(true)
-    const w3payload = { access_key: '3c20d34e-3dfe-4ba8-a445-2265ac77ddcb', subject: `Iletisim Formu - ${contactForm.isim}`, from_name: '404 Dijital Form', message: `Isim: ${contactForm.isim}\nEposta: ${contactForm.email}\nTelefon: ${contactForm.telefon}\nMesaj: ${contactForm.mesaj}`, email: contactForm.email || 'form@404dijital.com' }
-    trackLeadConversion()
-    await Promise.all([
-      fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(w3payload) }).catch(() => {}),
-      fetch('/api/iletisim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'iletisim', ...contactForm }) }).catch(() => {}),
-    ])
-  }
+  const CTAForm = ({ dark = false }: { dark?: boolean }) => (
+    !submitted ? (
+      <form onSubmit={handleSubmit} className="space-y-3 max-w-md mx-auto">
+        <input
+          type="text" placeholder="İşletme Adı" required
+          value={formData.isletmeAdi}
+          onChange={e => setFormData(p => ({ ...p, isletmeAdi: e.target.value }))}
+          className={dark ? "w-full border-2 border-white/10 bg-white/5 text-white placeholder:text-gray-500 rounded-xl px-4 py-3.5 text-sm font-montserrat focus:outline-none focus:border-white/30" : "w-full border-2 border-[#eaeaea] rounded-xl px-4 py-3.5 text-sm font-montserrat focus:outline-none focus:border-[#1a1a1a]"}
+        />
+        <input
+          type="tel" placeholder="Telefon Numarası" required
+          value={formData.telefon}
+          onChange={e => setFormData(p => ({ ...p, telefon: e.target.value }))}
+          className={dark ? "w-full border-2 border-white/10 bg-white/5 text-white placeholder:text-gray-500 rounded-xl px-4 py-3.5 text-sm font-montserrat focus:outline-none focus:border-white/30" : "w-full border-2 border-[#eaeaea] rounded-xl px-4 py-3.5 text-sm font-montserrat focus:outline-none focus:border-[#1a1a1a]"}
+        />
+        <button type="submit" disabled={submitting} className={dark ? "w-full bg-[#ffc107] text-black font-montserrat font-bold text-sm py-4 rounded-xl disabled:opacity-50" : "w-full bg-[#1a1a1a] text-white font-montserrat font-bold text-sm py-4 rounded-xl disabled:opacity-50"}>
+          ÜCRETSİZ ANALİZ GÖRÜŞMEMİ AYIRT
+        </button>
+        <p className={dark ? "text-gray-400 text-xs font-montserrat" : "text-[#999] text-xs font-montserrat"}>
+          Butona bas, formu doldur — satış ekibimiz 24 saat içinde seni arayıp 30 dakikalık ücretsiz analiz görüşmesi yapsın.
+        </p>
+      </form>
+    ) : (
+      <div className={dark ? "max-w-md mx-auto bg-green-500/10 border border-green-500/30 rounded-xl px-6 py-5" : "max-w-md mx-auto bg-green-50 border border-green-200 rounded-xl px-6 py-5"}>
+        <p className={dark ? "text-green-400 font-montserrat font-bold" : "text-green-700 font-montserrat font-bold"}>✅ Talebin alındı!</p>
+        <p className={dark ? "text-green-500 text-sm mt-1 font-montserrat" : "text-green-600 text-sm mt-1 font-montserrat"}>24 saat içinde seni arayıp 30 dakikalık ücretsiz analiz görüşmesini ayarlayacağız.</p>
+      </div>
+    )
+  )
 
   return (
-    <>
-      <TransitionLayer />
-      <Header />
-      <WhatsAppFloat />
-      <StickyCtaBar />
-
-      {/* HERO */}
-      <section id="home" className="relative min-h-screen bg-[#f8f9fa] overflow-hidden flex items-center">
-        <ThreeBackground />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 w-full">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-[#1a1a1a] text-white text-xs font-montserrat font-bold px-4 py-2 rounded-full mb-6 tracking-wider">
-                <TrendingUp size={14} />
-                %850+ ORTALAMA ROI
-              </div>
-              <p className="text-[#4a4a4a] font-montserrat font-semibold text-lg mb-2 tracking-wider uppercase">
-                Sosyal Medya Değil, Reklam Ajansı!
-              </p>
-              <h1 className="font-bebas text-5xl md:text-7xl text-[#1a1a1a] leading-none tracking-wider mb-6">
-                SATIŞLARINIZI<br />ARTTIRMAK İÇİN<br />HAREKETE GEÇİN
-              </h1>
-              <p className="text-[#555] font-montserrat text-base mb-4 leading-relaxed">
-                Ücretsiz analiz ile işletmenizin büyüme potansiyelini keşfedin.<br />
-                <strong>24 saat içinde geri dönüş garantisi.</strong>
-              </p>
-              <p className="text-[#999] font-montserrat text-xs mb-8 flex items-center gap-1.5">
-                <span className="text-green-600">✓</span> Zorunlu uzun vadeli sözleşme yok — istediğin an bırakabilirsin.
-              </p>
-              {!formSubmitted ? (
-                <form onSubmit={handleHeroSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md">
-                  <input
-                    type="text"
-                    placeholder="İşletme Adı"
-                    value={formData.isletmeAdi}
-                    onChange={e => setFormData(p => ({ ...p, isletmeAdi: e.target.value }))}
-                    className="flex-1 border-2 border-[#eaeaea] rounded-xl px-4 py-3 text-sm font-montserrat focus:outline-none focus:border-[#1a1a1a]"
-                    required
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Telefon Numarası"
-                    value={formData.telefon}
-                    onChange={e => setFormData(p => ({ ...p, telefon: e.target.value }))}
-                    className="flex-1 border-2 border-[#eaeaea] rounded-xl px-4 py-3 text-sm font-montserrat focus:outline-none focus:border-[#1a1a1a]"
-                    required
-                  />
-                  <button type="submit" className="btn-primary whitespace-nowrap text-xs">
-                    HEMEN BAŞVUR, 24 SAATTE ARAYALIM
-                  </button>
-                </form>
-              ) : (
-                <div className="bg-green-50 border border-green-200 rounded-xl px-6 py-4 max-w-md">
-                  <p className="text-green-700 font-montserrat font-semibold">✅ Talebiniz alındı!</p>
-                  <p className="text-green-600 text-sm mt-1">24 saat içinde sizi arayacağız.</p>
-                </div>
-              )}
-            </div>
-            {/* Stats */}
-            <div className="grid grid-cols-2 gap-4">
-              {STATS.map(({ icon: Icon, value, label }, i) => (
-                <div key={i} className="bg-white rounded-2xl p-6 border border-[#eaeaea] shadow-sm hover:shadow-md transition-shadow">
-                  <div className="w-10 h-10 bg-[#1a1a1a] rounded-xl flex items-center justify-center mb-3">
-                    <Icon size={20} className="text-white" />
-                  </div>
-                  <div className="font-bebas text-3xl text-[#1a1a1a] tracking-wider">{value}</div>
-                  <div className="text-[#555] text-sm font-montserrat mt-1">{label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <ProblemSection />
-
-      {/* SPINNING LOGOS */}
-      <div className="bg-white border-y border-[#eaeaea] py-4 overflow-hidden">
-        <SpinningLogos />
+    <div className="bg-white">
+      {/* URGENCY BAR */}
+      <div className="bg-[#1a1a1a] text-white text-center py-2.5 px-4">
+        <p className="text-xs font-montserrat font-semibold tracking-wide">
+          ⚠️ Türkiye genelinde hizmet veriyoruz, ayda sınırlı sayıda yeni işletme alıyoruz — kalite için kasıtlı olarak az sayıda müşteriyle çalışıyoruz.
+        </p>
       </div>
 
-      <SocialProof />
+      {/* MINIMAL TOP BAR */}
+      <div className="border-b border-[#eaeaea]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="font-bebas text-2xl tracking-[3px] text-[#1a1a1a]">404 DİJİTAL</Link>
+          <div className="hidden sm:flex items-center gap-1.5 text-[#999] text-xs font-montserrat">
+            <ShieldCheck size={14} className="text-green-600" /> Sonuç garantili çalışıyoruz
+          </div>
+        </div>
+      </div>
 
-      {/* ABOUT */}
-      <section id="about" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div>
-              <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">BİZ KİMİZ?</p>
-              <h2 className="font-bebas text-5xl text-[#1a1a1a] tracking-wider mb-6 leading-tight">
-                NEDEN 404 DİJİTAL?
-              </h2>
-              <p className="text-[#555] font-montserrat text-base leading-relaxed mb-6">
-                Google ilk kurulduğunda 404 numaralı uçuş radardan kayboldu ve bir daha haber alınamadı. Google, bulunamayan sayfalara bu yüzden <strong>"404 Not Found"</strong> dedi.
-              </p>
-              <p className="text-[#555] font-montserrat text-base leading-relaxed mb-6">
-                Biz piyasaya baktık ve <strong>"Gerçek bir reklam ajansı"</strong> bulamadık. Sadece post paylaşanlar vardı. Bu yüzden sektöre öncülük edecek, strateji ve satış odaklı 404 Dijital'i kurduk.
-              </p>
-              <div className="bg-[#1a1a1a] rounded-2xl p-6">
-                <p className="text-[#ffc107] font-bebas text-xl tracking-wider mb-2">404 MANİFESTO</p>
-                <p className="text-white font-montserrat text-sm leading-relaxed italic">
-                  "Unutmayın; reklamcılık sanat değil, satış işidir."
-                </p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              {AD_HIKAYELERI.map((hikaye, i) => (
-                <div key={i} className="bg-[#f8f9fa] rounded-2xl p-6 border border-[#eaeaea] hover:border-[#1a1a1a] transition-colors cursor-pointer group">
-                  <div className="flex items-start gap-4">
-                    <div className="text-3xl flex-shrink-0">{hikaye.img}</div>
-                    <div>
-                      <h4 className="font-bebas text-lg tracking-wider text-[#1a1a1a] mb-2">{hikaye.title}</h4>
-                      <p className="text-[#555] text-sm font-montserrat leading-relaxed line-clamp-3 group-hover:line-clamp-none transition-all">
-                        {hikaye.content}
-                      </p>
-                      <p className="text-[#1a1a1a] text-sm font-montserrat font-semibold mt-2 italic opacity-0 group-hover:opacity-100 transition-opacity">
-                        {hikaye.vision}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* EYEBROW SOCIAL PROOF */}
+      <div className="bg-[#f8f9fa] border-b border-[#eaeaea] py-3 overflow-x-auto">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-center gap-6 whitespace-nowrap">
+          {SOSYAL_KANIT.map((s, i) => (
+            <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs font-montserrat text-[#555] hover:text-[#1a1a1a] transition-colors">
+              <span className="font-bebas text-sm text-[#1a1a1a] tracking-wide">{s.stat}</span> {s.title} <ExternalLink size={10} />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* HERO */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-14 pb-10 text-center">
+        <div className="flex items-center justify-center gap-1 mb-4">
+          {[1,2,3,4,5].map(i => <Star key={i} size={16} className="fill-[#ffc107] text-[#ffc107]" />)}
+          <span className="text-xs font-montserrat text-[#999] ml-2">50+ İzmirli işletmenin tercihi</span>
+        </div>
+        <h1 className="font-bebas text-4xl md:text-6xl text-[#1a1a1a] tracking-wider leading-[1.05] mb-5">
+          İŞLETMELERE 3 AYDA NİTELİKLİ LEAD AKIŞI SAĞLIYORUZ — SONUÇ YOKSA PARANIZ İADE
+        </h1>
+        <p className="text-[#555] font-montserrat text-lg leading-relaxed max-w-2xl mx-auto mb-8">
+          Reklama para yakıp hiçbir şey alamadığınız günler bitti. 404 Dijital'in garanti sistemiyle çalışırsanız, ya ölçülebilir nitelikli lead akışı görürsünüz, ya da ödediğiniz yönetim ücretini geri alırsınız. Riski biz üstleniyoruz.
+        </p>
+
+        {/* VSL / MÜŞTERİ REFERANS VİDEOSU */}
+        <div className="aspect-video bg-[#1a1a1a] rounded-2xl mb-8 overflow-hidden max-w-xl mx-auto">
+          <iframe
+            src="https://drive.google.com/file/d/16tYVPfxHzixo8hnYzhrkhVJrsl72axXz/preview"
+            className="w-full h-full"
+            allow="autoplay"
+            allowFullScreen
+            title="Müşteri referans videosu"
+          />
+        </div>
+
+        <CTAForm />
+      </section>
+
+      {/* MARKA HİKAYESİ */}
+      <section className="py-20 bg-white border-t border-[#eaeaea]">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
+          <p className="text-[#999] font-montserrat text-xs uppercase tracking-wider mb-10">404 DİJİTAL, İZMİR</p>
+
+          <div className="font-montserrat text-[#333] text-base leading-[1.9] space-y-5">
+            <p>Biz 404 Dijital'iz.</p>
+            <p>Google'ın ilk kurulduğu yıllarda, 404 numaralı bir uçuş gerçekleşti.</p>
+            <p>Bu uçaktan bir daha hiç haber alınamadı.</p>
+            <p>Google da, ulaşamadığı sayfalara bu uçuşa bir saygı duruşu olarak <strong>"404 Not Found"</strong> demeye başladı.</p>
+            <p>Biz de İzmir'e döndüğümüzde benzer bir boşluk gördük.</p>
+            <p>Viral olmuş içerikleri taklit etmek üzerine kurulu, işletmelere hiçbir fayda getirmeyen, sadece ay sonunda fatura kesmek için var olan onlarca "sosyal medya ajansı" vardı.</p>
+            <p><strong>Biz bir sosyal medya ajansı değiliz.</strong></p>
+            <p><strong>Biz bir reklam ajansıyız.</strong></p>
+            <p>Reklamcılığın babası sayılan David Ogilvy'nin dediği gibi:</p>
+            <p className="font-bold text-[#1a1a1a]">"Satmıyorsa yaratıcı değildir."</p>
+            <p>Bu felsefeyle, işletmelere maksimum faydayı sağlamak için kurulduk. Kurulduğumuz ilk günden bu yana sektörde emin adımlarla ilerliyoruz.</p>
+            <p>Çünkü inanıyoruz ki: güçlü şehir, güçlü markalarla; güçlü markalar ise güçlü reklamlarla doğar.</p>
+            <p>Her sektörün merkezi sayılan İstanbul'un gölgesinden çıkmak için İzmir'de kurulduk. Ve şu an, tüm Türkiye'ye hizmet verecek bir noktaya doğru evriliyoruz.</p>
+            <p>Ve sonuçlar bunu kanıtlıyor:</p>
+            <p>Havuzumolsun'a sadece 20.000₺ reklam bütçesiyle 500.000₺ ciro kazandırdık — <strong>25 kat getiri</strong>.</p>
+            <p>Dr. Aycan Akçalı'yı 700 takipçiden başlattık, sağlık sektörünün en katı reklam kurallarına rağmen tek bir uyarı bile almadan büyüttük.</p>
+            <p>Ege Estetik Diş'i kuruluşundan beraber yürüttük, Google'da <strong>1.2 milyon görüntülenme</strong> yakaladık.</p>
+            <p>BirTvYayin'i sıfırdan 50.000 takipçiye taşıdık.</p>
+            <p>Ve bunları sağlık, diş, e-ticaret, gayrimenkul, prodüksiyon ve daha pek çok sektörde tekrar tekrar yaptık.</p>
+            <p>Ama şunu da öğrendik: İşletme sahiplerinin çoğu, bize ulaşmadan önce en az bir kere kötü bir ajans deneyimi yaşamış oluyor.</p>
+            <p>Para ödüyorlar, sonuç alamıyorlar. Ajans ortadan kayboluyor. Kimse hesap vermiyor.</p>
+            <p>Bu yüzden 404 Dijital'de işleri biraz farklı yapıyoruz.</p>
+            <p><strong>Sonucu garanti ediyoruz.</strong></p>
+            <p>3 ay boyunca sizinle çalışırız. Birlikte belirlediğimiz nitelikli lead hedefine ulaşamazsak, o ayın yönetim ücretini geri alırsınız.</p>
+            <p>Riski biz üstleniyoruz, siz değil.</p>
+            <p>Devam edelim mi?</p>
+          </div>
+
+          <div className="mt-10">
+            <CTAForm />
           </div>
         </div>
       </section>
 
-      {/* PROCESS */}
-      <section id="process" className="py-24 bg-[#f8f9fa]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">NASIL ÇALIŞIYORUZ?</p>
-            <h2 className="font-bebas text-5xl text-[#1a1a1a] tracking-wider">ÇALIŞMA SÜRECİMİZ</h2>
+      {/* KIMIN ICIN */}
+      <section className="py-20 bg-[#f8f9fa]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">BU TEKLİF KİMİN İÇİN?</p>
+            <h2 className="font-bebas text-3xl md:text-5xl text-[#1a1a1a] tracking-wider">AŞAĞIDAKİLERDEN BİRİNE "EVET" DİYORSANIZ...</h2>
           </div>
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { step: '01', title: 'ANALİZ', desc: 'İşletmenizi, hedef kitlenizi ve rakiplerinizi derinlemesine analiz ediyoruz.' },
-              { step: '02', title: 'STRATEJİ', desc: 'Veriye dayalı, özelleştirilmiş büyüme stratejisi oluşturuyoruz.' },
-              { step: '03', title: 'UYGULAMA', desc: 'Stratejiyi hayata geçiriyor, kampanyaları optimize ediyoruz.' },
-              { step: '04', title: 'RAPORLAMA', desc: 'Aylık detaylı raporlarla şeffaf sonuçları paylaşıyoruz.' },
-            ].map(({ step, title, desc }, i) => (
-              <div key={i} className="bg-white rounded-2xl p-8 border border-[#eaeaea] hover:shadow-lg transition-shadow text-center">
-                <div className="font-bebas text-5xl text-[#eaeaea] mb-3">{step}</div>
-                <h3 className="font-bebas text-2xl text-[#1a1a1a] tracking-wider mb-3">{title}</h3>
-                <p className="text-[#555] text-sm font-montserrat leading-relaxed">{desc}</p>
+          <div className="space-y-4">
+            {KIMIN_ICIN.map((s, i) => (
+              <div key={i} className="flex items-start gap-4 bg-white rounded-xl p-5 border border-[#eaeaea]">
+                <CheckCircle2 size={20} className="text-[#1a1a1a] flex-shrink-0 mt-0.5" />
+                <p className="text-[#333] font-montserrat text-sm leading-relaxed">{s}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-[#555] font-montserrat text-base mt-10 mb-6 font-semibold">
+            Bunlardan birine bile "evet" dediyseniz, bu sayfanın geri kalanını okumalısınız.
+          </p>
+          <CTAForm />
+        </div>
+      </section>
+
+      {/* NELER VAR */}
+      <section className="py-20 bg-white">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">ÜCRETSİZ ANALİZ GÖRÜŞMESİNDE</p>
+            <h2 className="font-bebas text-3xl md:text-5xl text-[#1a1a1a] tracking-wider">TAM OLARAK NE ALIYORSUNUZ?</h2>
+          </div>
+          <div className="space-y-4">
+            {NELER_VAR.map((s, i) => (
+              <div key={i} className="flex items-start gap-4">
+                <span className="w-7 h-7 rounded-full bg-[#1a1a1a] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                <p className="text-[#333] font-montserrat text-sm leading-relaxed pt-0.5">{s}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* PACKAGES */}
-      <section id="packages" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">PAKETLERİMİZ</p>
-            <h2 className="font-bebas text-5xl text-[#1a1a1a] tracking-wider mb-8">FİYATLANDIRMA</h2>
+      {/* AMA BENIM ISLETMEM FARKLI - OBJECTION HANDLING */}
+      <section className="py-20 bg-[#f8f9fa]">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6">
+          <h2 className="font-bebas text-3xl md:text-4xl text-[#1a1a1a] tracking-wider mb-6 text-center">
+            "AMA BENİM İŞLETMEM FARKLI, BU BENDE İŞE YARAMAZ"
+          </h2>
+          <div className="font-montserrat text-[#555] text-base leading-[1.9] space-y-4">
+            <p>Muhtemelen şu an aklından bu geçiyor.</p>
+            <p>Anlıyorum — sektörünüz özel, müşterileriniz farklı, piyasa koşullarınız kendine has diye düşünüyorsunuz.</p>
+            <p>Ama şunu söyleyebilirim: Sağlık, diş, gayrimenkul, e-ticaret, prodüksiyon, yerel hizmet işletmeleri dahil onlarca farklı sektörde çalıştık.</p>
+            <p>Sağlık sektöründe Meta ve Google'ın en katı reklam kurallarına tam uyumla sıfır ihlal ile sonuç aldık.</p>
+            <p>20.000₺ gibi küçük bütçelerle bile 25 kat getiri sağladık.</p>
+            <p>Yani "işim farklı" demeden önce, en azından 30 dakikalık ücretsiz analiz görüşmesinde bizi test edin. Kaybedecek hiçbir şeyiniz yok — görüşme tamamen ücretsiz ve yükümlülüksüz.</p>
+          </div>
+        </div>
+      </section>
 
-            {/* Billing Toggle */}
-            <div className="inline-flex items-center bg-[#f8f9fa] rounded-full p-1 mb-8">
-              <button
-                onClick={() => setIsYearly(false)}
-                className={`px-6 py-2 rounded-full text-sm font-montserrat font-semibold transition-all ${!isYearly ? 'bg-[#1a1a1a] text-white shadow' : 'text-[#555]'}`}
-              >
-                AYLIK
-              </button>
-              <button
-                onClick={() => setIsYearly(true)}
-                className={`px-6 py-2 rounded-full text-sm font-montserrat font-semibold transition-all flex items-center gap-2 ${isYearly ? 'bg-[#1a1a1a] text-white shadow' : 'text-[#555]'}`}
-              >
-                YILLIK
-                <span className="bg-[#ffc107] text-black text-xs px-2 py-0.5 rounded-full font-bold">%20 İNDİRİM</span>
-              </button>
+      {/* PROBLEM / NEDEN BAŞARISIZ OLUNUYOR */}
+      <section className="py-20 bg-[#1a1a1a]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <p className="text-[#ffc107] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4 text-center">TANIDIK GELİYOR MU?</p>
+          <h2 className="font-bebas text-3xl md:text-5xl text-white tracking-wider leading-tight text-center mb-14">
+            ÇOĞU İŞLETME SAHİBİ AYNI DUVARA ÇARPIYOR
+          </h2>
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+              <h3 className="font-montserrat font-bold text-white text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
+                <XCircle size={18} className="text-red-400" /> Diğer Ajanslarla Yaşananlar
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  'Aylarca ödeme yapıyorsunuz, somut bir sonuç göremiyorsunuz.',
+                  'Ödeme sonrası ajans soru sorduğunuzda yanıt vermiyor.',
+                  '"Ayda 1000 lead" gibi vaatler veriliyor, gerçekleşmiyor.',
+                  'Dekont, fatura, sözleşme olmadan nakit ödeme isteniyor.',
+                  'Reklam hesabınız ajansın elinde kilitli kalıyor.',
+                ].map((s, i) => (
+                  <li key={i} className="flex items-start gap-3 text-gray-400 text-sm font-montserrat leading-relaxed">
+                    <span className="text-red-400 mt-1">✕</span>{s}
+                  </li>
+                ))}
+              </ul>
             </div>
-
-            {/* Package Category Tabs */}
-            <div className="flex flex-wrap justify-center gap-2 mb-12">
-              {[
-                { id: 'ciro', label: 'CİRO ARTIRMA' },
-                { id: 'sosyal', label: 'SOSYAL MEDYA' },
-                { id: '360', label: '360 PAZARLAMA' },
-                { id: 'eticaret', label: 'E-TİCARET' },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActivePackageTab(tab.id)}
-                  className={`px-5 py-2 rounded-full text-xs font-montserrat font-bold tracking-wider transition-all border-2 ${activePackageTab === tab.id ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]' : 'border-[#eaeaea] text-[#555] hover:border-[#1a1a1a]'}`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            <div className="bg-white/5 border border-[#ffc107]/30 rounded-2xl p-8">
+              <h3 className="font-montserrat font-bold text-[#ffc107] text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
+                <CheckCircle2 size={18} className="text-[#ffc107]" /> 404 Dijital Sistemi
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  '3 ayda hedeflenen nitelikli lead gelmezse yönetim ücreti iade.',
+                  'Her hafta WhatsApp\'tan elle rapor, 24 saat içinde dönüş garantisi.',
+                  'Sadece kanıtlanabilir, geçmiş veriye dayalı hedefler konuşuruz.',
+                  'Her ödeme faturalı, hesabınız her zaman sizin adınıza.',
+                  'İstediğiniz an ayrılabilirsiniz, zorunlu uzun sözleşme yok.',
+                ].map((s, i) => (
+                  <li key={i} className="flex items-start gap-3 text-white text-sm font-montserrat leading-relaxed">
+                    <span className="text-[#ffc107] mt-1">✓</span>{s}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
-          {/* Package Cards */}
-          {activePackageTab === 'ciro' && (
-            <div className="grid md:grid-cols-3 gap-8">
-              {CIRO_PAKETLER.map((pkg, i) => (
-                <PricingCard key={i} {...pkg} isYearly={isYearly} />
-              ))}
-            </div>
-          )}
-          {activePackageTab === 'sosyal' && (
-            <div className="grid md:grid-cols-3 gap-8">
-              {SOSYAL_PAKETLER.map((pkg, i) => (
-                <PricingCard key={i} {...pkg} isYearly={isYearly} />
-              ))}
-            </div>
-          )}
-          {activePackageTab === '360' && (
-            <div className="grid md:grid-cols-3 gap-8">
-              {UC_ALTMIS_PAKETLER.map((pkg, i) => (
-                <PricingCard key={i} {...pkg} isYearly={isYearly} />
-              ))}
-            </div>
-          )}
-          {activePackageTab === 'eticaret' && (
-            <div className="max-w-lg mx-auto">
-              <div className="pricing-card bg-white rounded-2xl border-2 border-[#1a1a1a] p-10 text-center">
-                <h3 className="font-bebas text-3xl tracking-wider text-[#1a1a1a] mb-4">E-TİCARET PAKETİ</h3>
-                <div className="font-bebas text-5xl text-[#1a1a1a] mb-1">20.000₺</div>
-                <div className="text-[#555] text-sm font-montserrat mb-2">sabit ücret</div>
-                <div className="inline-flex items-center gap-1 bg-[#ffc107] text-black text-sm font-bold px-4 py-1.5 rounded-full mb-6">
-                  +%7 komisyon
+          {/* FORMUL */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 max-w-3xl mx-auto text-center mb-10">
+            <p className="text-[#999] font-montserrat text-xs uppercase tracking-wider mb-3">Neden Çoğu Ajans Sonuç Getirmiyor?</p>
+            <p className="text-white font-montserrat text-sm leading-relaxed mb-5">
+              Çünkü içerik paylaşmakla reklam yönetmek birbirinden tamamen farklı işler. Çoğu "ajans" post atar, sonucu ölçmez, kampanyayı optimize etmez — bütçeniz havaya gider.
+            </p>
+            <p className="text-white font-montserrat text-sm leading-relaxed mb-5">
+              Biz her kampanyayı net bir lead hedefine bağlarız, günlük veriyle optimize ederiz, hangi reklamın kaç nitelikli lead getirdiğini raporlarız.
+            </p>
+            <p className="font-bebas text-2xl text-[#ffc107] tracking-wider">404 PERFORMANS SİSTEMİ™</p>
+          </div>
+
+          <div className="max-w-md mx-auto">
+            <CTAForm dark />
+          </div>
+        </div>
+      </section>
+
+      {/* YORUMLAR */}
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-14">
+            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">MÜŞTERİLERİMİZ NE DİYOR</p>
+            <h2 className="font-bebas text-4xl md:text-5xl text-[#1a1a1a] tracking-wider">ONLAR DA SİZİN GİBİ DÜŞÜNÜYORDU</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-5">
+            {YORUMLAR.map((y, i) => (
+              <div key={i} className="bg-[#f8f9fa] rounded-2xl p-6 border border-[#eaeaea]">
+                <div className="flex gap-0.5 mb-3">
+                  {[1,2,3,4,5].map(n => <Star key={n} size={13} className="fill-[#ffc107] text-[#ffc107]" />)}
                 </div>
-                <ul className="space-y-3 mb-8 text-left">
-                  {['Ürün Odaklı Performans Reklamları', 'Satış Başına Prim Modeli', 'ROAS Garantili Strateji', 'Dinamik Ürün Reklamları'].map((f, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm text-[#555] font-montserrat">
-                      <span className="text-green-500">✓</span>{f}
+                <p className="text-[#333] font-montserrat text-sm leading-relaxed mb-4">{y.yorum}</p>
+                <p className="text-[#999] font-montserrat text-xs">{y.isim}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* OFFER / GOD FATHER OFFER */}
+      <section className="py-20 bg-[#f8f9fa]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">TEKLİFİMİZ</p>
+            <h2 className="font-bebas text-4xl md:text-5xl text-[#1a1a1a] tracking-wider">REDDETMESİ ZOR BİR TEKLİF</h2>
+          </div>
+          <div className="border-2 border-[#1a1a1a] rounded-2xl p-8 md:p-10 bg-white">
+            <ul className="space-y-4 mb-8">
+              {[
+                '30 dakikalık ücretsiz analiz görüşmesi + reklam hesabınızın ücretsiz denetimi',
+                'Sektörünüze ve bütçenize özel, kanıta dayalı 3 aylık lead hedefi',
+                '3 ayda hedef tutmazsa o ayın yönetim ücreti tam iade',
+              ].map((b, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-[#ffc107] text-black text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                  <span className="text-[#1a1a1a] font-montserrat text-sm leading-relaxed">{b}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="border-t border-[#eaeaea] pt-8 mb-8">
+              <p className="font-bebas text-xl text-[#1a1a1a] tracking-wider mb-5">ÜSTÜNE 3 HEDİYE BONUS</p>
+              <div className="space-y-5">
+                <div>
+                  <p className="font-montserrat font-bold text-sm text-[#1a1a1a] mb-1">BONUS #1 — Ücretsiz Reklam Hesabı Denetim Raporu</p>
+                  <p className="text-[#555] font-montserrat text-xs leading-relaxed">Mevcut reklamlarınızı (varsa) analiz edip nerede para kaybettiğinizi gösteren detaylı bir rapor hazırlıyoruz. Bizimle çalışmasanız bile bu rapor sizde kalır.</p>
+                </div>
+                <div>
+                  <p className="font-montserrat font-bold text-sm text-[#1a1a1a] mb-1">BONUS #2 — Rakip Analizi</p>
+                  <p className="text-[#555] font-montserrat text-xs leading-relaxed">Bölgenizdeki rakiplerinizin reklamda ve sosyal medyada ne yaptığını analiz edip nerede açık olduğunuzu gösteriyoruz.</p>
+                </div>
+                <div>
+                  <p className="font-montserrat font-bold text-sm text-[#1a1a1a] mb-1">BONUS #3 — İlk Ay Öncelikli Destek Hattı</p>
+                  <p className="text-[#555] font-montserrat text-xs leading-relaxed">Bizimle başlarsanız ilk ay boyunca direkt WhatsApp hattımızdan öncelikli, aynı gün yanıt garantisi.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#1a1a1a] rounded-xl p-6 mb-6">
+              <p className="text-[#ffc107] font-bebas text-lg tracking-wider mb-2">SONUÇ GARANTİMİZ</p>
+              <p className="text-white font-montserrat text-xs leading-relaxed">
+                Reklam bütçesi değil, bizim performansımız garanti kapsamında. Hedeflenen nitelikli lead sayısına ulaşamazsak, yönetim ücretinizi tam iade ediyoruz — sorgusuz. Bu konuda bu kadar net duran başka bir ajans bulamazsınız.
+              </p>
+            </div>
+
+            <CTAForm />
+          </div>
+        </div>
+      </section>
+
+      {/* SOSYAL KANIT */}
+      <section className="py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-14">
+            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">GERÇEK MÜŞTERİLER, GERÇEK SONUÇLAR</p>
+            <h2 className="font-bebas text-4xl md:text-5xl text-[#1a1a1a] tracking-wider">RAKAMLAR KONUŞUR</h2>
+          </div>
+          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-5">
+            {SOSYAL_KANIT.map((s, i) => (
+              <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="group bg-[#f8f9fa] rounded-2xl p-6 border border-[#eaeaea] hover:border-[#1a1a1a] hover:shadow-lg transition-all flex flex-col">
+                <div className="font-bebas text-4xl text-[#1a1a1a] tracking-wider mb-1">{s.stat}</div>
+                <div className="text-[#999] text-xs font-montserrat font-semibold uppercase tracking-wider mb-4">{s.label}</div>
+                <div className="flex items-center gap-2 mb-2">
+                  <img src={s.logo} alt={s.title} className={s.logoWide ? 'h-5 w-auto object-contain' : 'w-8 h-8 rounded-full object-cover border border-[#eaeaea]'} />
+                  {!s.logoWide && <h4 className="font-montserrat font-bold text-sm text-[#1a1a1a]">{s.title}</h4>}
+                </div>
+                <div className="flex items-center gap-1 text-[#1a1a1a] text-xs font-montserrat font-semibold mt-4 opacity-60 group-hover:opacity-100 transition-opacity">
+                  Profili İncele <ExternalLink size={12} />
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PAKETLER / DEĞER — fiyat yok, kapsam var */}
+      <section className="py-20 bg-[#f8f9fa]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-14">
+            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">NASIL ÇALIŞIYORUZ</p>
+            <h2 className="font-bebas text-4xl md:text-5xl text-[#1a1a1a] tracking-wider mb-4">HER İŞLETME AYNI FİYATI HAK ETMEZ</h2>
+            <p className="text-[#555] font-montserrat text-sm max-w-xl mx-auto">
+              Sabit paket fiyatı vermiyoruz — çünkü sizin bütçeniz, hedefiniz ve sektörünüz başka bir işletmeninkiyle aynı değil. Önce değeri konuşuyoruz, teklifi analiz görüşmesinde sektörünüze özel çıkarıyoruz.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                baslik: 'Ciro Artırma',
+                aciklama: 'Doğrudan satış odaklı reklam yönetimi. Meta Ads ve Google Ads ile ölçülebilir, nitelikli lead akışı.',
+                ozellikler: ['Reklam hesabı kurulumu ve yönetimi', 'Haftalık şeffaf raporlama', 'Nitelikli lead hedefi + sonuç garantisi'],
+              },
+              {
+                baslik: 'Sosyal Medya Yönetimi',
+                aciklama: 'Instagram, TikTok ve Meta platformlarında markanızı "takip edilen" değil "satın alınan" bir isme dönüştürüyoruz.',
+                ozellikler: ['Profesyonel çekim ve kurgu', 'İçerik takvimi ve strateji', 'Topluluk yönetimi'],
+              },
+              {
+                baslik: '360° Pazarlama',
+                aciklama: 'Reklam, içerik, video prodüksiyon ve strateji dahil kapsamlı büyüme ortaklığı.',
+                ozellikler: ['Satış hunisi tasarımı ve yönetimi', 'CRM entegrasyonu ve lead takibi', 'Haftalık performans toplantısı'],
+              },
+            ].map((p, i) => (
+              <div key={i} className="bg-white rounded-2xl p-8 border border-[#eaeaea] flex flex-col">
+                <h3 className="font-bebas text-2xl text-[#1a1a1a] tracking-wider mb-3">{p.baslik}</h3>
+                <p className="text-[#555] font-montserrat text-sm leading-relaxed mb-5 flex-1">{p.aciklama}</p>
+                <ul className="space-y-2.5 mb-6">
+                  {p.ozellikler.map((o, j) => (
+                    <li key={j} className="flex items-start gap-2 text-xs font-montserrat text-[#333]">
+                      <CheckCircle2 size={14} className="text-[#1a1a1a] flex-shrink-0 mt-0.5" /> {o}
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => document.getElementById('contact')?.scrollIntoView({behavior:'smooth'})} className="btn-primary w-full">
-                  HEMEN BAŞLA
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* VANTAGE LAB */}
-      <section id="vantage" className="py-24 bg-[#1a1a1a] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-[#ffc107] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">YENİLİK MERKEZİ</p>
-          <h2 className="font-bebas text-6xl tracking-wider mb-6">VANTAGE LAB</h2>
-          <p className="text-gray-300 font-montserrat text-lg max-w-3xl mx-auto mb-10 leading-relaxed">
-            Yapay zeka destekli içerik üretimi, veri analitiği ve otomasyon çözümleriyle markanızı geleceğe taşıyoruz.
-            VANTAGE LAB'da her kampanya, teknoloji ve yaratıcılığın buluşma noktasında doğar.
-          </p>
-          <div className="grid md:grid-cols-3 gap-6 mb-10">
-            {[
-              { icon: '🤖', title: 'AI İçerik Üretimi', desc: 'Yapay zeka ile ölçeklenebilir, kişiselleştirilmiş içerik stratejileri.' },
-              { icon: '📊', title: 'Veri Analitiği', desc: 'Real-time dashboard ile kampanya performansını anlık izleyin.' },
-              { icon: '⚡', title: 'Otomasyon', desc: 'Tekrar eden süreçleri otomatize edin, insan enerjisini stratejiye yönlendirin.' },
-            ].map(({ icon, title, desc }, i) => (
-              <div key={i} className="bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-[#ffc107]/50 transition-colors">
-                <div className="text-4xl mb-4">{icon}</div>
-                <h3 className="font-bebas text-xl tracking-wider mb-2 text-[#ffc107]">{title}</h3>
-                <p className="text-gray-400 text-sm font-montserrat leading-relaxed">{desc}</p>
+                <a href="#form" className="block text-center bg-[#1a1a1a] text-white font-montserrat font-bold text-xs py-3 rounded-xl">
+                  Bana Özel Teklif Al
+                </a>
               </div>
             ))}
           </div>
-          <button
-            onClick={() => document.getElementById('contact')?.scrollIntoView({behavior:'smooth'})}
-            className="btn-primary"
-            style={{ background: '#ffc107', color: '#1a1a1a' }}
-          >
-            VANTAGE LAB HAKKINDA BİLGİ AL
-          </button>
         </div>
       </section>
 
-      <FaqSection />
+      {/* FAQ */}
+      <FaqBlock />
 
-      {/* CONTACT */}
-      <section id="contact" className="py-24 bg-[#f8f9fa]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">İLETİŞİM</p>
-            <h2 className="font-bebas text-5xl text-[#1a1a1a] tracking-wider">BİZİMLE İLETİŞİME GEÇİN</h2>
-          </div>
+      {/* FINAL CTA + PS */}
+      <section id="form" className="py-20 bg-[#1a1a1a]">
+        <div className="max-w-xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="font-bebas text-3xl md:text-4xl text-white tracking-wider mb-4">
+            SONUÇ GARANTİLİ ÇALIŞMAYA HAZIR MISINIZ?
+          </h2>
+          <p className="text-gray-400 font-montserrat text-sm mb-8">
+            30 dakikalık ücretsiz analiz görüşmesi için formu doldur, 24 saat içinde arayalım. Ayda sadece sınırlı sayıda yeni işletme alıyoruz.
+          </p>
+          <CTAForm dark />
 
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* Form */}
-            <div className="bg-white rounded-2xl p-8 border border-[#eaeaea] shadow-sm">
-              <h3 className="font-bebas text-2xl tracking-wider text-[#1a1a1a] mb-6">MESAJ GÖNDERIN</h3>
-              {!contactSubmitted ? (
-                <form onSubmit={handleContactSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-[#333] mb-1 font-montserrat uppercase tracking-wider">İsim</label>
-                      <input
-                        type="text"
-                        value={contactForm.isim}
-                        onChange={e => setContactForm(p => ({...p, isim: e.target.value}))}
-                        className="w-full border border-[#eaeaea] rounded-xl px-4 py-3 text-sm font-montserrat focus:outline-none focus:ring-2 focus:ring-[#1a1a1a]"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-[#333] mb-1 font-montserrat uppercase tracking-wider">Telefon</label>
-                      <input
-                        type="tel"
-                        value={contactForm.telefon}
-                        onChange={e => setContactForm(p => ({...p, telefon: e.target.value}))}
-                        className="w-full border border-[#eaeaea] rounded-xl px-4 py-3 text-sm font-montserrat focus:outline-none focus:ring-2 focus:ring-[#1a1a1a]"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-[#333] mb-1 font-montserrat uppercase tracking-wider">E-Posta</label>
-                    <input
-                      type="email"
-                      value={contactForm.email}
-                      onChange={e => setContactForm(p => ({...p, email: e.target.value}))}
-                      className="w-full border border-[#eaeaea] rounded-xl px-4 py-3 text-sm font-montserrat focus:outline-none focus:ring-2 focus:ring-[#1a1a1a]"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-[#333] mb-1 font-montserrat uppercase tracking-wider">Mesaj</label>
-                    <textarea
-                      rows={4}
-                      value={contactForm.mesaj}
-                      onChange={e => setContactForm(p => ({...p, mesaj: e.target.value}))}
-                      className="w-full border border-[#eaeaea] rounded-xl px-4 py-3 text-sm font-montserrat focus:outline-none focus:ring-2 focus:ring-[#1a1a1a] resize-none"
-                      required
-                    />
-                  </div>
-                  <button type="submit" className="btn-primary w-full">
-                    GÖNDER
-                  </button>
-                </form>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <div className="text-5xl mb-4">✅</div>
-                  <h4 className="font-bebas text-2xl text-[#1a1a1a] tracking-wider mb-2">MESAJINIZ ALINDI!</h4>
-                  <p className="text-[#555] font-montserrat text-sm">En kısa sürede sizinle iletişime geçeceğiz.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Info */}
-            <div className="space-y-6">
-              <div>
-                <h3 className="font-bebas text-2xl tracking-wider text-[#1a1a1a] mb-6">İLETİŞİM BİLGİLERİ</h3>
-                <div className="space-y-4">
-                  {[
-                    { icon: Phone, label: 'Telefon', value: '+90 544 684 40 67', href: 'tel:+905446844067' },
-                    { icon: Mail, label: 'E-Posta', value: 'info@404dijital.com', href: 'mailto:info@404dijital.com' },
-                    { icon: MapPin, label: 'Adres', value: 'Çınarlı 1572/1. Sk. No:33 35170 Konak/İzmir', href: '#' },
-                  ].map(({ icon: Icon, label, value, href }, i) => (
-                    <a key={i} href={href} className="flex items-start gap-4 p-4 bg-white rounded-xl border border-[#eaeaea] hover:border-[#1a1a1a] transition-colors group">
-                      <div className="w-10 h-10 bg-[#1a1a1a] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-[#ffc107] transition-colors">
-                        <Icon size={18} className="text-white group-hover:text-[#1a1a1a]" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-[#999] font-montserrat uppercase tracking-wider">{label}</p>
-                        <p className="text-[#1a1a1a] font-montserrat font-semibold text-sm mt-0.5">{value}</p>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-[#1a1a1a] rounded-2xl p-6 text-white">
-                <h4 className="font-bebas text-xl tracking-wider mb-4 text-[#ffc107]">HIZLI BAŞLANGIÇ</h4>
-                <p className="text-gray-300 text-sm font-montserrat mb-4">
-                  WhatsApp üzerinden hemen iletişime geçin, 5 dakikada ücretsiz analiz randevunuzu alın.
-                </p>
-                <a
-                  href="https://wa.me/905446844067?text=Merhaba,%20ücretsiz%20analiz%20istiyorum."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#25D366] text-white font-montserrat font-bold text-sm px-6 py-3 rounded-full hover:bg-[#1ea952] transition-colors"
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                  </svg>
-                  WHATSAPP'TAN YAZ
-                </a>
-              </div>
-            </div>
+          <div className="mt-14 pt-10 border-t border-white/10 text-left font-montserrat text-sm text-gray-400 leading-relaxed space-y-4">
+            <p className="text-white font-semibold">Not:</p>
+            <p>Buraya kadar okuduysan, muhtemelen daha önce en az bir kere kötü bir ajans deneyimi yaşadın. Biz de bunu biliyoruz, çünkü bu şikayeti onlarca kez duyduk.</p>
+            <p>Bu yüzden riski biz üstleniyoruz: 3 ayda hedeflediğimiz sonucu getiremezsek, o ayın ücretini geri alırsın. Kaybedecek bir şeyin yok.</p>
+            <p className="text-white font-semibold">Not 2:</p>
+            <p>Ayda sadece sınırlı sayıda yeni işletme alıyoruz çünkü her müşteriye gerçekten zaman ayırmak istiyoruz. Yer dolmadan formu doldur.</p>
           </div>
         </div>
       </section>
 
-      <Footer />
-    </>
+      {/* MİNİMAL FOOTER */}
+      <footer className="bg-[#1a1a1a] py-10 border-t border-white/10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span className="font-bebas text-xl tracking-[3px] text-white">404 DİJİTAL</span>
+          <div className="flex items-center gap-5 text-gray-400 text-xs font-montserrat">
+            <a href="tel:+905446844067" className="hover:text-white transition-colors">0544 684 40 67</a>
+            <a href="https://www.instagram.com/404dijital" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a>
+            <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+          </div>
+          <span className="text-gray-500 text-[11px] font-montserrat">© 2026 404 Dijital. Tüm hakları saklıdır.</span>
+        </div>
+      </footer>
+
+      {/* STICKY MOBILE CTA */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#1a1a1a] border-t border-white/10 px-4 py-3 flex gap-3" style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
+        <a href="tel:+905446844067" onClick={() => trackContactClick('phone')} className="flex-1 flex items-center justify-center gap-2 bg-white/10 text-white font-montserrat font-bold text-sm py-3 rounded-full">
+          <Phone size={16} /> ARA
+        </a>
+        <a href="https://wa.me/905446844067?text=Merhaba,%20ücretsiz%20analiz%20görüşmesi%20istiyorum." target="_blank" rel="noopener noreferrer" onClick={() => trackContactClick('whatsapp')} className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white font-montserrat font-bold text-sm py-3 rounded-full">
+          <MessageCircle size={16} /> WHATSAPP
+        </a>
+      </div>
+    </div>
+  )
+}
+
+function FaqBlock() {
+  const [open, setOpen] = useState<number | null>(0)
+  return (
+    <section className="py-20 bg-[#f8f9fa]">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-14">
+          <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">AKLINIZDA SORU KALMASIN</p>
+          <h2 className="font-bebas text-4xl md:text-5xl text-[#1a1a1a] tracking-wider">SIK SORULAN SORULAR</h2>
+        </div>
+        <div className="space-y-3">
+          {SORULAR.map((item, i) => {
+            const isOpen = open === i
+            return (
+              <div key={i} className="border border-[#eaeaea] rounded-2xl overflow-hidden bg-white">
+                <button onClick={() => setOpen(isOpen ? null : i)} className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left bg-white hover:bg-[#f8f9fa] transition-colors" aria-expanded={isOpen}>
+                  <span className="font-montserrat font-semibold text-[#1a1a1a] text-sm">{item.q}</span>
+                  <Plus size={18} className={`flex-shrink-0 text-[#1a1a1a] transition-transform duration-200 ${isOpen ? 'rotate-45' : ''}`} />
+                </button>
+                {isOpen && (
+                  <div className="px-6 py-5 bg-white border-t border-[#eaeaea]">
+                    <p className="text-[#555] text-sm font-montserrat leading-relaxed">{item.a}</p>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
   )
 }
