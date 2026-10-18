@@ -4,9 +4,13 @@ import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { metaSablonDurumGetir } from '@/lib/whatsapp'
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions)
-  if (!session || (session.user as any)?.type !== 'admin') return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  const internalKey = req.headers.get('x-internal-key')
+  const isInternal = internalKey && internalKey === process.env.INTERNAL_API_KEY
+  if (!isInternal) {
+    const session = await getServerSession(authOptions)
+    if (!session || (session.user as any)?.type !== 'admin') return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
+  }
 
   const sablon = await prisma.wASablon.findUnique({ where: { id: params.id } })
   if (!sablon) return NextResponse.json({ error: 'Şablon bulunamadı' }, { status: 404 })
