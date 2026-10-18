@@ -500,9 +500,9 @@ function VideoEmbed() {
     <div className="aspect-video bg-[#1a1a1a] rounded-2xl mb-8 overflow-hidden max-w-xl mx-auto relative">
       {playing ? (
         <iframe
-          src="https://drive.google.com/file/d/16tYVPfxHzixo8hnYzhrkhVJrsl72axXz/preview?autoplay=1"
+          src="https://player.vimeo.com/video/1236967375?autoplay=1&title=0&byline=0&portrait=0"
           className="w-full h-full"
-          allow="autoplay"
+          allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
           title="Müşteri referans videosu"
         />
