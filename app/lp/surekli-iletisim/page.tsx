@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Phone, MessageCircle, Plus, CheckCircle2, XCircle, ExternalLink, ShieldCheck, Star } from 'lucide-react'
 import { trackLeadConversion, trackContactClick } from '@/lib/tracking'
 
@@ -149,16 +150,8 @@ export default function SurekliIletisimLP() {
           Parasını alıp ortadan kaybolan ajans deneyimi yaşadıysanız, bu bitti. 404 Dijital'de her hafta elle hazırladığımız raporu WhatsApp'tan atıyoruz, sorularınıza 24 saat içinde dönüş garantisi veriyoruz.
         </p>
 
-        {/* VSL / MÜŞTERİ REFERANS VİDEOSU */}
-        <div className="aspect-video bg-[#1a1a1a] rounded-2xl mb-8 overflow-hidden max-w-xl mx-auto">
-          <iframe
-            src="https://drive.google.com/file/d/16tYVPfxHzixo8hnYzhrkhVJrsl72axXz/preview"
-            className="w-full h-full"
-            allow="autoplay"
-            allowFullScreen
-            title="Müşteri referans videosu"
-          />
-        </div>
+        {/* VSL / MÜŞTERİ REFERANS VİDEOSU — tıkla ve oynat, performans için erken yüklenmiyor */}
+        <VideoEmbed />
 
         <CTAForm />
       </section>
@@ -409,7 +402,7 @@ export default function SurekliIletisimLP() {
                 <div className="font-bebas text-4xl text-[#1a1a1a] tracking-wider mb-1">{s.stat}</div>
                 <div className="text-[#999] text-xs font-montserrat font-semibold uppercase tracking-wider mb-4">{s.label}</div>
                 <div className="flex items-center gap-2 mb-2">
-                  <img src={s.logo} alt={s.title} className={s.logoWide ? 'h-5 w-auto object-contain' : 'w-8 h-8 rounded-full object-cover border border-[#eaeaea]'} />
+                  <Image src={s.logo} alt={s.title} width={s.logoWide ? 100 : 32} height={32} unoptimized className={s.logoWide ? 'h-5 w-auto object-contain' : 'w-8 h-8 rounded-full object-cover border border-[#eaeaea]'} />
                   {!s.logoWide && <h4 className="font-montserrat font-bold text-sm text-[#1a1a1a]">{s.title}</h4>}
                 </div>
                 <div className="flex items-center gap-1 text-[#1a1a1a] text-xs font-montserrat font-semibold mt-4 opacity-60 group-hover:opacity-100 transition-opacity">
@@ -498,5 +491,33 @@ function FaqBlock() {
         </div>
       </div>
     </section>
+  )
+}
+
+function VideoEmbed() {
+  const [playing, setPlaying] = useState(false)
+  return (
+    <div className="aspect-video bg-[#1a1a1a] rounded-2xl mb-8 overflow-hidden max-w-xl mx-auto relative">
+      {playing ? (
+        <iframe
+          src="https://drive.google.com/file/d/16tYVPfxHzixo8hnYzhrkhVJrsl72axXz/preview?autoplay=1"
+          className="w-full h-full"
+          allow="autoplay"
+          allowFullScreen
+          title="Müşteri referans videosu"
+        />
+      ) : (
+        <button
+          onClick={() => setPlaying(true)}
+          className="w-full h-full flex flex-col items-center justify-center gap-3 group"
+          aria-label="Videoyu oynat"
+        >
+          <span className="w-16 h-16 rounded-full bg-white/10 group-hover:bg-white/20 flex items-center justify-center transition-colors">
+            <svg viewBox="0 0 24 24" className="w-7 h-7 fill-white ml-1"><path d="M8 5v14l11-7z" /></svg>
+          </span>
+          <span className="text-white/60 font-montserrat text-xs">Müşteri referans videosunu izle</span>
+        </button>
+      )}
+    </div>
   )
 }
