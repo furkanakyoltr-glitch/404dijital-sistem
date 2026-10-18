@@ -454,6 +454,17 @@ export default function SonucGarantisiLP() {
           <MessageCircle size={16} /> WHATSAPP
         </a>
       </div>
+
+      {/* MASAÜSTÜ FLOATING CTA */}
+      <a
+        href="https://wa.me/905446844067?text=Merhaba,%20ücretsiz%20analiz%20görüşmesi%20istiyorum."
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => trackContactClick('whatsapp')}
+        className="hidden md:flex fixed bottom-6 right-6 z-40 items-center gap-2.5 bg-[#25D366] text-white font-montserrat font-bold text-sm pl-4 pr-5 py-3.5 rounded-full shadow-xl hover:scale-105 transition-transform"
+      >
+        <MessageCircle size={18} /> Ücretsiz Toplantı İste
+      </a>
     </div>
   )
 }
