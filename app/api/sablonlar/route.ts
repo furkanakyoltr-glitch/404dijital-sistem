@@ -13,8 +13,12 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session || (session.user as any)?.type !== 'admin') return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
+  const internalKey = req.headers.get('x-internal-key')
+  const isInternal = internalKey && internalKey === process.env.INTERNAL_API_KEY
+  if (!isInternal) {
+    const session = await getServerSession(authOptions)
+    if (!session || (session.user as any)?.type !== 'admin') return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
+  }
 
   try {
     const { baslik, kategori, metaTemplateName, parametreler, onizlemeMetni, metaOlustur, govde, metaKategori, ornekDegerler } = await req.json()
