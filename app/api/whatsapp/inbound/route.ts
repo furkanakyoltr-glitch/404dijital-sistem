@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
 
           if (bildirimGerekli) {
             const ozetMetni = sonMesajOzet.length > 120 ? sonMesajOzet.slice(0, 117) + '...' : sonMesajOzet
-            sendWATemplate(FURKAN_NO, 'yeni_mesaj_bildirimi', [isim || telNo, ozetMetni || '(medya)']).catch(() => {})
+            sendWATemplate(FURKAN_NO, 'yeni_mesaj_bildirimi_46445', [isim || telNo, ozetMetni || '(medya)']).catch(() => {})
           }
         }
       }
