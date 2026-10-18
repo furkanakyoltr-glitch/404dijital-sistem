@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { sendWATemplate } from '@/lib/whatsapp'
+
+const FURKAN_NO = '+905446844067'
 
 // WhatsApp Cloud API — gelen müşteri mesajları webhook'u (insan tarafından yanıtlanacak gelen kutusu).
 // Kurulum: Meta for Developers > uygulaman > WhatsApp > Configuration > Webhook
@@ -54,6 +57,9 @@ export async function POST(req: NextRequest) {
 
           const sonMesajOzet = medyaTipi === 'image' ? '📷 Görsel' : medyaTipi === 'document' ? `📎 ${medyaAdi}` : icerik
 
+          const oncekiSohbet = await prisma.wPSohbet.findUnique({ where: { telNo }, select: { okunmadi: true } })
+          const bildirimGerekli = telNo !== FURKAN_NO && (!oncekiSohbet || oncekiSohbet.okunmadi === false)
+
           const sohbet = await prisma.wPSohbet.upsert({
             where: { telNo },
             create: { telNo, isim, sonMesaj: sonMesajOzet, sonMesajZamani: new Date(), okunmadi: true },
@@ -63,6 +69,11 @@ export async function POST(req: NextRequest) {
           await prisma.wPSohbetMesaj.create({
             data: { sohbetId: sohbet.id, yon: 'gelen', icerik, medyaTipi, medyaAdi, waMedyaId, waMesajId: msg.id },
           })
+
+          if (bildirimGerekli) {
+            const ozetMetni = sonMesajOzet.length > 120 ? sonMesajOzet.slice(0, 117) + '...' : sonMesajOzet
+            sendWATemplate(FURKAN_NO, 'yeni_mesaj_bildirimi', [isim || telNo, ozetMetni || '(medya)']).catch(() => {})
+          }
         }
       }
     }
