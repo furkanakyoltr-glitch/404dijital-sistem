@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Send, MessageCircle, User, Paperclip, FileText, X } from 'lucide-react'
+import { Send, MessageCircle, User, Paperclip, FileText, X, Sparkles, Loader2 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
 export default function MesajlarPage() {
@@ -12,6 +12,10 @@ export default function MesajlarPage() {
   const [gonderiliyor, setGonderiliyor] = useState(false)
   const [hata, setHata] = useState('')
   const [seciliDosya, setSeciliDosya] = useState<File | null>(null)
+  const [aiAcik, setAiAcik] = useState(false)
+  const [aiYukleniyor, setAiYukleniyor] = useState(false)
+  const [aiOzet, setAiOzet] = useState('')
+  const [aiHata, setAiHata] = useState('')
   const mesajSonuRef = useRef<HTMLDivElement>(null)
   const dosyaInputRef = useRef<HTMLInputElement>(null)
 
@@ -39,6 +43,23 @@ export default function MesajlarPage() {
   useEffect(() => {
     mesajSonuRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [sohbet?.mesajlar?.length])
+
+  const aiAnalizYap = async () => {
+    setAiAcik(true)
+    setAiYukleniyor(true)
+    setAiHata('')
+    setAiOzet('')
+    try {
+      const res = await fetch('/api/whatsapp/ai-analiz')
+      const data = await res.json()
+      if (data.error) setAiHata(data.error)
+      else setAiOzet(data.ozet)
+    } catch {
+      setAiHata('Bağlantı hatası')
+    } finally {
+      setAiYukleniyor(false)
+    }
+  }
 
   const dosyaSecildi = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dosya = e.target.files?.[0]
@@ -82,13 +103,46 @@ export default function MesajlarPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-140px)] flex bg-white rounded-2xl border border-[#eaeaea] overflow-hidden">
+    <div className="h-[calc(100vh-140px)] flex bg-white rounded-2xl border border-[#eaeaea] overflow-hidden relative">
+      {aiAcik && (
+        <div className="absolute inset-0 bg-black/40 z-20 flex items-center justify-center p-6" onClick={() => setAiAcik(false)}>
+          <div
+            className="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bebas text-lg tracking-wider text-[#1a1a1a] flex items-center gap-2">
+                <Sparkles size={16} /> AI İÇGÖRÜ (SON 30 GÜN)
+              </h3>
+              <button onClick={() => setAiAcik(false)} className="text-[#999] hover:text-[#1a1a1a]">
+                <X size={16} />
+              </button>
+            </div>
+            {aiYukleniyor ? (
+              <div className="flex items-center justify-center py-10 text-[#999]">
+                <Loader2 size={20} className="animate-spin" />
+              </div>
+            ) : aiHata ? (
+              <p className="text-sm text-red-500 font-montserrat">{aiHata}</p>
+            ) : (
+              <p className="text-sm font-montserrat text-[#333] whitespace-pre-wrap">{aiOzet}</p>
+            )}
+          </div>
+        </div>
+      )}
       {/* Sohbet Listesi */}
       <div className="w-80 border-r border-[#eaeaea] flex flex-col flex-shrink-0">
-        <div className="px-4 py-3 border-b border-[#eaeaea]">
+        <div className="px-4 py-3 border-b border-[#eaeaea] flex items-center justify-between gap-2">
           <h2 className="font-bebas text-xl tracking-wider text-[#1a1a1a] flex items-center gap-2">
             <MessageCircle size={18} /> MESAJLAR
           </h2>
+          <button
+            onClick={aiAnalizYap}
+            title="AI İçgörü: son 30 günün mesajlarını analiz et"
+            className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full border border-[#eaeaea] text-[#666] hover:bg-[#f8f9fa] transition-colors"
+          >
+            <Sparkles size={15} />
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto">
           {loading ? (
