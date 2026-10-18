@@ -13,6 +13,7 @@ function RandevuForm() {
   const params = useSearchParams()
   const [adaySoyad, setAdaySoyad] = useState(params.get('ad') || '')
   const [telefon, setTelefon] = useState(params.get('tel') || '')
+  const pozisyon = params.get('pozisyon') || ''
   const [gunler, setGunler] = useState<string[]>([])
   const [saatler, setSaatler] = useState<string[]>([])
   const [doluSlotlar, setDoluSlotlar] = useState<string[]>([])
@@ -44,7 +45,7 @@ function RandevuForm() {
       const res = await fetch('/api/randevu', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tarih, saat, adaySoyad, telefon }),
+        body: JSON.stringify({ tarih, saat, adaySoyad, telefon, pozisyon: pozisyon || undefined }),
       })
       const data = await res.json()
       if (data.success) {
@@ -82,7 +83,7 @@ function RandevuForm() {
     <div className="max-w-md mx-auto px-5 py-10">
       <h1 className="font-bebas text-3xl tracking-wider text-[#1a1a1a] mb-1">GÖRÜŞME RANDEVUSU</h1>
       <p className="font-montserrat text-sm text-[#666] mb-7">
-        404 Dijital — Satış Yöneticisi pozisyonu için size uygun gün ve saati seçin.
+        404 Dijital — {pozisyon ? `${pozisyon} pozisyonu` : 'Görüşme'} için size uygun gün ve saati seçin.
       </p>
 
       <div className="space-y-4 mb-7">
