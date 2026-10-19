@@ -565,25 +565,44 @@ function VideoEmbed() {
     const video = videoRef.current
     if (!el || !video) return
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const sources = video.querySelectorAll('source')
-            sources.forEach((s) => {
-              const dataSrc = s.getAttribute('data-src')
-              if (dataSrc) s.setAttribute('src', dataSrc)
-            })
-            video.load()
-            video.play().then(() => setStarted(true)).catch(() => {})
-            observer.disconnect()
-          }
-        })
-      },
-      { rootMargin: '200px' }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
+    const baslat = () => {
+      const sources = video.querySelectorAll('source')
+      sources.forEach((s) => {
+        const dataSrc = s.getAttribute('data-src')
+        if (dataSrc) s.setAttribute('src', dataSrc)
+      })
+      video.load()
+      video.play().then(() => setStarted(true)).catch(() => {})
+    }
+
+    let observer: IntersectionObserver | null = null
+    const kurulumYap = () => {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              baslat()
+              observer?.disconnect()
+            }
+          })
+        },
+        { rootMargin: '200px' }
+      )
+      observer.observe(el)
+    }
+
+    // Kritik render yolunu (LCP) bloklamamak için önce sayfanın tamamen
+    // yüklenmesini (load event) bekle, sonra gözlemciyi kur.
+    if (document.readyState === 'complete') {
+      kurulumYap()
+    } else {
+      window.addEventListener('load', kurulumYap, { once: true })
+    }
+
+    return () => {
+      observer?.disconnect()
+      window.removeEventListener('load', kurulumYap)
+    }
   }, [])
 
   const toggleSes = () => {
