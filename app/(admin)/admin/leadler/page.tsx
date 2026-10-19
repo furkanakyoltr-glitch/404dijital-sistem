@@ -114,6 +114,7 @@ export default function LeadlerPage() {
               <tr className="border-b border-[#eaeaea] bg-[#f8f9fa]">
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Ad Soyad</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Firma</th>
+                <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Şehir</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Telefon</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">E-posta</th>
                 <th className="text-left px-4 py-3 text-[#999] font-semibold text-xs uppercase tracking-wider">Hizmet İlgisi</th>
@@ -128,14 +129,15 @@ export default function LeadlerPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={12} className="text-center py-12 text-[#999]">Yükleniyor...</td></tr>
+                <tr><td colSpan={13} className="text-center py-12 text-[#999]">Yükleniyor...</td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan={12} className="text-center py-12 text-[#999]">Lead bulunamadı</td></tr>
+                <tr><td colSpan={13} className="text-center py-12 text-[#999]">Lead bulunamadı</td></tr>
               ) : (
                 leads.map(lead => (
                   <tr key={lead.id} className="border-b border-[#f0f0f0] hover:bg-[#f8f9fa] transition-colors align-top">
                     <td className="px-4 py-3 font-semibold text-[#1a1a1a] whitespace-nowrap">{lead.adSoyad || '-'}</td>
                     <td className="px-4 py-3 text-[#555] whitespace-nowrap">{lead.firmaAdi || '-'}</td>
+                    <td className="px-4 py-3 text-[#555] whitespace-nowrap">{lead.sehir || '-'}</td>
                     <td className="px-4 py-3 text-[#555] whitespace-nowrap">{lead.telefon || '-'}</td>
                     <td className="px-4 py-3 text-[#555]">{lead.email || '-'}</td>
                     <td className="px-4 py-3 text-[#555] whitespace-nowrap">{lead.hizmetIlgisi || '-'}</td>
