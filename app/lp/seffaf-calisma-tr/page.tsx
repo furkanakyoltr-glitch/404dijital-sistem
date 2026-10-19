@@ -172,7 +172,7 @@ export default function SeffafCalismaLP() {
             <p>Google'ın ilk kurulduğu yıllarda, 404 numaralı bir uçuş gerçekleşti.</p>
             <p>Bu uçaktan bir daha hiç haber alınamadı.</p>
             <p>Google da, ulaşamadığı sayfalara bu uçuşa bir saygı duruşu olarak <strong>"404 Not Found"</strong> demeye başladı.</p>
-            <p>Biz de İzmir'e döndüğümüzde benzer bir boşluk gördük.</p>
+            <p>Biz de etrafımıza baktığımızda benzer bir boşluk gördük.</p>
             <p>Viral olmuş içerikleri taklit etmek üzerine kurulu, işletmelere hiçbir fayda getirmeyen, sadece ay sonunda fatura kesmek için var olan onlarca "sosyal medya ajansı" vardı.</p>
             <p><strong>Biz bir sosyal medya ajansı değiliz.</strong></p>
             <p><strong>Biz bir reklam ajansıyız.</strong></p>
