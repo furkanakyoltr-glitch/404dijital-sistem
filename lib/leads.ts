@@ -24,6 +24,7 @@ export async function createLead(data: {
   email?: string
   hizmetIlgisi?: string
   mesaj?: string
+  sehir?: string
   kaynak: string
   reklamDetay?: string
 }) {
@@ -35,6 +36,7 @@ export async function createLead(data: {
       email: data.email || null,
       hizmetIlgisi: data.hizmetIlgisi || null,
       mesaj: data.mesaj || null,
+      sehir: data.sehir || null,
       kaynak: data.kaynak,
       reklamDetay: data.reklamDetay || null,
     },
