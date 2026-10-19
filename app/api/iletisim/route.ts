@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
       await createLead({
         firmaAdi: body.isletmeAdi,
         telefon: body.telefon,
+        sehir: body.sehir,
         kaynak: body.kaynak || 'Web Sitesi - Hızlı Analiz Formu',
         reklamDetay: body.reklamDetay,
       })
