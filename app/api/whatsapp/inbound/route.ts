@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { sendWATemplate } from '@/lib/whatsapp'
+import { sendWATemplate, sendWAText } from '@/lib/whatsapp'
 
 const FURKAN_NO = '+905446844067'
 
@@ -58,7 +58,8 @@ export async function POST(req: NextRequest) {
           const sonMesajOzet = medyaTipi === 'image' ? '📷 Görsel' : medyaTipi === 'document' ? `📎 ${medyaAdi}` : icerik
 
           const oncekiSohbet = await prisma.wPSohbet.findUnique({ where: { telNo }, select: { okunmadi: true } })
-          const bildirimGerekli = telNo !== FURKAN_NO && (!oncekiSohbet || oncekiSohbet.okunmadi === false)
+          const yeniSohbetMi = !oncekiSohbet
+          const bildirimGerekli = telNo !== FURKAN_NO && (yeniSohbetMi || oncekiSohbet.okunmadi === false)
 
           const sohbet = await prisma.wPSohbet.upsert({
             where: { telNo },
@@ -73,6 +74,22 @@ export async function POST(req: NextRequest) {
           if (bildirimGerekli) {
             const ozetMetni = sonMesajOzet.length > 120 ? sonMesajOzet.slice(0, 117) + '...' : sonMesajOzet
             sendWATemplate(FURKAN_NO, 'yeni_mesaj_bildirimi_46445', [isim || telNo, ozetMetni || '(medya)']).catch(() => {})
+          }
+
+          if (yeniSohbetMi && telNo !== FURKAN_NO) {
+            sendWAText(
+              telNo,
+              "Merhaba! 404 Dijital'e ulaştığınız için teşekkürler 🙌 Size en hızlı şekilde dönebilmemiz için işletme adınızı ve hangi konuda yardım istediğinizi yazar mısınız? Ekibimiz kısa süre içinde sizi arayacak."
+            ).catch(() => {})
+
+            prisma.lead.create({
+              data: {
+                telefon: telNo,
+                adSoyad: isim || undefined,
+                mesaj: icerik || undefined,
+                kaynak: 'WhatsApp',
+              },
+            }).catch((e) => console.error('WhatsApp lead oluşturma hatası:', e))
           }
         }
       }
