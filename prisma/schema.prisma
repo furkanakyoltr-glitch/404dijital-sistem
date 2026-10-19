@@ -260,6 +260,7 @@ model Lead {
   email        String?
   hizmetIlgisi String?
   mesaj        String?
+  sehir        String?
   kaynak       String    @default("Web Sitesi")
   reklamDetay  String?
   durum        String    @default("yeni_lead")
