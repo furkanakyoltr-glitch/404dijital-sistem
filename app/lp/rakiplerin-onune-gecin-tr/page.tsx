@@ -49,10 +49,81 @@ const SORULAR = [
   { q: 'Analiz görüşmesinden sonra ne olacak?', a: 'Görüşmede sizin için anlamlı olup olmadığımıza birlikte karar veririz. Uygunsa, sözleşme ve garanti şartlarını netleştirir, kampanyanızı kurmaya başlarız. Uygun değilse, hiçbir baskı yapmadan yolunuza devam edersiniz.' },
 ]
 
+const PROBLEM_SECENEKLERI = [
+  { label: 'Reklam sonuç vermiyor', value: 'reklam sonuç vermiyor' },
+  { label: 'Ajans güven vermiyor', value: 'ajans güven vermiyor' },
+  { label: 'Sosyal medya stratejisiz', value: 'sosyal medya stratejisiz' },
+  { label: 'Hiç reklam vermedim', value: 'hiç reklam vermedim' },
+]
+
+const HIKAYELER = [
+  {
+    quote: '"Bu süreç böyle devam ederse şirketi kapatmayı düşünüyoruz."',
+    baslik: 'İngilizce Eğitim Firması',
+    sonuc: '15K → 50K takipçi, videolar milyonlarca izlendi',
+    paragraflar: [
+      'Bizden önce onlarca ajansla çalışmışlardı. 15.000 takipçide tıkanmışlardı — tüm viral video formatlarını deniyorlardı ama bir strateji olmadığı için baraj aşılmıyordu.',
+      'Geldik, tek bir şeyi netleştirdik: önemli olan "viral içerik yaratmak" değil, "strateji doğrultusunda viral içerik yaratmak". Videolar milyonlarca izlenmeye başladı, takipçi 15K\'dan 50K\'ya çıktı.',
+      'Taşındıkları için çalışmamız sonlandı ama en vurucu kısmı şuydu: ilk toplantıda "bu süreç böyle devam ederse şirketi kapatmayı düşünüyoruz" demişlerdi. Bizimle çalıştıktan sonra cümle değişti: "Daha büyük ofise çıkmak istiyoruz."',
+    ],
+  },
+  {
+    quote: 'Sıfırdan 7 milyon izlenme, tek kuruş reklam harcamadan',
+    baslik: 'Bir Televizyon Kanalı',
+    sonuc: '0 → 50.000 takipçi, 7M + 3M izlenme, 0₺ reklam',
+    paragraflar: [
+      'Hesabı sıfırdan aldık. Bir televizyon kanalı olduğu için hantal kalmış refleksleri vardı — program kesitlerini paylaşmak dışında pek bir şey yapmıyorlardı.',
+      'Kendi içeriğimizi üretmek için izin almak bile mücadele gerektirdi. Sonuç: bir videomuz 7 milyon, diğeri 3 milyon izlendi. Hesap 50.000 takipçiye ulaştı — tek kuruş reklam parası harcamadan.',
+    ],
+  },
+  {
+    quote: '"Ajansları hiç anlamıyorum."',
+    baslik: 'Samsun Çakallı Menemen',
+    sonuc: '900 tekil konum tıklaması, 1 ay gibi kısıtlı sürede',
+    paragraflar: [
+      'Çakallı menemeni İzmir\'de yapan tek yerdi. Onlarca ajansla çalışmıştı, mekanı kapatmadan son 1 ayı kaldığında bize ulaştılar. Telefonda aynen şunu söylediler: "Ajansları hiç anlamıyorum. Söz verdiler, geleceğiz dediler, gelmediler. Parayı ödeyeceğim, resmen almadan gittiler."',
+      '1 ay gibi kısıtlı bir sürede elimizden geleni yaptık, konum tıklamasını 900 tekil tıklamaya çıkardık. Süre yetmedi ama çabamızı gördüler — bugün abi-kardeş gibiyiz. "Yolunuz düştüğünde kahvemi içmezseniz darılırım" diyor. Biz soğuk şirketler değil, hikayeler biriktiriyoruz.',
+    ],
+  },
+  {
+    quote: 'Sıfır ihtar, 126 bin izlenme',
+    baslik: 'Uzman Dr. Aycan Akçalı',
+    sonuc: '126K + 13K izlenme (2 günde), 1+ yıl ortaklık, 0 ihtar',
+    video: { webm: '/videos/aycan-akcali.webm', mp4: '/videos/aycan-akcali.mp4', poster: '/videos/aycan-akcali-poster.jpg' },
+    paragraflar: [
+      'Hesabını sıfırdan aldık. Sağlık sektörünün en katı reklam kurallarına rağmen bugüne kadar tek bir ihtar bile almadık.',
+      'Son 2 günde paylaştığımız videolardan biri 126.000, diğeri 13.000 izlendi — yine reklam harcaması yapmadan. 1 yıldan uzun süredir birlikte çalışıyoruz.',
+    ],
+  },
+  {
+    quote: '"Siz de başaramazsanız şirketi kapatacağım."',
+    baslik: 'Havuzum Olsun',
+    sonuc: '20.000₺ reklam → 500.000₺ ciro (25 kat getiri)',
+    video: { webm: '/videos/havuzum-olsun.webm', mp4: '/videos/havuzum-olsun.mp4', poster: '/videos/havuzum-olsun-poster.jpg' },
+    paragraflar: [
+      'İlk konuştuğumuzda bize dedi ki: "Geçtiğimiz ay 7 ajans değiştirdik, telefonumuz 1 kere bile çalmadı. Siz de başaramazsanız şirketi kapatacağım, daha fazla denemek istemiyorum."',
+      'Hesaplarını inceledik — hiçbir ajans havuzun yapıldığı sahaya bile gitmemiş. Biz gittik, ev sahibinden rica ettik, set kurduk, oyuncu götürdük, kreatifleri baştan kurduk.',
+      'Sonuç: sadece 20.000₺ reklam harcamasıyla 500.000₺ ciro — 25 kat getiri.',
+    ],
+  },
+]
+
+const DAHA_FAZLA_VIDEOLAR = [
+  { baslik: 'Kemeraltı Kalaycı', video: { webm: '/videos/kemeralti-kalayci.webm', mp4: '/videos/kemeralti-kalayci.mp4', poster: '/videos/kemeralti-kalayci-poster.jpg' } },
+  { baslik: 'Örnek Çalışma', video: { webm: '/videos/amac-ve-hayal.webm', mp4: '/videos/amac-ve-hayal.mp4', poster: '/videos/amac-ve-hayal-poster.jpg' } },
+]
+
+const PLAN_ADIMLARI = [
+  { baslik: 'Problemini anlat', aciklama: '"Bir Problemim Var" butonuna bas, formu doldur — 24 saat içinde ararız.' },
+  { baslik: 'Birlikte netleştirelim', aciklama: '30 dakikalık görüşmede sorununu, hedef kitleni ve bütçeni konuşuruz.' },
+  { baslik: 'Stratejiyi kurup uygularız', aciklama: 'Yukarıdaki hikayelerdeki gibi — size özel strateji, ölçülebilir sonuç.' },
+]
+
 export default function RakiplerinOnuneGecinLP() {
   const [formData, setFormData] = useState({ isletmeAdi: '', telefon: '', sehir: '' })
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [secilenProblem, setSecilenProblem] = useState('')
 
   const [reklamDetay, setReklamDetay] = useState('')
   useEffect(() => {
@@ -65,11 +136,12 @@ export default function RakiplerinOnuneGecinLP() {
     e.preventDefault()
     setSubmitting(true)
     trackLeadConversion()
+    const detay = [reklamDetay, secilenProblem ? `problem=${encodeURIComponent(secilenProblem)}` : ''].filter(Boolean).join('&')
     try {
       await fetch('/api/iletisim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'analiz', ...formData, reklamDetay, kaynak: 'LP - Rakiplerin Önüne Geçin TR (Meta Ads)' }),
+        body: JSON.stringify({ type: 'analiz', ...formData, reklamDetay: detay, kaynak: 'LP - Rakiplerin Önüne Geçin TR (Meta Ads)' }),
       })
       setSubmitted(true)
     } finally {
@@ -77,9 +149,15 @@ export default function RakiplerinOnuneGecinLP() {
     }
   }
 
-  const CTAForm = ({ dark = false }: { dark?: boolean }) => (
+  const problemSec = (value: string) => {
+    setSecilenProblem(value)
+    const el = document.getElementById('problem-form')
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
+  const CTAForm = ({ dark = false, id }: { dark?: boolean; id?: string }) => (
     !submitted ? (
-      <form onSubmit={handleSubmit} className="space-y-3 max-w-md mx-auto">
+      <form id={id} onSubmit={handleSubmit} className="space-y-3 max-w-md mx-auto">
         <input
           type="text" placeholder="İşletme Adı" required
           value={formData.isletmeAdi}
@@ -99,7 +177,7 @@ export default function RakiplerinOnuneGecinLP() {
           className={dark ? "w-full border-2 border-white/10 bg-white/5 text-white placeholder:text-gray-500 rounded-xl px-4 py-3.5 text-sm font-montserrat focus:outline-none focus:border-white/30" : "w-full border-2 border-[#eaeaea] rounded-xl px-4 py-3.5 text-sm font-montserrat focus:outline-none focus:border-[#1a1a1a]"}
         />
         <button type="submit" disabled={submitting} className={dark ? "w-full bg-[#ffc107] text-black font-montserrat font-bold text-sm py-4 rounded-xl disabled:opacity-50" : "w-full bg-[#1a1a1a] text-white font-montserrat font-bold text-sm py-4 rounded-xl disabled:opacity-50"}>
-          ÜCRETSİZ ANALİZ GÖRÜŞMEMİ AYIRT
+          BİR PROBLEMİM VAR
         </button>
         <p className={dark ? "text-gray-400 text-xs font-montserrat" : "text-[#999] text-xs font-montserrat"}>
           Butona bas, formu doldur — satış ekibimiz 24 saat içinde seni arayıp 30 dakikalık ücretsiz analiz görüşmesi yapsın.
@@ -157,47 +235,102 @@ export default function RakiplerinOnuneGecinLP() {
         </p>
 
         {/* VSL / MÜŞTERİ REFERANS VİDEOSU — tıkla ve oynat, performans için erken yüklenmiyor */}
-        <VideoEmbed />
+        <VideoEmbed webm="/videos/yelcan-referans.webm" mp4="/videos/yelcan-referans.mp4" poster="/videos/yelcan-referans-poster.jpg" />
 
         <CTAForm />
       </section>
 
-      {/* MARKA HİKAYESİ */}
+      {/* PROBLEM — 3 katman */}
       <section className="py-20 bg-white border-t border-[#eaeaea]">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <p className="text-[#999] font-montserrat text-xs uppercase tracking-wider mb-10">404 DİJİTAL, TÜRKİYE</p>
-
           <div className="font-montserrat text-[#333] text-base leading-[1.9] space-y-5">
-            <p>Biz 404 Dijital'iz.</p>
-            <p>Google'ın ilk kurulduğu yıllarda, 404 numaralı bir uçuş gerçekleşti.</p>
-            <p>Bu uçaktan bir daha hiç haber alınamadı.</p>
-            <p>Google da, ulaşamadığı sayfalara bu uçuşa bir saygı duruşu olarak <strong>"404 Not Found"</strong> demeye başladı.</p>
-            <p>Biz de etrafımıza baktığımızda benzer bir boşluk gördük.</p>
-            <p>Viral olmuş içerikleri taklit etmek üzerine kurulu, işletmelere hiçbir fayda getirmeyen, sadece ay sonunda fatura kesmek için var olan onlarca "sosyal medya ajansı" vardı.</p>
-            <p><strong>Biz bir sosyal medya ajansı değiliz.</strong></p>
-            <p><strong>Biz bir reklam ajansıyız.</strong></p>
-            <p>Reklamcılığın babası sayılan David Ogilvy'nin dediği gibi:</p>
-            <p className="font-bold text-[#1a1a1a]">"Satmıyorsa yaratıcı değildir."</p>
-            <p>Bu felsefeyle, işletmelere maksimum faydayı sağlamak için kurulduk. Kurulduğumuz ilk günden bu yana sektörde emin adımlarla ilerliyoruz.</p>
-            <p>Çünkü inanıyoruz ki: güçlü şehir, güçlü markalarla; güçlü markalar ise güçlü reklamlarla doğar.</p>
-            <p>Her sektörün merkezi sayılan İstanbul'un gölgesinden çıkmak için İzmir'de kurulduk. Ve şu an, tüm Türkiye'ye hizmet verecek bir noktaya doğru evriliyoruz.</p>
-            <p>Ve sonuçlar bunu kanıtlıyor:</p>
-            <p>Havuzumolsun'a sadece 20.000₺ reklam bütçesiyle 500.000₺ ciro kazandırdık — <strong>25 kat getiri</strong>.</p>
-            <p>Dr. Aycan Akçalı'yı 700 takipçiden başlattık, sağlık sektörünün en katı reklam kurallarına rağmen tek bir uyarı bile almadan büyüttük.</p>
-            <p>Ege Estetik Diş'i kuruluşundan beraber yürüttük, Google'da <strong>1.2 milyon görüntülenme</strong> yakaladık.</p>
-            <p>BirTvYayin'i sıfırdan 50.000 takipçiye taşıdık.</p>
-            <p>Ve bunları sağlık, diş, e-ticaret, gayrimenkul, prodüksiyon ve daha pek çok sektörde tekrar tekrar yaptık.</p>
-            <p>Ama şunu da öğrendik: İşletme sahiplerinin çoğu, bize ulaşmadan önce en az bir kere parasını alıp ortadan kaybolan bir ajans deneyimi yaşamış oluyor.</p>
-            <p>Soru sordukları an haftalarca cevap bekliyorlar. Bazen hiç cevap alamıyorlar.</p>
-            <p>Bu yüzden 404 Dijital'de işleri biraz farklı yapıyoruz.</p>
-            <p><strong>Her hafta elle hazırladığımız raporu WhatsApp'tan atıyoruz.</strong></p>
-            <p>Sorularınıza 24 saat içinde dönüş garantisi veriyoruz.</p>
-            <p>Riski biz üstleniyoruz, siz değil.</p>
-            <p>Devam edelim mi?</p>
+            <p>Ajans değiştirdikçe sıfırdan başlıyorsunuz. Para gidiyor, sonuç gelmiyor.</p>
+            <p>Artık kimseye güvenemiyorsunuz. Her yeni toplantıda aynı vaatleri bir kez daha dinleyip yorgun düşüyorsunuz.</p>
+            <p className="font-bold text-[#1a1a1a]">Kaliteli bir iş için bu kadar uğraşmak zorunda kalmamalısınız.</p>
+            <p>Biz bu cümleleri onlarca kez duyduk. Aynı pazarda, aynı hayal kırıklıklarını yaşayan işletmelerle çalışıyoruz — ve çözüyoruz.</p>
           </div>
 
-          <div className="mt-10">
+          <div id="problem-form" className="mt-12 bg-[#f8f9fa] rounded-2xl border border-[#eaeaea] p-6 sm:p-8">
+            <p className="text-center font-montserrat font-bold text-[#1a1a1a] text-sm mb-5">Sizin probleminiz hangisi?</p>
+            <div className="grid grid-cols-2 gap-2.5 mb-6">
+              {PROBLEM_SECENEKLERI.map((p, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => problemSec(p.value)}
+                  className={`text-xs font-montserrat font-semibold px-3 py-3 rounded-xl border-2 transition-colors ${secilenProblem === p.value ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]' : 'bg-white text-[#333] border-[#eaeaea] hover:border-[#1a1a1a]'}`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
             <CTAForm />
+          </div>
+        </div>
+      </section>
+
+      {/* PLAN */}
+      <section className="py-20 bg-[#f8f9fa]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">NASIL ÇALIŞIYORUZ</p>
+            <h2 className="font-bebas text-3xl md:text-5xl text-[#1a1a1a] tracking-wider">3 ADIMDA ÇÖZÜM</h2>
+          </div>
+          <div className="space-y-4">
+            {PLAN_ADIMLARI.map((s, i) => (
+              <div key={i} className="flex items-start gap-4 bg-white rounded-xl p-5 border border-[#eaeaea]">
+                <span className="w-8 h-8 rounded-full bg-[#1a1a1a] text-white text-sm font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                <div>
+                  <p className="font-montserrat font-bold text-[#1a1a1a] text-sm mb-1">{s.baslik}</p>
+                  <p className="text-[#555] font-montserrat text-sm leading-relaxed">{s.aciklama}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* HİKAYELER — ana gövde */}
+      <section className="py-20 bg-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-14">
+            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">GERÇEK HİKAYELER</p>
+            <h2 className="font-bebas text-4xl md:text-5xl text-[#1a1a1a] tracking-wider">ONLAR DA SİZİN GİBİ BAŞLADI</h2>
+          </div>
+
+          <div className="space-y-6">
+            {HIKAYELER.map((h, i) => (
+              <div key={i} className="border border-[#eaeaea] rounded-2xl p-6 sm:p-8 bg-white">
+                <p className="font-bebas text-xl sm:text-2xl text-[#1a1a1a] tracking-wide leading-snug mb-1">{h.quote}</p>
+                <p className="text-[#999] font-montserrat text-xs uppercase tracking-wider mb-5">{h.baslik} — {h.sonuc}</p>
+                {h.video && (
+                  <div className="mb-5">
+                    <VideoEmbed webm={h.video.webm} mp4={h.video.mp4} poster={h.video.poster} small />
+                  </div>
+                )}
+                <div className="font-montserrat text-[#333] text-sm leading-[1.8] space-y-3">
+                  {h.paragraflar.map((p, j) => <p key={j}>{p}</p>)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 bg-[#1a1a1a] rounded-2xl p-6 sm:p-8 text-center">
+            <p className="font-montserrat font-bold text-white text-sm mb-1">Siz de ajans değiştirmekten yorulduysanız...</p>
+            <p className="font-montserrat text-gray-400 text-xs mb-6">Hikayenizi birlikte yazalım.</p>
+            <CTAForm dark />
+          </div>
+
+          <div className="mt-16">
+            <p className="text-center text-[#999] font-montserrat font-semibold text-xs uppercase tracking-wider mb-6">Daha Fazla Çalışmalarımız</p>
+            <div className="grid grid-cols-2 gap-5 max-w-sm mx-auto">
+              {DAHA_FAZLA_VIDEOLAR.map((v, i) => (
+                <div key={i}>
+                  <VideoEmbed webm={v.video.webm} mp4={v.video.mp4} poster={v.video.poster} small />
+                  <p className="text-center text-[#555] font-montserrat text-xs mt-2">{v.baslik}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -238,23 +371,6 @@ export default function RakiplerinOnuneGecinLP() {
                 <p className="text-[#333] font-montserrat text-sm leading-relaxed pt-0.5">{s}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* AMA BENIM ISLETMEM FARKLI - OBJECTION HANDLING */}
-      <section className="py-20 bg-[#f8f9fa]">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <h2 className="font-bebas text-3xl md:text-4xl text-[#1a1a1a] tracking-wider mb-6 text-center">
-            "RAKİBİMİN BÜTÇESİ BENDEN BÜYÜK, NASIL ÖNÜNE GEÇEBİLİRİM Kİ?"
-          </h2>
-          <div className="font-montserrat text-[#555] text-base leading-[1.9] space-y-4">
-            <p>Muhtemelen şu an aklından bu geçiyor.</p>
-            <p>Anlıyorum — sektörünüz özel, müşterileriniz farklı, piyasa koşullarınız kendine has diye düşünüyorsunuz.</p>
-            <p>Ama şunu söyleyebilirim: Sağlık, diş, gayrimenkul, e-ticaret, prodüksiyon, yerel hizmet işletmeleri dahil onlarca farklı sektörde çalıştık.</p>
-            <p>Sağlık sektöründe Meta ve Google'ın en katı reklam kurallarına tam uyumla sıfır ihlal ile sonuç aldık.</p>
-            <p>20.000₺ gibi küçük bütçelerle bile 25 kat getiri sağladık.</p>
-            <p>Yani "işim farklı" demeden önce, en azından 30 dakikalık ücretsiz analiz görüşmesinde bizi test edin. Kaybedecek hiçbir şeyiniz yok — görüşme tamamen ücretsiz ve yükümlülüksüz.</p>
           </div>
         </div>
       </section>
@@ -449,20 +565,20 @@ export default function RakiplerinOnuneGecinLP() {
         <a href="tel:+905446844067" onClick={() => trackContactClick('phone')} className="flex-1 flex items-center justify-center gap-2 bg-white/10 text-white font-montserrat font-bold text-sm py-3 rounded-full">
           <Phone size={16} /> ARA
         </a>
-        <a href="https://wa.me/905515370404?text=Merhaba,%20ücretsiz%20analiz%20görüşmesi%20istiyorum." target="_blank" rel="noopener noreferrer" onClick={() => trackContactClick('whatsapp')} className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white font-montserrat font-bold text-sm py-3 rounded-full">
+        <a href="https://wa.me/905515370404?text=Merhaba,%20bir%20problemim%20var,%20g%C3%B6r%C3%BC%C5%9Fmek%20istiyorum." target="_blank" rel="noopener noreferrer" onClick={() => trackContactClick('whatsapp')} className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white font-montserrat font-bold text-sm py-3 rounded-full">
           <MessageCircle size={16} /> WHATSAPP
         </a>
       </div>
 
       {/* MASAÜSTÜ FLOATING CTA */}
       <a
-        href="https://wa.me/905515370404?text=Merhaba,%20ücretsiz%20analiz%20görüşmesi%20istiyorum."
+        href="https://wa.me/905515370404?text=Merhaba,%20bir%20problemim%20var,%20g%C3%B6r%C3%BC%C5%9Fmek%20istiyorum."
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => trackContactClick('whatsapp')}
         className="hidden md:flex fixed bottom-6 right-6 z-40 items-center gap-2.5 bg-[#25D366] text-white font-montserrat font-bold text-sm pl-4 pr-5 py-3.5 rounded-full shadow-xl hover:scale-105 transition-transform"
       >
-        <MessageCircle size={18} /> Ücretsiz Toplantı İste
+        <MessageCircle size={18} /> Bir Problemim Var
       </a>
     </div>
   )
@@ -500,7 +616,7 @@ function FaqBlock() {
   )
 }
 
-function VideoEmbed() {
+function VideoEmbed({ webm, mp4, poster, small = false }: { webm: string; mp4: string; poster: string; small?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [muted, setMuted] = useState(true)
@@ -537,8 +653,6 @@ function VideoEmbed() {
       observer.observe(el)
     }
 
-    // Kritik render yolunu (LCP) bloklamamak için önce sayfanın tamamen
-    // yüklenmesini (load event) bekle, sonra gözlemciyi kur.
     if (document.readyState === 'complete') {
       kurulumYap()
     } else {
@@ -559,7 +673,7 @@ function VideoEmbed() {
   }
 
   return (
-    <div ref={containerRef} className="aspect-[9/16] bg-[#1a1a1a] rounded-2xl mb-8 overflow-hidden max-w-xs mx-auto relative">
+    <div ref={containerRef} className={`aspect-[9/16] bg-[#1a1a1a] rounded-2xl overflow-hidden relative ${small ? 'max-w-[180px]' : 'mb-8 max-w-xs'} mx-auto`}>
       <video
         ref={videoRef}
         className="w-full h-full object-cover"
@@ -567,10 +681,10 @@ function VideoEmbed() {
         loop
         playsInline
         preload="none"
-        poster="/videos/yelcan-referans-poster.jpg"
+        poster={poster}
       >
-        <source data-src="/videos/yelcan-referans.webm" type="video/webm" />
-        <source data-src="/videos/yelcan-referans.mp4" type="video/mp4" />
+        <source data-src={webm} type="video/webm" />
+        <source data-src={mp4} type="video/mp4" />
       </video>
       {started && (
         <button
