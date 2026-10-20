@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Phone, MessageCircle, Plus, CheckCircle2, XCircle, ExternalLink, ShieldCheck, Star } from 'lucide-react'
+import { Phone, MessageCircle, Plus, CheckCircle2, ExternalLink, ShieldCheck, Star } from 'lucide-react'
 import { trackLeadConversion, trackContactClick } from '@/lib/tracking'
 
 const SOSYAL_KANIT = [
@@ -13,46 +13,94 @@ const SOSYAL_KANIT = [
   { stat: '0 İhlal', label: 'Sağlık Reklamı Uyumu', title: 'Dr. Aycan Akçalı', href: 'https://www.instagram.com/dr.aycanakcali/', logo: '/images/clients/dr-aycanakcali.jpg' },
 ]
 
-const YORUMLAR = [
-  { yorum: '"Aylarca farklı ajanslarla para yaktıktan sonra 404 Dijital ile ilk kez hesap tablosunda gerçek bir fark gördüm."', isim: 'Gerçek müşteri geri bildirimi' },
-  { yorum: '"Sorduğum her soruya aynı gün cevap alıyorum, önceki ajansımdan 3 hafta cevap bekliyordum."', isim: 'Gerçek müşteri geri bildirimi' },
-  { yorum: '"Reklam hesabım hâlâ benim adıma, istediğim an kontrol edebiliyorum. İlk kez bu kadar şeffaf çalıştım."', isim: 'Gerçek müşteri geri bildirimi' },
+const PROBLEM_SECENEKLERI = [
+  { label: 'Reklam sonuç vermiyor', value: 'reklam sonuç vermiyor' },
+  { label: 'Ajans güven vermiyor', value: 'ajans güven vermiyor' },
+  { label: 'Sosyal medya stratejisiz', value: 'sosyal medya stratejisiz' },
+  { label: 'Hiç reklam vermedim', value: 'hiç reklam vermedim' },
 ]
 
-const KIMIN_ICIN = [
-  'Diş kliniği, estetik merkezi, fizyoterapi gibi bir sağlık işletmeniz var ve bekleme odanızın dolu olmasını istiyorsunuz?',
-  'Emlakçı veya müteahhitsiniz, cebi dolu ve satın almaya hazır alıcılarla konuşmak istiyorsunuz?',
-  'Restoran, kafe veya mekan işletiyorsunuz, masalarınızın her akşam dolu olmasını istiyorsunuz?',
-  'E-ticaret / D2C markanız var, reklam harcadığınız her kuruşun nereye gittiğini bilmek istiyorsunuz?',
-  'Hizmet veya danışmanlık veriyorsunuz, takviminizin "görüşme talebi" ile dolmasını istiyorsunuz?',
-  'Prodüksiyon, üretim veya B2B işindesiniz, telefonun sürekli çalmasını istiyorsunuz?',
+const HIKAYELER = [
+  {
+    quote: '"Bu süreç böyle devam ederse şirketi kapatmayı düşünüyoruz."',
+    baslik: 'İngilizce Eğitim Firması',
+    sonuc: '15K → 50K takipçi, videolar milyonlarca izlendi',
+    paragraflar: [
+      'Bizden önce onlarca ajansla çalışmışlardı. 15.000 takipçide tıkanmışlardı — tüm viral video formatlarını deniyorlardı ama bir strateji olmadığı için baraj aşılmıyordu.',
+      'Geldik, tek bir şeyi netleştirdik: önemli olan "viral içerik yaratmak" değil, "strateji doğrultusunda viral içerik yaratmak". Videolar milyonlarca izlenmeye başladı, takipçi 15K\'dan 50K\'ya çıktı.',
+      'Taşındıkları için çalışmamız sonlandı ama en vurucu kısmı şuydu: ilk toplantıda "bu süreç böyle devam ederse şirketi kapatmayı düşünüyoruz" demişlerdi. Bizimle çalıştıktan sonra cümle değişti: "Daha büyük ofise çıkmak istiyoruz."',
+    ],
+  },
+  {
+    quote: 'Sıfırdan 7 milyon izlenme, tek kuruş reklam harcamadan',
+    baslik: 'Bir Televizyon Kanalı',
+    sonuc: '0 → 50.000 takipçi, 7M + 3M izlenme, 0₺ reklam',
+    paragraflar: [
+      'Hesabı sıfırdan aldık. Bir televizyon kanalı olduğu için hantal kalmış refleksleri vardı — program kesitlerini paylaşmak dışında pek bir şey yapmıyorlardı.',
+      'Kendi içeriğimizi üretmek için izin almak bile mücadele gerektirdi. Sonuç: bir videomuz 7 milyon, diğeri 3 milyon izlendi. Hesap 50.000 takipçiye ulaştı — tek kuruş reklam parası harcamadan.',
+    ],
+  },
+  {
+    quote: '"Ajansları hiç anlamıyorum."',
+    baslik: 'Samsun Çakallı Menemen',
+    sonuc: '900 tekil konum tıklaması, 1 ay gibi kısıtlı sürede',
+    paragraflar: [
+      'Çakallı menemeni İzmir\'de yapan tek yerdi. Onlarca ajansla çalışmıştı, mekanı kapatmadan son 1 ayı kaldığında bize ulaştılar. Telefonda aynen şunu söylediler: "Ajansları hiç anlamıyorum. Söz verdiler, geleceğiz dediler, gelmediler. Parayı ödeyeceğim, resmen almadan gittiler."',
+      '1 ay gibi kısıtlı bir sürede elimizden geleni yaptık, konum tıklamasını 900 tekil tıklamaya çıkardık. Süre yetmedi ama çabamızı gördüler — bugün abi-kardeş gibiyiz. "Yolunuz düştüğünde kahvemi içmezseniz darılırım" diyor. Biz soğuk şirketler değil, hikayeler biriktiriyoruz.',
+    ],
+  },
+  {
+    quote: 'Sıfır ihtar, 126 bin izlenme',
+    baslik: 'Uzman Dr. Aycan Akçalı',
+    sonuc: '126K + 13K izlenme (2 günde), 1+ yıl ortaklık, 0 ihtar',
+    video: { webm: '/videos/aycan-akcali.webm', mp4: '/videos/aycan-akcali.mp4', poster: '/videos/aycan-akcali-poster.jpg' },
+    paragraflar: [
+      'Hesabını sıfırdan aldık. Sağlık sektörünün en katı reklam kurallarına rağmen bugüne kadar tek bir ihtar bile almadık.',
+      'Son 2 günde paylaştığımız videolardan biri 126.000, diğeri 13.000 izlendi — yine reklam harcaması yapmadan. 1 yıldan uzun süredir birlikte çalışıyoruz.',
+    ],
+  },
+  {
+    quote: '"Siz de başaramazsanız şirketi kapatacağım."',
+    baslik: 'Havuzum Olsun',
+    sonuc: '20.000₺ reklam → 500.000₺ ciro (25 kat getiri)',
+    video: { webm: '/videos/havuzum-olsun.webm', mp4: '/videos/havuzum-olsun.mp4', poster: '/videos/havuzum-olsun-poster.jpg' },
+    paragraflar: [
+      'İlk konuştuğumuzda bize dedi ki: "Geçtiğimiz ay 7 ajans değiştirdik, telefonumuz 1 kere bile çalmadı. Siz de başaramazsanız şirketi kapatacağım, daha fazla denemek istemiyorum."',
+      'Hesaplarını inceledik — hiçbir ajans havuzun yapıldığı sahaya bile gitmemiş. Biz gittik, ev sahibinden rica ettik, set kurduk, oyuncu götürdük, kreatifleri baştan kurduk.',
+      'Sonuç: sadece 20.000₺ reklam harcamasıyla 500.000₺ ciro — 25 kat getiri.',
+    ],
+  },
 ]
 
-const NELER_VAR = [
-  'Reklam hesabınızın tamamen ücretsiz denetimi — şu an nerede, nasıl para kaybettiğinizi gözünüzle görürsünüz.',
-  'Sektörünüze ve bütçenize özel, geçmiş kampanya verilerine dayanan gerçekçi 3 aylık nitelikli lead hedefi.',
-  'Hangi reklamın kaç nitelikli lead getirdiğini her hafta gün gün gösteren şeffaf rapor.',
-  'Reklam hesabınız baştan sona sizin adınıza — biz sadece yönetiriz, istediğiniz an erişiminizi geri alabilirsiniz.',
-  '3 ay boyunca hedeflediğimiz nitelikli lead sayısına ulaşamazsak, o ayın yönetim ücretini tam iade ediyoruz.',
+const DAHA_FAZLA_VIDEOLAR = [
+  { baslik: 'Kemeraltı Kalaycı', video: { webm: '/videos/kemeralti-kalayci.webm', mp4: '/videos/kemeralti-kalayci.mp4', poster: '/videos/kemeralti-kalayci-poster.jpg' } },
+  { baslik: 'Örnek Çalışma', video: { webm: '/videos/amac-ve-hayal.webm', mp4: '/videos/amac-ve-hayal.mp4', poster: '/videos/amac-ve-hayal-poster.jpg' } },
+]
+
+const PLAN_ADIMLARI = [
+  { baslik: 'Problemini anlat', aciklama: '"Bir Problemim Var" butonuna bas, formu doldur — 24 saat içinde ararız.' },
+  { baslik: 'Birlikte netleştirelim', aciklama: '30 dakikalık görüşmede sorununu, hedef kitleni ve bütçeni konuşuruz.' },
+  { baslik: 'Stratejiyi kurup uygularız', aciklama: 'Yukarıdaki hikayelerdeki gibi — size özel strateji, ölçülebilir sonuç.' },
 ]
 
 const SORULAR = [
   { q: '"3 ayda dönüşüm göremezsem paramı geri alırım" ne anlama geliyor, tam olarak?', a: '3 ay boyunca kampanyayı yönetiriz; görüşmede birlikte belirlediğimiz nitelikli lead hedefine ulaşamazsak, o ay için ödediğiniz yönetim ücretini iade ederiz. Reklam bütçesi bu garantinin dışındadır — o tamamen sizin platform hesabınızda kalır, biz asla elinize para geçirmeden, sizin adınıza açılmış hesaptan harcarız.' },
   { q: 'Daha önce bir ajansla çalıştım, parayı aldılar sonra ortadan kayboldular. Siz farklı mısınız?', a: 'Her hafta elle hazırladığımız raporu WhatsApp\'tan atıyoruz, sorularınıza 24 saat içinde dönüş garantisi veriyoruz. Reklam hesabınız sizin adınıza açılır — istediğiniz an erişiminizi geri alabilirsiniz, biz sadece yönetiriz.' },
   { q: 'Dekont veya fatura vermeyen, sözleşmesiz çalışan ajanslar gördüm. Sizde durum ne?', a: 'Her ödeme faturalıdır, her harcama raporludur. Sözleşmemiz net: süre, kapsam, garanti şartları yazılı olarak önceden belirlenir, elden/belgesiz ödeme talep etmeyiz.' },
-  { q: 'Sektörümüzde deneyiminiz var mı?', a: 'Sağlık (sıkı reklam kurallarına tam uyumla), diş kliniği, e-ticaret, gayrimenkul, film prodüksiyon ve yerel hizmet işletmeleri dahil geniş bir portföyümüz var. Yukarıdaki "Rakamlar Konuşur" bölümünde gerçek müşterilerimizi inceleyebilirsiniz.' },
+  { q: 'Sektörümüzde deneyiminiz var mı?', a: 'Sağlık (sıkı reklam kurallarına tam uyumla), diş kliniği, e-ticaret, gayrimenkul, film prodüksiyon, eğitim, yayıncılık ve yerel hizmet işletmeleri dahil geniş bir portföyümüz var. Yukarıdaki hikayelerde gerçek müşterilerimizi inceleyebilirsiniz.' },
   { q: 'Uzun vadeli sözleşmeye bağlanmak istemiyorum.', a: 'Zorunlu uzun vadeli sözleşme dayatmıyoruz. Sonuç veremiyorsak sizi tutmamızın bir anlamı yok — ayrılmak istediğiniz an serbestsiniz.' },
-  { q: '"Ayda X lead garantisi" gibi abartılı vaatlerde bulunan ajanslardan çok yoruldum.', a: 'Biz tahmini rakam değil, geçmiş kampanya verilerimizi göstererek konuşuruz. Ücretsiz analiz görüşmesinde sektörünüze ve bütçenize göre gerçekçi bir hedef birlikte belirleriz — kanıtlanamayan hiçbir sayıyı ağzımıza almayız.' },
+  { q: '"Ayda X lead garantisi" gibi abartılı vaatlerde bulunan ajanslardan çok yoruldum.', a: 'Biz tahmini rakam değil, geçmiş kampanya verilerimizi göstererek konuşuruz. Ücretsiz görüşmede sektörünüze ve bütçenize göre gerçekçi bir hedef birlikte belirleriz — kanıtlanamayan hiçbir sayıyı ağzımıza almayız.' },
   { q: 'Hangi şehirlere hizmet veriyorsunuz?', a: 'Türkiye genelinde hizmet veriyoruz. Merkezimiz İzmir\'de ama müşterilerimizle büyük çoğunlukla online çalışıyoruz — şehir fark etmiyor. Her müşteriye gerçekten zaman ayırabilmek için kasıtlı olarak az sayıda işletmeyle çalışıyoruz, bu yüzden ayda sınırlı sayıda yeni müşteri kabul ediyoruz.' },
   { q: 'Reklam bütçesi ajans ücretine dahil mi?', a: 'Hayır, tamamen ayrı. Reklam bütçeniz kendi hesabınızda, sizin kontrolünüzde kalır — biz sadece strateji ve yönetimi üstleniriz.' },
-  { q: 'Analiz görüşmesi gerçekten ücretsiz mi, bir yere imza atmam mı gerekecek?', a: 'Tamamen ücretsiz, hiçbir yükümlülük yok. 30 dakikada mevcut durumunuzu, reklam hesabınızı inceleriz ve size gerçekçi bir yol haritası çizeriz. Devam etmek isteyip istemediğinize görüşme sonunda siz karar verirsiniz.' },
-  { q: 'Analiz görüşmesinden sonra ne olacak?', a: 'Görüşmede sizin için anlamlı olup olmadığımıza birlikte karar veririz. Uygunsa, sözleşme ve garanti şartlarını netleştirir, kampanyanızı kurmaya başlarız. Uygun değilse, hiçbir baskı yapmadan yolunuza devam edersiniz.' },
+  { q: 'Görüşme gerçekten ücretsiz mi, bir yere imza atmam mı gerekecek?', a: 'Tamamen ücretsiz, hiçbir yükümlülük yok. 30 dakikada mevcut durumunuzu inceleriz ve size gerçekçi bir yol haritası çizeriz. Devam etmek isteyip istemediğinize görüşme sonunda siz karar verirsiniz.' },
+  { q: 'Görüşmeden sonra ne olacak?', a: 'Görüşmede sizin için anlamlı olup olmadığımıza birlikte karar veririz. Uygunsa, sözleşme ve garanti şartlarını netleştirir, kampanyanızı kurmaya başlarız. Uygun değilse, hiçbir baskı yapmadan yolunuza devam edersiniz.' },
 ]
 
 export default function HomePage() {
   const [formData, setFormData] = useState({ isletmeAdi: '', telefon: '' })
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [secilenProblem, setSecilenProblem] = useState('')
 
   const [reklamDetay, setReklamDetay] = useState('')
   useEffect(() => {
@@ -66,10 +114,11 @@ export default function HomePage() {
     setSubmitting(true)
     trackLeadConversion()
     try {
+      const detay = [reklamDetay, secilenProblem ? `problem=${encodeURIComponent(secilenProblem)}` : ''].filter(Boolean).join('&')
       await fetch('/api/iletisim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'analiz', ...formData, reklamDetay, kaynak: 'Ana Sayfa' }),
+        body: JSON.stringify({ type: 'analiz', ...formData, reklamDetay: detay, kaynak: 'Ana Sayfa' }),
       })
       setSubmitted(true)
     } finally {
@@ -77,9 +126,15 @@ export default function HomePage() {
     }
   }
 
-  const CTAForm = ({ dark = false }: { dark?: boolean }) => (
+  const problemSec = (value: string) => {
+    setSecilenProblem(value)
+    const el = document.getElementById('problem-form')
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
+  const CTAForm = ({ dark = false, id }: { dark?: boolean; id?: string }) => (
     !submitted ? (
-      <form onSubmit={handleSubmit} className="space-y-3 max-w-md mx-auto">
+      <form id={id} onSubmit={handleSubmit} className="space-y-3 max-w-md mx-auto">
         <input
           type="text" placeholder="İşletme Adı" required
           value={formData.isletmeAdi}
@@ -93,16 +148,16 @@ export default function HomePage() {
           className={dark ? "w-full border-2 border-white/10 bg-white/5 text-white placeholder:text-gray-500 rounded-xl px-4 py-3.5 text-sm font-montserrat focus:outline-none focus:border-white/30" : "w-full border-2 border-[#eaeaea] rounded-xl px-4 py-3.5 text-sm font-montserrat focus:outline-none focus:border-[#1a1a1a]"}
         />
         <button type="submit" disabled={submitting} className={dark ? "w-full bg-[#ffc107] text-black font-montserrat font-bold text-sm py-4 rounded-xl disabled:opacity-50" : "w-full bg-[#1a1a1a] text-white font-montserrat font-bold text-sm py-4 rounded-xl disabled:opacity-50"}>
-          ÜCRETSİZ ANALİZ GÖRÜŞMEMİ AYIRT
+          BİR PROBLEMİM VAR
         </button>
         <p className={dark ? "text-gray-400 text-xs font-montserrat" : "text-[#999] text-xs font-montserrat"}>
-          Butona bas, formu doldur — satış ekibimiz 24 saat içinde seni arayıp 30 dakikalık ücretsiz analiz görüşmesi yapsın.
+          Butona bas, formu doldur — satış ekibimiz 24 saat içinde seni arayıp 30 dakikalık ücretsiz görüşme yapsın.
         </p>
       </form>
     ) : (
       <div className={dark ? "max-w-md mx-auto bg-green-500/10 border border-green-500/30 rounded-xl px-6 py-5" : "max-w-md mx-auto bg-green-50 border border-green-200 rounded-xl px-6 py-5"}>
         <p className={dark ? "text-green-400 font-montserrat font-bold" : "text-green-700 font-montserrat font-bold"}>✅ Talebin alındı!</p>
-        <p className={dark ? "text-green-500 text-sm mt-1 font-montserrat" : "text-green-600 text-sm mt-1 font-montserrat"}>24 saat içinde seni arayıp 30 dakikalık ücretsiz analiz görüşmesini ayarlayacağız.</p>
+        <p className={dark ? "text-green-500 text-sm mt-1 font-montserrat" : "text-green-600 text-sm mt-1 font-montserrat"}>24 saat içinde seni arayıp 30 dakikalık ücretsiz görüşmeyi ayarlayacağız.</p>
       </div>
     )
   )
@@ -137,203 +192,118 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* HERO */}
+      {/* HERO — problem direkt, biz yok */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-14 pb-10 text-center">
         <div className="flex items-center justify-center gap-1 mb-4">
           {[1,2,3,4,5].map(i => <Star key={i} size={16} className="fill-[#ffc107] text-[#ffc107]" />)}
-          <span className="text-xs font-montserrat text-[#999] ml-2">50+ İzmirli işletmenin tercihi</span>
+          <span className="text-xs font-montserrat text-[#999] ml-2">50+ işletmenin tercihi</span>
         </div>
-        <h1 className="font-bebas text-4xl md:text-6xl text-[#1a1a1a] tracking-wider leading-[1.05] mb-5">
-          İŞLETMELERE 3 AYDA NİTELİKLİ LEAD AKIŞI SAĞLIYORUZ — SONUÇ YOKSA PARANIZ İADE
+        <h1 className="font-bebas text-3xl md:text-5xl text-[#1a1a1a] tracking-wider leading-[1.1] mb-5">
+          "BU SÜREÇ BÖYLE DEVAM EDERSE ŞİRKETİ KAPATMAYI DÜŞÜNÜYORUZ."
         </h1>
         <p className="text-[#555] font-montserrat text-lg leading-relaxed max-w-2xl mx-auto mb-8">
-          Reklama para yakıp hiçbir şey alamadığınız günler bitti. 404 Dijital'in garanti sistemiyle çalışırsanız, ya ölçülebilir nitelikli lead akışı görürsünüz, ya da ödediğiniz yönetim ücretini geri alırsınız. Riski biz üstleniyoruz.
+          Bunu bize bir müşterimiz ilk toplantıda söyledi. 6 ay sonra aynı cümle şuna dönüştü: "Daha büyük ofise çıkmak istiyoruz." Reklamınız sonuç vermiyorsa sorun genelde sizde değil, stratejide.
         </p>
 
-        {/* VSL / MÜŞTERİ REFERANS VİDEOSU — tıkla ve oynat, performans için erken yüklenmiyor */}
-        <VideoEmbed />
+        <VideoEmbed webm="/videos/yelcan-referans.webm" mp4="/videos/yelcan-referans.mp4" poster="/videos/yelcan-referans-poster.jpg" />
 
         <CTAForm />
       </section>
 
-      {/* MARKA HİKAYESİ */}
+      {/* PROBLEM — 3 katman */}
       <section className="py-20 bg-white border-t border-[#eaeaea]">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <p className="text-[#999] font-montserrat text-xs uppercase tracking-wider mb-10">404 DİJİTAL, İZMİR</p>
-
           <div className="font-montserrat text-[#333] text-base leading-[1.9] space-y-5">
-            <p>Biz 404 Dijital'iz.</p>
-            <p>Google'ın ilk kurulduğu yıllarda, 404 numaralı bir uçuş gerçekleşti.</p>
-            <p>Bu uçaktan bir daha hiç haber alınamadı.</p>
-            <p>Google da, ulaşamadığı sayfalara bu uçuşa bir saygı duruşu olarak <strong>"404 Not Found"</strong> demeye başladı.</p>
-            <p>Biz de İzmir'e döndüğümüzde benzer bir boşluk gördük.</p>
-            <p>Viral olmuş içerikleri taklit etmek üzerine kurulu, işletmelere hiçbir fayda getirmeyen, sadece ay sonunda fatura kesmek için var olan onlarca "sosyal medya ajansı" vardı.</p>
-            <p><strong>Biz bir sosyal medya ajansı değiliz.</strong></p>
-            <p><strong>Biz bir reklam ajansıyız.</strong></p>
-            <p>Reklamcılığın babası sayılan David Ogilvy'nin dediği gibi:</p>
-            <p className="font-bold text-[#1a1a1a]">"Satmıyorsa yaratıcı değildir."</p>
-            <p>Bu felsefeyle, işletmelere maksimum faydayı sağlamak için kurulduk. Kurulduğumuz ilk günden bu yana sektörde emin adımlarla ilerliyoruz.</p>
-            <p>Çünkü inanıyoruz ki: güçlü şehir, güçlü markalarla; güçlü markalar ise güçlü reklamlarla doğar.</p>
-            <p>Her sektörün merkezi sayılan İstanbul'un gölgesinden çıkmak için İzmir'de kurulduk. Ve şu an, tüm Türkiye'ye hizmet verecek bir noktaya doğru evriliyoruz.</p>
-            <p>Ve sonuçlar bunu kanıtlıyor:</p>
-            <p>Havuzumolsun'a sadece 20.000₺ reklam bütçesiyle 500.000₺ ciro kazandırdık — <strong>25 kat getiri</strong>.</p>
-            <p>Dr. Aycan Akçalı'yı 700 takipçiden başlattık, sağlık sektörünün en katı reklam kurallarına rağmen tek bir uyarı bile almadan büyüttük.</p>
-            <p>Ege Estetik Diş'i kuruluşundan beraber yürüttük, Google'da <strong>1.2 milyon görüntülenme</strong> yakaladık.</p>
-            <p>BirTvYayin'i sıfırdan 50.000 takipçiye taşıdık.</p>
-            <p>Ve bunları sağlık, diş, e-ticaret, gayrimenkul, prodüksiyon ve daha pek çok sektörde tekrar tekrar yaptık.</p>
-            <p>Ama şunu da öğrendik: İşletme sahiplerinin çoğu, bize ulaşmadan önce en az bir kere kötü bir ajans deneyimi yaşamış oluyor.</p>
-            <p>Para ödüyorlar, sonuç alamıyorlar. Ajans ortadan kayboluyor. Kimse hesap vermiyor.</p>
-            <p>Bu yüzden 404 Dijital'de işleri biraz farklı yapıyoruz.</p>
-            <p><strong>Sonucu garanti ediyoruz.</strong></p>
-            <p>3 ay boyunca sizinle çalışırız. Birlikte belirlediğimiz nitelikli lead hedefine ulaşamazsak, o ayın yönetim ücretini geri alırsınız.</p>
-            <p>Riski biz üstleniyoruz, siz değil.</p>
-            <p>Devam edelim mi?</p>
+            <p>Ajans değiştirdikçe sıfırdan başlıyorsunuz. Para gidiyor, sonuç gelmiyor.</p>
+            <p>Artık kimseye güvenemiyorsunuz. Her yeni toplantıda aynı vaatleri bir kez daha dinleyip yorgun düşüyorsunuz.</p>
+            <p className="font-bold text-[#1a1a1a]">Kaliteli bir iş için bu kadar uğraşmak zorunda kalmamalısınız.</p>
+            <p>Biz bu cümleleri onlarca kez duyduk. Aynı pazarda, aynı hayal kırıklıklarını yaşayan işletmelerle çalışıyoruz — ve çözüyoruz.</p>
           </div>
 
-          <div className="mt-10">
+          {/* MİKRO FORM #1 */}
+          <div id="problem-form" className="mt-12 bg-[#f8f9fa] rounded-2xl border border-[#eaeaea] p-6 sm:p-8">
+            <p className="text-center font-montserrat font-bold text-[#1a1a1a] text-sm mb-5">Sizin probleminiz hangisi?</p>
+            <div className="grid grid-cols-2 gap-2.5 mb-6">
+              {PROBLEM_SECENEKLERI.map((p, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => problemSec(p.value)}
+                  className={`text-xs font-montserrat font-semibold px-3 py-3 rounded-xl border-2 transition-colors ${secilenProblem === p.value ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]' : 'bg-white text-[#333] border-[#eaeaea] hover:border-[#1a1a1a]'}`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
             <CTAForm />
           </div>
         </div>
       </section>
 
-      {/* KIMIN ICIN */}
+      {/* PLAN */}
       <section className="py-20 bg-[#f8f9fa]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">BU TEKLİF KİMİN İÇİN?</p>
-            <h2 className="font-bebas text-3xl md:text-5xl text-[#1a1a1a] tracking-wider">AŞAĞIDAKİLERDEN BİRİNE "EVET" DİYORSANIZ...</h2>
+            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">NASIL ÇALIŞIYORUZ</p>
+            <h2 className="font-bebas text-3xl md:text-5xl text-[#1a1a1a] tracking-wider">3 ADIMDA ÇÖZÜM</h2>
           </div>
           <div className="space-y-4">
-            {KIMIN_ICIN.map((s, i) => (
+            {PLAN_ADIMLARI.map((s, i) => (
               <div key={i} className="flex items-start gap-4 bg-white rounded-xl p-5 border border-[#eaeaea]">
-                <CheckCircle2 size={20} className="text-[#1a1a1a] flex-shrink-0 mt-0.5" />
-                <p className="text-[#333] font-montserrat text-sm leading-relaxed">{s}</p>
+                <span className="w-8 h-8 rounded-full bg-[#1a1a1a] text-white text-sm font-bold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                <div>
+                  <p className="font-montserrat font-bold text-[#1a1a1a] text-sm mb-1">{s.baslik}</p>
+                  <p className="text-[#555] font-montserrat text-sm leading-relaxed">{s.aciklama}</p>
+                </div>
               </div>
             ))}
           </div>
-          <p className="text-center text-[#555] font-montserrat text-base mt-10 mb-6 font-semibold">
-            Bunlardan birine bile "evet" dediyseniz, bu sayfanın geri kalanını okumalısınız.
-          </p>
-          <CTAForm />
         </div>
       </section>
 
-      {/* NELER VAR */}
+      {/* HİKAYELER — ana gövde */}
       <section className="py-20 bg-white">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">ÜCRETSİZ ANALİZ GÖRÜŞMESİNDE</p>
-            <h2 className="font-bebas text-3xl md:text-5xl text-[#1a1a1a] tracking-wider">TAM OLARAK NE ALIYORSUNUZ?</h2>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-14">
+            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">GERÇEK HİKAYELER</p>
+            <h2 className="font-bebas text-4xl md:text-5xl text-[#1a1a1a] tracking-wider">ONLAR DA SİZİN GİBİ BAŞLADI</h2>
           </div>
-          <div className="space-y-4">
-            {NELER_VAR.map((s, i) => (
-              <div key={i} className="flex items-start gap-4">
-                <span className="w-7 h-7 rounded-full bg-[#1a1a1a] text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
-                <p className="text-[#333] font-montserrat text-sm leading-relaxed pt-0.5">{s}</p>
+
+          <div className="space-y-6">
+            {HIKAYELER.map((h, i) => (
+              <div key={i} className="border border-[#eaeaea] rounded-2xl p-6 sm:p-8 bg-white">
+                <p className="font-bebas text-xl sm:text-2xl text-[#1a1a1a] tracking-wide leading-snug mb-1">{h.quote}</p>
+                <p className="text-[#999] font-montserrat text-xs uppercase tracking-wider mb-5">{h.baslik} — {h.sonuc}</p>
+                {h.video && (
+                  <div className="mb-5">
+                    <VideoEmbed webm={h.video.webm} mp4={h.video.mp4} poster={h.video.poster} small />
+                  </div>
+                )}
+                <div className="font-montserrat text-[#333] text-sm leading-[1.8] space-y-3">
+                  {h.paragraflar.map((p, j) => <p key={j}>{p}</p>)}
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* AMA BENIM ISLETMEM FARKLI - OBJECTION HANDLING */}
-      <section className="py-20 bg-[#f8f9fa]">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6">
-          <h2 className="font-bebas text-3xl md:text-4xl text-[#1a1a1a] tracking-wider mb-6 text-center">
-            "AMA BENİM İŞLETMEM FARKLI, BU BENDE İŞE YARAMAZ"
-          </h2>
-          <div className="font-montserrat text-[#555] text-base leading-[1.9] space-y-4">
-            <p>Muhtemelen şu an aklından bu geçiyor.</p>
-            <p>Anlıyorum — sektörünüz özel, müşterileriniz farklı, piyasa koşullarınız kendine has diye düşünüyorsunuz.</p>
-            <p>Ama şunu söyleyebilirim: Sağlık, diş, gayrimenkul, e-ticaret, prodüksiyon, yerel hizmet işletmeleri dahil onlarca farklı sektörde çalıştık.</p>
-            <p>Sağlık sektöründe Meta ve Google'ın en katı reklam kurallarına tam uyumla sıfır ihlal ile sonuç aldık.</p>
-            <p>20.000₺ gibi küçük bütçelerle bile 25 kat getiri sağladık.</p>
-            <p>Yani "işim farklı" demeden önce, en azından 30 dakikalık ücretsiz analiz görüşmesinde bizi test edin. Kaybedecek hiçbir şeyiniz yok — görüşme tamamen ücretsiz ve yükümlülüksüz.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* PROBLEM / NEDEN BAŞARISIZ OLUNUYOR */}
-      <section className="py-20 bg-[#1a1a1a]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <p className="text-[#ffc107] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4 text-center">TANIDIK GELİYOR MU?</p>
-          <h2 className="font-bebas text-3xl md:text-5xl text-white tracking-wider leading-tight text-center mb-14">
-            ÇOĞU İŞLETME SAHİBİ AYNI DUVARA ÇARPIYOR
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8 mb-16">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
-              <h3 className="font-montserrat font-bold text-white text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
-                <XCircle size={18} className="text-red-400" /> Diğer Ajanslarla Yaşananlar
-              </h3>
-              <ul className="space-y-4">
-                {[
-                  'Aylarca ödeme yapıyorsunuz, somut bir sonuç göremiyorsunuz.',
-                  'Ödeme sonrası ajans soru sorduğunuzda yanıt vermiyor.',
-                  '"Ayda 1000 lead" gibi vaatler veriliyor, gerçekleşmiyor.',
-                  'Dekont, fatura, sözleşme olmadan nakit ödeme isteniyor.',
-                  'Reklam hesabınız ajansın elinde kilitli kalıyor.',
-                ].map((s, i) => (
-                  <li key={i} className="flex items-start gap-3 text-gray-400 text-sm font-montserrat leading-relaxed">
-                    <span className="text-red-400 mt-1">✕</span>{s}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-white/5 border border-[#ffc107]/30 rounded-2xl p-8">
-              <h3 className="font-montserrat font-bold text-[#ffc107] text-sm uppercase tracking-wider mb-6 flex items-center gap-2">
-                <CheckCircle2 size={18} className="text-[#ffc107]" /> 404 Dijital Sistemi
-              </h3>
-              <ul className="space-y-4">
-                {[
-                  '3 ayda hedeflenen nitelikli lead gelmezse yönetim ücreti iade.',
-                  'Her hafta WhatsApp\'tan elle rapor, 24 saat içinde dönüş garantisi.',
-                  'Sadece kanıtlanabilir, geçmiş veriye dayalı hedefler konuşuruz.',
-                  'Her ödeme faturalı, hesabınız her zaman sizin adınıza.',
-                  'İstediğiniz an ayrılabilirsiniz, zorunlu uzun sözleşme yok.',
-                ].map((s, i) => (
-                  <li key={i} className="flex items-start gap-3 text-white text-sm font-montserrat leading-relaxed">
-                    <span className="text-[#ffc107] mt-1">✓</span>{s}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* FORMUL */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 max-w-3xl mx-auto text-center mb-10">
-            <p className="text-[#999] font-montserrat text-xs uppercase tracking-wider mb-3">Neden Çoğu Ajans Sonuç Getirmiyor?</p>
-            <p className="text-white font-montserrat text-sm leading-relaxed mb-5">
-              Çünkü içerik paylaşmakla reklam yönetmek birbirinden tamamen farklı işler. Çoğu "ajans" post atar, sonucu ölçmez, kampanyayı optimize etmez — bütçeniz havaya gider.
-            </p>
-            <p className="text-white font-montserrat text-sm leading-relaxed mb-5">
-              Biz her kampanyayı net bir lead hedefine bağlarız, günlük veriyle optimize ederiz, hangi reklamın kaç nitelikli lead getirdiğini raporlarız.
-            </p>
-            <p className="font-bebas text-2xl text-[#ffc107] tracking-wider">404 PERFORMANS SİSTEMİ™</p>
-          </div>
-
-          <div className="max-w-md mx-auto">
+          {/* MİKRO FORM #2 */}
+          <div className="mt-12 bg-[#1a1a1a] rounded-2xl p-6 sm:p-8 text-center">
+            <p className="font-montserrat font-bold text-white text-sm mb-1">Siz de ajans değiştirmekten yorulduysanız...</p>
+            <p className="font-montserrat text-gray-400 text-xs mb-6">Hikayenizi birlikte yazalım.</p>
             <CTAForm dark />
           </div>
-        </div>
-      </section>
 
-      {/* YORUMLAR */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
-            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">MÜŞTERİLERİMİZ NE DİYOR</p>
-            <h2 className="font-bebas text-4xl md:text-5xl text-[#1a1a1a] tracking-wider">ONLAR DA SİZİN GİBİ DÜŞÜNÜYORDU</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-5">
-            {YORUMLAR.map((y, i) => (
-              <div key={i} className="bg-[#f8f9fa] rounded-2xl p-6 border border-[#eaeaea]">
-                <div className="flex gap-0.5 mb-3">
-                  {[1,2,3,4,5].map(n => <Star key={n} size={13} className="fill-[#ffc107] text-[#ffc107]" />)}
+          {/* DAHA FAZLA ÖRNEK */}
+          <div className="mt-16">
+            <p className="text-center text-[#999] font-montserrat font-semibold text-xs uppercase tracking-wider mb-6">Daha Fazla Çalışmalarımız</p>
+            <div className="grid grid-cols-2 gap-5 max-w-sm mx-auto">
+              {DAHA_FAZLA_VIDEOLAR.map((v, i) => (
+                <div key={i}>
+                  <VideoEmbed webm={v.video.webm} mp4={v.video.mp4} poster={v.video.poster} small />
+                  <p className="text-center text-[#555] font-montserrat text-xs mt-2">{v.baslik}</p>
                 </div>
-                <p className="text-[#333] font-montserrat text-sm leading-relaxed mb-4">{y.yorum}</p>
-                <p className="text-[#999] font-montserrat text-xs">{y.isim}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -348,7 +318,7 @@ export default function HomePage() {
           <div className="border-2 border-[#1a1a1a] rounded-2xl p-8 md:p-10 bg-white">
             <ul className="space-y-4 mb-8">
               {[
-                '30 dakikalık ücretsiz analiz görüşmesi + reklam hesabınızın ücretsiz denetimi',
+                '30 dakikalık ücretsiz görüşme + reklam hesabınızın ücretsiz denetimi',
                 'Sektörünüze ve bütçenize özel, kanıta dayalı 3 aylık lead hedefi',
                 '3 ayda hedef tutmazsa o ayın yönetim ücreti tam iade',
               ].map((b, i) => (
@@ -380,7 +350,7 @@ export default function HomePage() {
             <div className="bg-[#1a1a1a] rounded-xl p-6 mb-6">
               <p className="text-[#ffc107] font-bebas text-lg tracking-wider mb-2">SONUÇ GARANTİMİZ</p>
               <p className="text-white font-montserrat text-xs leading-relaxed">
-                Reklam bütçesi değil, bizim performansımız garanti kapsamında. Hedeflenen nitelikli lead sayısına ulaşamazsak, yönetim ücretinizi tam iade ediyoruz — sorgusuz. Bu konuda bu kadar net duran başka bir ajans bulamazsınız.
+                Reklam bütçesi değil, bizim performansımız garanti kapsamında. Hedeflenen nitelikli lead sayısına ulaşamazsak, yönetim ücretinizi tam iade ediyoruz — sorgusuz.
               </p>
             </div>
 
@@ -389,39 +359,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SOSYAL KANIT */}
+      {/* PAKETLER / DEĞER */}
       <section className="py-20 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
-            <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">GERÇEK MÜŞTERİLER, GERÇEK SONUÇLAR</p>
-            <h2 className="font-bebas text-4xl md:text-5xl text-[#1a1a1a] tracking-wider">RAKAMLAR KONUŞUR</h2>
-          </div>
-          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-5">
-            {SOSYAL_KANIT.map((s, i) => (
-              <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="group bg-[#f8f9fa] rounded-2xl p-6 border border-[#eaeaea] hover:border-[#1a1a1a] hover:shadow-lg transition-all flex flex-col">
-                <div className="font-bebas text-4xl text-[#1a1a1a] tracking-wider mb-1">{s.stat}</div>
-                <div className="text-[#999] text-xs font-montserrat font-semibold uppercase tracking-wider mb-4">{s.label}</div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Image src={s.logo} alt={s.title} width={s.logoWide ? 100 : 32} height={32} unoptimized className={s.logoWide ? 'h-5 w-auto object-contain' : 'w-8 h-8 rounded-full object-cover border border-[#eaeaea]'} />
-                  {!s.logoWide && <h4 className="font-montserrat font-bold text-sm text-[#1a1a1a]">{s.title}</h4>}
-                </div>
-                <div className="flex items-center gap-1 text-[#1a1a1a] text-xs font-montserrat font-semibold mt-4 opacity-60 group-hover:opacity-100 transition-opacity">
-                  Profili İncele <ExternalLink size={12} />
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* PAKETLER / DEĞER — fiyat yok, kapsam var */}
-      <section className="py-20 bg-[#f8f9fa]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <p className="text-[#999] font-montserrat font-semibold text-sm tracking-[3px] uppercase mb-4">NASIL ÇALIŞIYORUZ</p>
             <h2 className="font-bebas text-4xl md:text-5xl text-[#1a1a1a] tracking-wider mb-4">HER İŞLETME AYNI FİYATI HAK ETMEZ</h2>
             <p className="text-[#555] font-montserrat text-sm max-w-xl mx-auto">
-              Sabit paket fiyatı vermiyoruz — çünkü sizin bütçeniz, hedefiniz ve sektörünüz başka bir işletmeninkiyle aynı değil. Önce değeri konuşuyoruz, teklifi analiz görüşmesinde sektörünüze özel çıkarıyoruz.
+              Sabit paket fiyatı vermiyoruz — çünkü sizin bütçeniz, hedefiniz ve sektörünüz başka bir işletmeninkiyle aynı değil. Önce probleminizi konuşuyoruz, teklifi görüşmede sektörünüze özel çıkarıyoruz.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -442,7 +387,7 @@ export default function HomePage() {
                 ozellikler: ['Satış hunisi tasarımı ve yönetimi', 'CRM entegrasyonu ve lead takibi', 'Haftalık performans toplantısı'],
               },
             ].map((p, i) => (
-              <div key={i} className="bg-white rounded-2xl p-8 border border-[#eaeaea] flex flex-col">
+              <div key={i} className="bg-[#f8f9fa] rounded-2xl p-8 border border-[#eaeaea] flex flex-col">
                 <h3 className="font-bebas text-2xl text-[#1a1a1a] tracking-wider mb-3">{p.baslik}</h3>
                 <p className="text-[#555] font-montserrat text-sm leading-relaxed mb-5 flex-1">{p.aciklama}</p>
                 <ul className="space-y-2.5 mb-6">
@@ -453,7 +398,7 @@ export default function HomePage() {
                   ))}
                 </ul>
                 <a href="#form" className="block text-center bg-[#1a1a1a] text-white font-montserrat font-bold text-xs py-3 rounded-xl">
-                  Bana Özel Teklif Al
+                  Bir Problemim Var
                 </a>
               </div>
             ))}
@@ -468,16 +413,16 @@ export default function HomePage() {
       <section id="form" className="py-20 bg-[#1a1a1a]">
         <div className="max-w-xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="font-bebas text-3xl md:text-4xl text-white tracking-wider mb-4">
-            SONUÇ GARANTİLİ ÇALIŞMAYA HAZIR MISINIZ?
+            HİKAYENİZİ BİRLİKTE YAZALIM MI?
           </h2>
           <p className="text-gray-400 font-montserrat text-sm mb-8">
-            30 dakikalık ücretsiz analiz görüşmesi için formu doldur, 24 saat içinde arayalım. Ayda sadece sınırlı sayıda yeni işletme alıyoruz.
+            30 dakikalık ücretsiz görüşme için formu doldur, 24 saat içinde arayalım. Ayda sadece sınırlı sayıda yeni işletme alıyoruz.
           </p>
           <CTAForm dark />
 
           <div className="mt-14 pt-10 border-t border-white/10 text-left font-montserrat text-sm text-gray-400 leading-relaxed space-y-4">
             <p className="text-white font-semibold">Not:</p>
-            <p>Buraya kadar okuduysan, muhtemelen daha önce en az bir kere kötü bir ajans deneyimi yaşadın. Biz de bunu biliyoruz, çünkü bu şikayeti onlarca kez duyduk.</p>
+            <p>Buraya kadar okuduysan, muhtemelen yukarıdaki hikayelerden en az birinde kendini gördün. Biz de bunu biliyoruz, çünkü bu cümleleri onlarca kez duyduk.</p>
             <p>Bu yüzden riski biz üstleniyoruz: 3 ayda hedeflediğimiz sonucu getiremezsek, o ayın ücretini geri alırsın. Kaybedecek bir şeyin yok.</p>
             <p className="text-white font-semibold">Not 2:</p>
             <p>Ayda sadece sınırlı sayıda yeni işletme alıyoruz çünkü her müşteriye gerçekten zaman ayırmak istiyoruz. Yer dolmadan formu doldur.</p>
@@ -503,20 +448,20 @@ export default function HomePage() {
         <a href="tel:+905446844067" onClick={() => trackContactClick('phone')} className="flex-1 flex items-center justify-center gap-2 bg-white/10 text-white font-montserrat font-bold text-sm py-3 rounded-full">
           <Phone size={16} /> ARA
         </a>
-        <a href="https://wa.me/905515370404?text=Merhaba,%20ücretsiz%20analiz%20görüşmesi%20istiyorum." target="_blank" rel="noopener noreferrer" onClick={() => trackContactClick('whatsapp')} className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white font-montserrat font-bold text-sm py-3 rounded-full">
+        <a href="https://wa.me/905515370404?text=Merhaba,%20bir%20problemim%20var,%20g%C3%B6r%C3%BC%C5%9Fmek%20istiyorum." target="_blank" rel="noopener noreferrer" onClick={() => trackContactClick('whatsapp')} className="flex-1 flex items-center justify-center gap-2 bg-[#25D366] text-white font-montserrat font-bold text-sm py-3 rounded-full">
           <MessageCircle size={16} /> WHATSAPP
         </a>
       </div>
 
       {/* MASAÜSTÜ FLOATING CTA */}
       <a
-        href="https://wa.me/905515370404?text=Merhaba,%20ücretsiz%20analiz%20görüşmesi%20istiyorum."
+        href="https://wa.me/905515370404?text=Merhaba,%20bir%20problemim%20var,%20g%C3%B6r%C3%BC%C5%9Fmek%20istiyorum."
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => trackContactClick('whatsapp')}
         className="hidden md:flex fixed bottom-6 right-6 z-40 items-center gap-2.5 bg-[#25D366] text-white font-montserrat font-bold text-sm pl-4 pr-5 py-3.5 rounded-full shadow-xl hover:scale-105 transition-transform"
       >
-        <MessageCircle size={18} /> Ücretsiz Toplantı İste
+        <MessageCircle size={18} /> Bir Problemim Var
       </a>
     </div>
   )
@@ -554,7 +499,7 @@ function FaqBlock() {
   )
 }
 
-function VideoEmbed() {
+function VideoEmbed({ webm, mp4, poster, small = false }: { webm: string; mp4: string; poster: string; small?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [muted, setMuted] = useState(true)
@@ -613,7 +558,7 @@ function VideoEmbed() {
   }
 
   return (
-    <div ref={containerRef} className="aspect-[9/16] bg-[#1a1a1a] rounded-2xl mb-8 overflow-hidden max-w-xs mx-auto relative">
+    <div ref={containerRef} className={`aspect-[9/16] bg-[#1a1a1a] rounded-2xl overflow-hidden relative ${small ? 'max-w-[180px]' : 'mb-8 max-w-xs'} mx-auto`}>
       <video
         ref={videoRef}
         className="w-full h-full object-cover"
@@ -621,10 +566,10 @@ function VideoEmbed() {
         loop
         playsInline
         preload="none"
-        poster="/videos/yelcan-referans-poster.jpg"
+        poster={poster}
       >
-        <source data-src="/videos/yelcan-referans.webm" type="video/webm" />
-        <source data-src="/videos/yelcan-referans.mp4" type="video/mp4" />
+        <source data-src={webm} type="video/webm" />
+        <source data-src={mp4} type="video/mp4" />
       </video>
       {started && (
         <button
