@@ -275,7 +275,7 @@ export default function StratejikSosyalMedyaLP() {
                 {[
                   'İçerik düzenli atılıyor ama hangi hedefe hizmet ettiği belirsiz.',
                   'Gündemi takip etmek stratejiye dönüşmüyor, rastgele paylaşım oluyor.',
-                  'Takipçi sayısı artıyor ama satışa/lead'e dönüşmüyor.',
+                  'Takipçi sayısı artıyor ama satışa/lead\'e dönüşmüyor.',
                   'Performans ölçülmüyor, hangi içeriğin işe yaradığı bilinmiyor.',
                   'Ekip var ama yönlendirecek net bir strateji yok.',
                 ].map((s, i) => (
