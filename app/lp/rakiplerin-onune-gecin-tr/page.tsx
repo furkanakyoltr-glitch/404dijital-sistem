@@ -37,7 +37,7 @@ const NELER_VAR = [
 ]
 
 const SORULAR = [
-  { q: 'Rakibimin bütçesi benden büyük, önüne geçebilir miyim?', a: 'Evet, çünkü görünürlük sadece bütçeyle değil, doğru hedefleme ve stratejiyle gelir. Havuzumolsun'a sadece 20.000₺ reklam bütçesiyle 500.000₺ ciro kazandırdık — büyük bütçe değil, doğru strateji kazandırdı.' },
+  { q: 'Rakibimin bütçesi benden büyük, önüne geçebilir miyim?', a: 'Evet, çünkü görünürlük sadece bütçeyle değil, doğru hedefleme ve stratejiyle gelir. Havuzumolsun\'a sadece 20.000₺ reklam bütçesiyle 500.000₺ ciro kazandırdık — büyük bütçe değil, doğru strateji kazandırdı.' },
   { q: '"3 ayda dönüşüm göremezsem paramı geri alırım" ne anlama geliyor, tam olarak?', a: '3 ay boyunca kampanyayı yönetiriz; görüşmede birlikte belirlediğimiz nitelikli lead hedefine ulaşamazsak, o ay için ödediğiniz yönetim ücretini iade ederiz. Reklam bütçesi bu garantinin dışındadır — o tamamen sizin platform hesabınızda kalır, biz asla elinize para geçirmeden, sizin adınıza açılmış hesaptan harcarız.' },
   { q: 'Uzun vadeli sözleşmeye bağlanmak istemiyorum.', a: 'Zorunlu uzun vadeli sözleşme dayatmıyoruz. Sonuç veremiyorsak sizi tutmamızın bir anlamı yok — ayrılmak istediğiniz an serbestsiniz.' },
   { q: 'Dekont veya fatura vermeyen, sözleşmesiz çalışan ajanslar gördüm. Sizde durum ne?', a: 'Her ödeme faturalıdır, her harcama raporludur. Sözleşmemiz net: süre, kapsam, garanti şartları yazılı olarak önceden belirlenir, elden/belgesiz ödeme talep etmeyiz.' },
