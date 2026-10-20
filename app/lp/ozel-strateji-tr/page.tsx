@@ -277,7 +277,7 @@ export default function OzelStratejiLP() {
                   'Her müşteriye aynı şablon içerik ve aynı kampanya yapısı uygulanıyor.',
                   'Sektörünüze özgü detaylar, jargon ve müşteri profiliniz bilinmiyor.',
                   'Stratejinizi siz anlatmak zorunda kalıyorsunuz, ajans size anlatmıyor.',
-                  'Aylar sonra hâlâ 'bu işletme tam ne yapıyor' sorusu soruluyor.',
+                  'Aylar sonra hâlâ \'bu işletme tam ne yapıyor\' sorusu soruluyor.',
                 ].map((s, i) => (
                   <li key={i} className="flex items-start gap-3 text-gray-400 text-sm font-montserrat leading-relaxed">
                     <span className="text-red-400 mt-1">✕</span>{s}
