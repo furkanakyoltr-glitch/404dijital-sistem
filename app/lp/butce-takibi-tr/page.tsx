@@ -37,7 +37,7 @@ const NELER_VAR = [
 ]
 
 const SORULAR = [
-  { q: 'Bütçem küçük, yine de her kuruşu takip edebilir misiniz?', a: 'Evet, hatta küçük bütçelerde takip daha da kritik — her kuruş sayılır. Havuzumolsun'a sadece 20.000₺ reklam bütçesiyle 500.000₺ ciro kazandırdık, bu da bütçe büyüklüğünden çok doğru takip ve optimizasyonun sonucuydu.' },
+  { q: 'Bütçem küçük, yine de her kuruşu takip edebilir misiniz?', a: 'Evet, hatta küçük bütçelerde takip daha da kritik — her kuruş sayılır. Havuzumolsun\'a sadece 20.000₺ reklam bütçesiyle 500.000₺ ciro kazandırdık, bu da bütçe büyüklüğünden çok doğru takip ve optimizasyonun sonucuydu.' },
   { q: '"3 ayda dönüşüm göremezsem paramı geri alırım" ne anlama geliyor, tam olarak?', a: '3 ay boyunca kampanyayı yönetiriz; görüşmede birlikte belirlediğimiz nitelikli lead hedefine ulaşamazsak, o ay için ödediğiniz yönetim ücretini iade ederiz. Reklam bütçesi bu garantinin dışındadır — o tamamen sizin platform hesabınızda kalır, biz asla elinize para geçirmeden, sizin adınıza açılmış hesaptan harcarız.' },
   { q: 'Uzun vadeli sözleşmeye bağlanmak istemiyorum.', a: 'Zorunlu uzun vadeli sözleşme dayatmıyoruz. Sonuç veremiyorsak sizi tutmamızın bir anlamı yok — ayrılmak istediğiniz an serbestsiniz.' },
   { q: 'Dekont veya fatura vermeyen, sözleşmesiz çalışan ajanslar gördüm. Sizde durum ne?', a: 'Her ödeme faturalıdır, her harcama raporludur. Sözleşmemiz net: süre, kapsam, garanti şartları yazılı olarak önceden belirlenir, elden/belgesiz ödeme talep etmeyiz.' },
