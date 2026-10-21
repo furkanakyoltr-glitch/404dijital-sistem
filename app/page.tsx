@@ -151,13 +151,16 @@ export default function HomePage() {
           BİR PROBLEMİM VAR
         </button>
         <p className={dark ? "text-gray-400 text-xs font-montserrat" : "text-[#999] text-xs font-montserrat"}>
-          Butona bas, formu doldur — satış ekibimiz 24 saat içinde seni arayıp 30 dakikalık ücretsiz görüşme yapsın.
+          Formu doldur, ücretsiz reklam hesabı denetim raporunu hazırlayalım — spam aramamız yok, sadece sen uygun olduğunda 1 kez ararız.
+        </p>
+        <p className={dark ? "text-gray-500 text-xs font-montserrat font-semibold" : "text-[#777] text-xs font-montserrat font-semibold"}>
+          🛡️ 3 ayda hedef tutmazsa o ayın ücretini tam iade ediyoruz.
         </p>
       </form>
     ) : (
       <div className={dark ? "max-w-md mx-auto bg-green-500/10 border border-green-500/30 rounded-xl px-6 py-5" : "max-w-md mx-auto bg-green-50 border border-green-200 rounded-xl px-6 py-5"}>
         <p className={dark ? "text-green-400 font-montserrat font-bold" : "text-green-700 font-montserrat font-bold"}>✅ Talebin alındı!</p>
-        <p className={dark ? "text-green-500 text-sm mt-1 font-montserrat" : "text-green-600 text-sm mt-1 font-montserrat"}>24 saat içinde seni arayıp 30 dakikalık ücretsiz görüşmeyi ayarlayacağız.</p>
+        <p className={dark ? "text-green-500 text-sm mt-1 font-montserrat" : "text-green-600 text-sm mt-1 font-montserrat"}>Ücretsiz denetim raporun ve görüşme saatin için 24 saat içinde seni arayacağız — spam aramamız yok, tek seferlik.</p>
       </div>
     )
   )
