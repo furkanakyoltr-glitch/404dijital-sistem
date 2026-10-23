@@ -53,6 +53,29 @@ Ekosistem bünyesinden hizmet aldığınızda prodüksiyon maliyetleriniz piyasa
 Kampanyanızı birlikte planlayalım mı? 📅`,
 }
 
+// "404 Hatırlar" kış kampanyası — WhatsApp'tan "Onaylıyorum" yazan kişiye anında karşılama mesajı.
+const HATIRLAR_KARSILAMA = `Hoş geldiniz! 🧡 404 Hatırlar kampanyasına onayınız bize ulaştı.
+
+*Paketinizde neler var:*
+• 4 Reels video
+• 8 grafik tasarım
+• Sosyal medya hesap yönetimi
+• Kapsamlı sosyal medya stratejisi
+• Rakip analizi
+• Ay sonu performans raporu
+• 🎁 1 reklam videosu hediye
+
+İlk ayınız *35.000 TL yerine 20.000 TL* — bu fiyat yalnızca ilk ay için geçerli.
+
+Ekibimiz kısa süre içinde sizinle iletişime geçip detayları netleştirecek. Kış gelir, fırsat geçer, 404 hatırlar! ❄️`
+
+function hatirlarOnayMetniMi(text: string): boolean {
+  const t = text.toLocaleLowerCase('tr').trim()
+  const kasaVarMi = /404-\d{3,6}/i.test(text)
+  if (kasaVarMi) return false // mevcut teklif onay akışıyla çakışmasın
+  return t === 'onaylıyorum' || t === 'onayliyorum'
+}
+
 async function sendWA(to: string, body: string) {
   await fetch(`https://graph.facebook.com/v22.0/${WA_PHONE_ID}/messages`, {
     method: 'POST',
@@ -109,6 +132,15 @@ export async function POST(req: NextRequest) {
       const response = LEAD_RESPONSES[buttonText]
       if (response) await sendWA(from, response)
       return NextResponse.json({ received: true })
+    }
+
+    // Serbest metin: "404 Hatırlar" kampanyasından "Onaylıyorum" yazan kişiye karşılama mesajı
+    if (message.type === 'text') {
+      const text = message.text?.body || ''
+      if (hatirlarOnayMetniMi(text)) {
+        await sendWA(from, HATIRLAR_KARSILAMA)
+        return NextResponse.json({ received: true, action: 'hatirlar_karsilama' })
+      }
     }
 
     return NextResponse.json({ received: true })
