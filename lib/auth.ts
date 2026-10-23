@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
           if (!admin) return null
           const valid = await bcrypt.compare(credentials.password, admin.password)
           if (!valid) return null
-          return { id: admin.id, email: admin.email, name: admin.name, role: admin.role, type: 'admin' }
+          return { id: admin.id, email: admin.email, name: admin.name, role: admin.role, departman: admin.departman, type: 'admin' }
         } else {
           const musteri = await prisma.musteri.findFirst({
             where: { OR: [{ kasaNo: credentials.email }, { email: credentials.email }] }
@@ -35,11 +35,11 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) { token.id = user.id; token.role = (user as any).role; token.type = (user as any).type; token.kasaNo = (user as any).kasaNo }
+      if (user) { token.id = user.id; token.role = (user as any).role; token.type = (user as any).type; token.kasaNo = (user as any).kasaNo; token.departman = (user as any).departman }
       return token
     },
     async session({ session, token }) {
-      if (session.user) { (session.user as any).id = token.id; (session.user as any).role = token.role; (session.user as any).type = token.type; (session.user as any).kasaNo = token.kasaNo }
+      if (session.user) { (session.user as any).id = token.id; (session.user as any).role = token.role; (session.user as any).type = token.type; (session.user as any).kasaNo = token.kasaNo; (session.user as any).departman = token.departman }
       return session
     }
   },
