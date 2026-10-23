@@ -27,6 +27,7 @@ model Admin {
   panolar           Pano[]       @relation("PanoOlusturan")
   gorevlerAtanan    Gorev[]      @relation("GorevAtanan")
   gorevlerOlusturan Gorev[]      @relation("GorevOlusturan")
+  otomasyonlar      Otomasyon[]
 }
 
 model Musteri {
@@ -383,4 +384,30 @@ model Gorev {
   sira        Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Otomasyon {
+  id            String   @id @default(cuid())
+  ad            String
+  tetikleyici   String
+  departman     String   @default("tumu")
+  mesaj         String
+  aktif         Boolean  @default(true)
+  sonCalisma    DateTime?
+  calismaSayisi Int      @default(0)
+  olusturanId   String?
+  olusturan     Admin?   @relation(fields: [olusturanId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model OtomasyonLog {
+  id           String   @id @default(cuid())
+  otomasyonId  String
+  otomasyonAdi String
+  hedefTelefon String?
+  mesaj        String
+  basarili     Boolean
+  hata         String?
+  createdAt    DateTime @default(now())
 }
