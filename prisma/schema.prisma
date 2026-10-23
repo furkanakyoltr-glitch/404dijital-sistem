@@ -13,6 +13,7 @@ model Admin {
   password          String
   name              String
   role              String       @default("admin")
+  departman         String       @default("yonetim")
   avatar            String?
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
@@ -22,6 +23,9 @@ model Admin {
   teklifler         Teklif[]
   etkinlikler       Etkinlik[]
   leadNotlari       LeadNot[]
+  panolar           Pano[]       @relation("PanoOlusturan")
+  gorevlerAtanan    Gorev[]      @relation("GorevAtanan")
+  gorevlerOlusturan Gorev[]      @relation("GorevOlusturan")
 }
 
 model Musteri {
@@ -50,6 +54,7 @@ model Musteri {
   giderler         Gider[]
   projeler         Proje[]
   lead             Lead?
+  gorevler         Gorev[]
 }
 
 model Teklif {
@@ -343,4 +348,38 @@ model Arama {
   kayitUrl        String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+model Pano {
+  id          String   @id @default(cuid())
+  ad          String
+  departman   String
+  olusturanId String?
+  olusturan   Admin?   @relation("PanoOlusturan", fields: [olusturanId], references: [id])
+  gorevler    Gorev[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Gorev {
+  id          String    @id @default(cuid())
+  panoId      String
+  pano        Pano      @relation(fields: [panoId], references: [id], onDelete: Cascade)
+  baslik      String
+  aciklama    String?
+  durum       String    @default("yapilacak")
+  oncelik     String    @default("normal")
+  musteriId   String?
+  musteri     Musteri?  @relation(fields: [musteriId], references: [id], onDelete: SetNull)
+  atananId    String?
+  atanan      Admin?    @relation("GorevAtanan", fields: [atananId], references: [id])
+  olusturanId String?
+  olusturan   Admin?    @relation("GorevOlusturan", fields: [olusturanId], references: [id])
+  sonTarih    DateTime?
+  etiket      String?
+  yorumlar    Json?
+  dosyalar    Json?
+  sira        Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
