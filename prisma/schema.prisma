@@ -14,6 +14,7 @@ model Admin {
   name              String
   role              String       @default("admin")
   departman         String       @default("yonetim")
+  telefon           String?
   avatar            String?
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
