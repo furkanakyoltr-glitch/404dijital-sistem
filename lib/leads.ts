@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import { leadGeldiBildir } from '@/lib/leadBildirim'
 
 export const LEAD_DURUMLAR = [
   { value: 'yeni_lead', label: 'Yeni Lead' },
@@ -28,7 +29,7 @@ export async function createLead(data: {
   kaynak: string
   reklamDetay?: string
 }) {
-  return prisma.lead.create({
+  const lead = await prisma.lead.create({
     data: {
       adSoyad: data.adSoyad || null,
       firmaAdi: data.firmaAdi || null,
@@ -41,4 +42,8 @@ export async function createLead(data: {
       reklamDetay: data.reklamDetay || null,
     },
   })
+
+  leadGeldiBildir(lead).catch(() => {})
+
+  return lead
 }
