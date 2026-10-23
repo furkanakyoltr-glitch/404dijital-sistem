@@ -5,23 +5,26 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
   LayoutDashboard, Users, FileText, Calendar, Bell, Inbox,
-  LogOut, Menu, X, TrendingUp, BookOpen, ChevronRight, MessageCircle, CalendarClock, Send, PhoneCall
+  LogOut, Menu, X, TrendingUp, BookOpen, ChevronRight, MessageCircle, CalendarClock, Send, PhoneCall,
+  Trello, UserCog
 } from 'lucide-react'
 import '../globals.css'
 
 const NAV_ITEMS = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/leadler', icon: Inbox, label: 'Leadler' },
-  { href: '/admin/mesajlar', icon: MessageCircle, label: 'Mesajlar' },
-  { href: '/admin/musteriler', icon: Users, label: 'Müşteriler' },
-  { href: '/admin/teklifler', icon: TrendingUp, label: 'Teklifler' },
-  { href: '/admin/teklif-olustur', icon: FileText, label: 'Teklif Oluştur' },
-  { href: '/admin/muhasebe', icon: BookOpen, label: 'Muhasebe' },
-  { href: '/admin/takvim', icon: Calendar, label: 'Takvim' },
-  { href: '/admin/randevu-ayarlari', icon: CalendarClock, label: 'Randevu Ayarları' },
-  { href: '/admin/sablonlar', icon: Send, label: 'Şablonlar' },
-  { href: '/admin/aramalar', icon: PhoneCall, label: 'Aramalar' },
-  { href: '/admin/bildirimler', icon: Bell, label: 'Bildirimler' },
+  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', departmanlar: null },
+  { href: '/admin/panolar', icon: Trello, label: 'Panolar', departmanlar: null },
+  { href: '/admin/leadler', icon: Inbox, label: 'Leadler', departmanlar: ['yonetim', 'satis'] },
+  { href: '/admin/mesajlar', icon: MessageCircle, label: 'Mesajlar', departmanlar: ['yonetim', 'satis'] },
+  { href: '/admin/musteriler', icon: Users, label: 'Müşteriler', departmanlar: ['yonetim', 'satis'] },
+  { href: '/admin/teklifler', icon: TrendingUp, label: 'Teklifler', departmanlar: ['yonetim', 'satis'] },
+  { href: '/admin/teklif-olustur', icon: FileText, label: 'Teklif Oluştur', departmanlar: ['yonetim', 'satis'] },
+  { href: '/admin/muhasebe', icon: BookOpen, label: 'Muhasebe', departmanlar: ['yonetim', 'muhasebe'] },
+  { href: '/admin/takvim', icon: Calendar, label: 'Takvim', departmanlar: null },
+  { href: '/admin/randevu-ayarlari', icon: CalendarClock, label: 'Randevu Ayarları', departmanlar: ['yonetim', 'satis'] },
+  { href: '/admin/sablonlar', icon: Send, label: 'Şablonlar', departmanlar: ['yonetim', 'satis'] },
+  { href: '/admin/aramalar', icon: PhoneCall, label: 'Aramalar', departmanlar: ['yonetim', 'satis'] },
+  { href: '/admin/ekip', icon: UserCog, label: 'Ekip', departmanlar: ['yonetim'] },
+  { href: '/admin/bildirimler', icon: Bell, label: 'Bildirimler', departmanlar: null },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -35,6 +38,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (status === 'loading') return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-[#1a1a1a] border-t-transparent rounded-full"></div></div>
   if (status === 'unauthenticated') { router.push('/admin/giris'); return null }
   if ((session?.user as any)?.type !== 'admin') { router.push('/admin/giris'); return null }
+
+  const userDepartman = (session?.user as any)?.departman
+  const gorunurNavItems = NAV_ITEMS.filter(item => !item.departmanlar || item.departmanlar.includes(userDepartman))
 
   return (
     <div className="flex h-screen bg-[#f8f9fa] overflow-hidden">
@@ -50,7 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Nav */}
         <nav className="flex-1 py-4 overflow-y-auto">
-          {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
+          {gorunurNavItems.map(({ href, icon: Icon, label }) => {
             const active = pathname === href || (href !== '/admin' && pathname.startsWith(href))
             return (
               <Link
@@ -90,7 +96,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <header className="h-16 bg-white border-b border-[#eaeaea] flex items-center px-6 gap-4 sticky top-0 z-10">
           <div className="flex-1">
             <h1 className="font-bebas text-xl text-[#1a1a1a] tracking-wider">
-              {NAV_ITEMS.find(n => n.href === pathname || (n.href !== '/admin' && pathname.startsWith(n.href)))?.label || 'Dashboard'}
+              {gorunurNavItems.find(n => n.href === pathname || (n.href !== '/admin' && pathname.startsWith(n.href)))?.label || 'Dashboard'}
             </h1>
           </div>
           <div className="flex items-center gap-3">
