@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { leadGeldiBildir } from '@/lib/leadBildirim'
 import prisma from '@/lib/prisma'
 
 // Meta (Facebook/Instagram) Lead Ads webhook.
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
         })
         if (mevcut) continue
 
-        await prisma.lead.create({
+        const yeniLead = await prisma.lead.create({
           data: {
             adSoyad: adSoyad || null,
             telefon: telefon || null,
@@ -74,6 +75,7 @@ export async function POST(req: NextRequest) {
             durum: 'yeni_lead',
           },
         })
+        leadGeldiBildir(yeniLead).catch(() => {})
       }
     }
   } catch (err) {
