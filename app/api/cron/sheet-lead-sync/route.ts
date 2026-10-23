@@ -50,10 +50,12 @@ function alanBul(baslikIndeksi: Record<string, number>, satir: string[], ...aday
   return null
 }
 
+// Railway cron veya harici bir cron servisi tarafından çağrılır
+// Örnek: her 5 dakikada bir GET /api/cron/sheet-lead-sync?secret=...
 export async function GET(req: NextRequest) {
-  const internalKey = req.headers.get('x-internal-key')
-  if (!internalKey || internalKey !== process.env.INTERNAL_API_KEY) {
-    return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
+  const secret = req.nextUrl.searchParams.get('secret')
+  if (secret !== process.env.WP_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const sonuclar: Record<string, { tarandi: number; eklendi: number; hata?: string }> = {}
