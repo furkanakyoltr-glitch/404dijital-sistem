@@ -13,11 +13,16 @@ async function yonetimMi() {
 }
 
 export async function GET() {
-  const user = await yonetimMi()
-  if (!user) return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
+  const session = await getServerSession(authOptions)
+  const user = session?.user as any
+  if (!user || user.type !== 'admin') return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 })
 
+  // Yönetim tam detay görür (e-posta dahil), diğer departmanlar sadece atama için isim listesi görür
+  const tamYetki = user.departman === 'yonetim'
   const ekip = await prisma.admin.findMany({
-    select: { id: true, name: true, email: true, departman: true, role: true, createdAt: true },
+    select: tamYetki
+      ? { id: true, name: true, email: true, departman: true, role: true, createdAt: true }
+      : { id: true, name: true, departman: true },
     orderBy: { createdAt: 'asc' },
   })
   return NextResponse.json({ data: ekip })
