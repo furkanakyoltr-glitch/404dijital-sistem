@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { otomasyonlariCalistir } from '@/lib/otomasyon'
 
 async function adminMi() {
   const session = await getServerSession(authOptions)
@@ -38,15 +39,41 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (sonTarih !== undefined) data.sonTarih = sonTarih ? new Date(sonTarih) : null
     if (sira !== undefined) data.sira = sira
 
+    const oncekiAtananId = gorev.atananId
+    const oncekiDurum = gorev.durum
+
     const guncel = await prisma.gorev.update({
       where: { id: params.id },
       data,
       include: {
-        atanan: { select: { id: true, name: true } },
+        atanan: { select: { id: true, name: true, telefon: true } },
         olusturan: { select: { id: true, name: true } },
         musteri: { select: { id: true, firmaAdi: true } },
       },
     })
+
+    const yeniAtamaOldu = atananId !== undefined && atananId && atananId !== oncekiAtananId
+    const tamamlandiOldu = durum === 'tamamlandi' && oncekiDurum !== 'tamamlandi'
+
+    if (yeniAtamaOldu && guncel.atanan) {
+      otomasyonlariCalistir('gorev_atandi', {
+        atananAdi: guncel.atanan.name,
+        atananTelefon: guncel.atanan.telefon,
+        gorevBaslik: guncel.baslik,
+        panoAdi: gorev.pano.ad,
+        departman: gorev.pano.departman,
+      }).catch(() => {})
+    }
+    if (tamamlandiOldu && guncel.atanan) {
+      otomasyonlariCalistir('gorev_tamamlandi', {
+        atananAdi: guncel.atanan.name,
+        atananTelefon: guncel.atanan.telefon,
+        gorevBaslik: guncel.baslik,
+        panoAdi: gorev.pano.ad,
+        departman: gorev.pano.departman,
+      }).catch(() => {})
+    }
+
     return NextResponse.json({ data: guncel })
   } catch (e) {
     console.error('Görev güncelleme hatası:', e)
