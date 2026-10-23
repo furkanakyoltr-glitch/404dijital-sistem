@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { otomasyonlariCalistir } from '@/lib/otomasyon'
 
 async function adminMi() {
   const session = await getServerSession(authOptions)
@@ -63,11 +64,22 @@ export async function POST(req: NextRequest) {
         sonTarih: sonTarih ? new Date(sonTarih) : null,
       },
       include: {
-        atanan: { select: { id: true, name: true } },
+        atanan: { select: { id: true, name: true, telefon: true } },
         olusturan: { select: { id: true, name: true } },
         musteri: { select: { id: true, firmaAdi: true } },
       },
     })
+
+    if (gorev.atananId && gorev.atanan) {
+      otomasyonlariCalistir('gorev_atandi', {
+        atananAdi: gorev.atanan.name,
+        atananTelefon: gorev.atanan.telefon,
+        gorevBaslik: gorev.baslik,
+        panoAdi: pano.ad,
+        departman: pano.departman,
+      }).catch(() => {})
+    }
+
     return NextResponse.json({ data: gorev }, { status: 201 })
   } catch (e) {
     console.error('Görev oluşturma hatası:', e)
