@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { sendWATemplate, sendWAText } from '@/lib/whatsapp'
+import { leadGeldiBildir } from '@/lib/leadBildirim'
 
 const FURKAN_NO = '+905446844067'
 
@@ -89,6 +90,8 @@ export async function POST(req: NextRequest) {
                 mesaj: icerik || undefined,
                 kaynak: 'WhatsApp',
               },
+            }).then((lead) => {
+              leadGeldiBildir(lead).catch(() => {})
             }).catch((e) => console.error('WhatsApp lead oluşturma hatası:', e))
           }
         }
