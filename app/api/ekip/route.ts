@@ -21,7 +21,7 @@ export async function GET() {
   const tamYetki = user.departman === 'yonetim'
   const ekip = await prisma.admin.findMany({
     select: tamYetki
-      ? { id: true, name: true, email: true, departman: true, role: true, createdAt: true }
+      ? { id: true, name: true, email: true, departman: true, role: true, telefon: true, createdAt: true }
       : { id: true, name: true, departman: true },
     orderBy: { createdAt: 'asc' },
   })
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { name, email, password, departman, role } = body
+    const { name, email, password, departman, role, telefon } = body
 
     if (!name?.trim() || !email?.trim() || !password?.trim() || !departman?.trim()) {
       return NextResponse.json({ error: 'Eksik bilgi' }, { status: 400 })
@@ -49,11 +49,12 @@ export async function POST(req: NextRequest) {
       data: {
         name, email, password: hashedPassword,
         departman, role: role === 'yonetim' ? 'admin' : (role || 'uye'),
+        telefon: telefon || null,
       },
-      select: { id: true, name: true, email: true, departman: true, role: true, createdAt: true },
+      select: { id: true, name: true, email: true, departman: true, role: true, telefon: true, createdAt: true },
     })
 
-    return NextResponse.json({ data: yeniAdmin }, { status: 201 })
+    return NextResponse.json({ data: { ...yeniAdmin, geciciSifre: password } }, { status: 201 })
   } catch (e) {
     console.error('Ekip ekleme hatası:', e)
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 })
