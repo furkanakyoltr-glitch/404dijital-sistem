@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Plus, X, Loader2, Trello, Trash2, User, Calendar, Building2, Flag } from 'lucide-react'
 
 type Pano = { id: string; ad: string; departman: string; _count: { gorevler: number } }
@@ -31,9 +32,24 @@ const ONCELIK_RENK: Record<string, string> = {
 }
 const ONCELIK_ETIKET: Record<string, string> = { dusuk: 'Düşük', normal: 'Normal', yuksek: 'Yüksek' }
 
+import { Suspense } from 'react'
+
 export default function PanolarPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#999]" /></div>}>
+      <PanolarIcerik />
+    </Suspense>
+  )
+}
+
+function PanolarIcerik() {
   const { data: session } = useSession()
   const departman = (session?.user as any)?.departman
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const onAtananId = searchParams.get('atananId')
+  const onAtananAdi = searchParams.get('atananAdi')
+  const onDepartman = searchParams.get('departman')
 
   const [panolar, setPanolar] = useState<Pano[]>([])
   const [aktifPano, setAktifPano] = useState<string | null>(null)
@@ -57,14 +73,15 @@ export default function PanolarPage() {
 
   const panolariGetir = useCallback(() => {
     setYukleniyor(true)
-    fetch('/api/panolar')
+    const q = onDepartman ? `?departman=${onDepartman}` : ''
+    fetch(`/api/panolar${q}`)
       .then(res => res.json())
       .then(data => {
         setPanolar(data.data || [])
         if (data.data?.length && !aktifPano) setAktifPano(data.data[0].id)
       })
       .finally(() => setYukleniyor(false))
-  }, [aktifPano])
+  }, [aktifPano, onDepartman])
 
   useEffect(() => { panolariGetir() }, [])
   useEffect(() => {
@@ -81,6 +98,14 @@ export default function PanolarPage() {
   }, [])
 
   useEffect(() => { if (aktifPano) gorevleriGetir(aktifPano) }, [aktifPano, gorevleriGetir])
+
+  useEffect(() => {
+    if (onAtananId && aktifPano) {
+      setGAtanan(onAtananId)
+      setYeniGorevAcik(true)
+      router.replace('/admin/panolar', { scroll: false })
+    }
+  }, [onAtananId, aktifPano, router])
 
   const panoOlustur = async () => {
     if (!yeniPanoAdi.trim()) return
