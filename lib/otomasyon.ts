@@ -1,5 +1,10 @@
 import prisma from './prisma'
-import { sendWAText } from './whatsapp'
+import { sendWAText, sendWATemplate } from './whatsapp'
+
+const ONAYLI_SABLONLAR: Record<string, string> = {
+  gorev_atandi: 'gorev_atama_bildirimi',
+  gorev_tamamlandi: 'gorev_tamamlandi_bildirimi',
+}
 
 type OtomasyonBaglam = {
   atananAdi?: string
@@ -35,9 +40,27 @@ export async function otomasyonlariCalistir(tetikleyici: string, baglam: Otomasy
       if (!baglam.atananTelefon) {
         hata = 'Atanan kişinin telefon numarası kayıtlı değil'
       } else {
-        const sonuc = await sendWAText(baglam.atananTelefon, mesaj)
-        basarili = sonuc.ok
-        hata = sonuc.hata
+        // 1) Önce serbest metin dene (son 24 saatte bize yazdıysa gider)
+        const serbestSonuc = await sendWAText(baglam.atananTelefon, mesaj)
+        basarili = serbestSonuc.ok
+        hata = serbestSonuc.hata
+
+        // 2) Serbest metin gitmediyse, onaylı şablon varsa ona düş (pencere kısıtı olmadan gider)
+        if (!basarili) {
+          const sablonAdi = ONAYLI_SABLONLAR[tetikleyici]
+          if (sablonAdi) {
+            const sablonBasarili = await sendWATemplate(baglam.atananTelefon, sablonAdi, [
+              baglam.atananAdi || '',
+              baglam.gorevBaslik || '',
+            ])
+            if (sablonBasarili) {
+              basarili = true
+              hata = undefined
+            } else {
+              hata = `${hata || 'Serbest metin başarısız'} (şablon da başarısız veya henüz onaylanmadı: ${sablonAdi})`
+            }
+          }
+        }
       }
 
       await prisma.otomasyonLog.create({
