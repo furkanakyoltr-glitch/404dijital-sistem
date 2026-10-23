@@ -18,12 +18,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   try {
     const body = await req.json()
-    const { name, departman, role, password } = body
+    const { name, departman, role, password, telefon } = body
 
     const data: any = {}
     if (name?.trim()) data.name = name
     if (departman?.trim()) data.departman = departman
     if (role?.trim()) data.role = role
+    if (telefon !== undefined) data.telefon = telefon || null
     if (password?.trim()) data.password = await bcrypt.hash(password, 10)
 
     const guncel = await prisma.admin.update({
