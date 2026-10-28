@@ -67,6 +67,7 @@ export default function SosyalMedyaPage() {
         setIgProfil(d.profil || null)
         setIgInsights(d.insights || null)
         setIgMedyalar(d.medyalar || [])
+        if (!d.insights && d.insightsHata) setInsightsHata(d.insightsHata)
       })
       .finally(() => setInsightsYukleniyor(false))
   }
@@ -162,10 +163,13 @@ export default function SosyalMedyaPage() {
             <div className="mb-6">
               {insightsYukleniyor ? (
                 <div className="bg-white border border-[#e5e5e5] rounded-2xl p-10 flex justify-center"><Loader2 className="animate-spin" size={24} /></div>
-              ) : insightsHata ? (
+              ) : !igProfil && insightsHata ? (
                 <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700">Instagram verileri alınamadı: {insightsHata}</div>
               ) : igProfil ? (
                 <>
+                  {insightsHata && !igInsights && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 mb-4 text-xs text-amber-700">Erişim/görüntülenme verileri alınamadı: {insightsHata}</div>
+                  )}
                   <div className="bg-white border border-[#e5e5e5] rounded-2xl p-5 mb-4 flex items-center gap-4">
                     {igProfil.profilFotoUrl && <img src={igProfil.profilFotoUrl} alt="" className="w-14 h-14 rounded-full object-cover" />}
                     <div className="flex-1">

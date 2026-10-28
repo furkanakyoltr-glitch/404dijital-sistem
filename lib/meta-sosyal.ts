@@ -153,12 +153,13 @@ export async function igProfilGetir(igHesapId: string, token: string): Promise<{
 export type IgHesapInsights = { reach: number; profilGoruntulenme: number; webSiteTiklama: number }
 
 // Son 7 günün hesap düzeyi insight'ları (erişim, profil görüntülenme, web sitesi tıklaması).
+// metric_type=total_value + period=day, since/until olmadan — Meta'nın "son N gün toplamı"
+// kullanımı böyle; since/until eklemek bu kombinasyonda sık hata veriyor.
 export async function igHesapInsightsGetir(igHesapId: string, token: string): Promise<{ ok: boolean; insights?: IgHesapInsights; hata?: string }> {
   try {
     const metrikler = 'reach,profile_views,website_clicks'
-    const res = await fetch(
-      `${GRAPH_URL}/${igHesapId}/insights?metric=${metrikler}&period=day&metric_type=total_value&since=${Math.floor(Date.now() / 1000) - 7 * 86400}&until=${Math.floor(Date.now() / 1000)}&access_token=${token}`
-    )
+    const url = `${GRAPH_URL}/${igHesapId}/insights?metric=${metrikler}&period=day&metric_type=total_value&access_token=${token}`
+    const res = await fetch(url)
     const data = await res.json()
     if (!res.ok) return { ok: false, hata: data?.error?.message || 'Insights alınamadı' }
     const bul = (ad: string) => data.data?.find((d: any) => d.name === ad)?.total_value?.value ?? 0
