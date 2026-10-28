@@ -28,6 +28,7 @@ model Admin {
   gorevlerAtanan    Gorev[]      @relation("GorevAtanan")
   gorevlerOlusturan Gorev[]      @relation("GorevOlusturan")
   otomasyonlar      Otomasyon[]
+  sosyalMedyaGonderileri SosyalMedyaGonderi[]
 }
 
 model Musteri {
@@ -57,6 +58,40 @@ model Musteri {
   projeler         Proje[]
   lead             Lead?
   gorevler         Gorev[]
+  sosyalMedyaHesaplari SosyalMedyaHesap[]
+}
+
+model SosyalMedyaHesap {
+  id           String             @id @default(cuid())
+  musteriId    String?
+  musteri      Musteri?           @relation(fields: [musteriId], references: [id], onDelete: SetNull)
+  adlandirma   String
+  sayfaId      String
+  igHesapId    String?
+  erisimTokeni String
+  aktif        Boolean            @default(true)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  gonderiler   SosyalMedyaGonderi[]
+}
+
+model SosyalMedyaGonderi {
+  id              String           @id @default(cuid())
+  hesapId         String
+  hesap           SosyalMedyaHesap @relation(fields: [hesapId], references: [id], onDelete: Cascade)
+  platform        String
+  tip             String
+  medyaUrl        String
+  aciklama        String
+  planlananTarih  DateTime
+  durum           String           @default("bekliyor")
+  metaPostId      String?
+  hataMesaji      String?
+  yayinlananTarih DateTime?
+  olusturanAdminId String?
+  olusturanAdmin  Admin?           @relation(fields: [olusturanAdminId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 model Teklif {

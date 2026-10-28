@@ -6,7 +6,7 @@ import Link from 'next/link'
 import {
   LayoutDashboard, Users, FileText, Calendar, Bell, Inbox,
   LogOut, Menu, X, TrendingUp, BookOpen, ChevronRight, MessageCircle, CalendarClock, Send, PhoneCall,
-  Trello, UserCog, Zap
+  Trello, UserCog, Zap, Share2
 } from 'lucide-react'
 import '../globals.css'
 
@@ -23,6 +23,7 @@ const NAV_ITEMS = [
   { href: '/admin/randevu-ayarlari', icon: CalendarClock, label: 'Randevu Ayarları', departmanlar: ['yonetim', 'satis'] },
   { href: '/admin/sablonlar', icon: Send, label: 'Şablonlar', departmanlar: ['yonetim', 'satis'] },
   { href: '/admin/aramalar', icon: PhoneCall, label: 'Aramalar', departmanlar: ['yonetim', 'satis'] },
+  { href: '/admin/sosyal-medya', icon: Share2, label: 'Sosyal Medya', departmanlar: ['yonetim', 'satis'] },
   { href: '/admin/ekip', icon: UserCog, label: 'Ekip', departmanlar: ['yonetim'] },
   { href: '/admin/otomasyonlar', icon: Zap, label: 'Otomasyonlar', departmanlar: ['yonetim'] },
   { href: '/admin/bildirimler', icon: Bell, label: 'Bildirimler', departmanlar: null },
