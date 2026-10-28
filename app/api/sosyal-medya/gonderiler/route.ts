@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import { uploadSosyalMedya } from '@/lib/supabase/storage'
+import { medyaKaydet } from '@/lib/medya-depo'
 
 const MAX_BOYUT = 200 * 1024 * 1024 // Reels videoları için
 
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     const gonderiId = crypto.randomUUID()
-    const medyaUrl = await uploadSosyalMedya(dosya, gonderiId)
+    const medyaUrl = await medyaKaydet(dosya, gonderiId)
 
     const gonderi = await prisma.sosyalMedyaGonderi.create({
       data: {
