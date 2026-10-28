@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from 'react'
-import { Plus, Trash2, Loader2, X, CheckCircle, AlertCircle, Clock, Upload } from 'lucide-react'
+import { Plus, Trash2, Loader2, X, CheckCircle, AlertCircle, Clock, Upload, Users, Eye, MousePointerClick, Heart, MessageCircle } from 'lucide-react'
 
 type Hesap = { id: string; adlandirma: string; sayfaId: string; igHesapId: string | null; aktif: boolean; musteri: { firmaAdi: string } | null; _count: { gonderiler: number } }
 type Gonderi = {
@@ -8,6 +8,9 @@ type Gonderi = {
   planlananTarih: string; durum: string; hataMesaji: string | null; metaPostId: string | null
   hesap: { adlandirma: string }
 }
+type IgProfil = { ad: string; kullaniciAdi: string; profilFotoUrl?: string; takipciSayisi: number; takipSayisi: number; medyaSayisi: number; biyografi?: string }
+type IgInsights = { reach: number; profilGoruntulenme: number; webSiteTiklama: number }
+type IgMedya = { id: string; tip: string; mediaUrl?: string; thumbnailUrl?: string; permalink: string; caption?: string; tarih: string; begeni: number; yorum: number }
 
 const DURUM_RENK: Record<string, string> = {
   bekliyor: 'bg-amber-100 text-amber-700',
@@ -38,6 +41,12 @@ export default function SosyalMedyaPage() {
   const [gYukleniyor, setGYukleniyor] = useState(false)
   const [gHata, setGHata] = useState('')
 
+  const [igProfil, setIgProfil] = useState<IgProfil | null>(null)
+  const [igInsights, setIgInsights] = useState<IgInsights | null>(null)
+  const [igMedyalar, setIgMedyalar] = useState<IgMedya[]>([])
+  const [insightsYukleniyor, setInsightsYukleniyor] = useState(false)
+  const [insightsHata, setInsightsHata] = useState('')
+
   const hesaplariGetir = () => {
     fetch('/api/sosyal-medya/hesaplar').then(r => r.json()).then(d => {
       setHesaplar(d.hesaplar || [])
@@ -49,8 +58,27 @@ export default function SosyalMedyaPage() {
     fetch(`/api/sosyal-medya/gonderiler?hesapId=${hesapId}`).then(r => r.json()).then(d => setGonderiler(d.gonderiler || [])).finally(() => setYukleniyor(false))
   }
 
+  const insightsGetir = (hesapId: string) => {
+    setInsightsYukleniyor(true); setInsightsHata(''); setIgProfil(null); setIgInsights(null); setIgMedyalar([])
+    fetch(`/api/sosyal-medya/insights?hesapId=${hesapId}`)
+      .then(r => r.json().then(d => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) { setInsightsHata(d.error || 'Insights alınamadı'); return }
+        setIgProfil(d.profil || null)
+        setIgInsights(d.insights || null)
+        setIgMedyalar(d.medyalar || [])
+      })
+      .finally(() => setInsightsYukleniyor(false))
+  }
+
   useEffect(() => { hesaplariGetir() }, [])
-  useEffect(() => { if (seciliHesap) gonderileriGetir(seciliHesap) }, [seciliHesap])
+  useEffect(() => {
+    if (!seciliHesap) return
+    gonderileriGetir(seciliHesap)
+    const hesap = hesaplar.find(h => h.id === seciliHesap)
+    if (hesap?.igHesapId) insightsGetir(seciliHesap)
+    else { setIgProfil(null); setIgInsights(null); setIgMedyalar([]) }
+  }, [seciliHesap, hesaplar])
 
   const hesapKaydet = async () => {
     if (!hAdlandirma.trim() || !hSayfaId.trim() || !hToken.trim()) return
@@ -129,6 +157,65 @@ export default function SosyalMedyaPage() {
               <Upload size={16} /> Yeni Paylaşım Planla
             </button>
           </div>
+
+          {seciliHesapObj.igHesapId && (
+            <div className="mb-6">
+              {insightsYukleniyor ? (
+                <div className="bg-white border border-[#e5e5e5] rounded-2xl p-10 flex justify-center"><Loader2 className="animate-spin" size={24} /></div>
+              ) : insightsHata ? (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700">Instagram verileri alınamadı: {insightsHata}</div>
+              ) : igProfil ? (
+                <>
+                  <div className="bg-white border border-[#e5e5e5] rounded-2xl p-5 mb-4 flex items-center gap-4">
+                    {igProfil.profilFotoUrl && <img src={igProfil.profilFotoUrl} alt="" className="w-14 h-14 rounded-full object-cover" />}
+                    <div className="flex-1">
+                      <p className="font-bold text-[#1a1a1a]">@{igProfil.kullaniciAdi}</p>
+                      {igProfil.biyografi && <p className="text-xs text-[#888] max-w-md truncate">{igProfil.biyografi}</p>}
+                    </div>
+                    <div className="flex gap-6 text-center">
+                      <div><p className="text-lg font-bold">{igProfil.takipciSayisi.toLocaleString('tr-TR')}</p><p className="text-xs text-[#888]">Takipçi</p></div>
+                      <div><p className="text-lg font-bold">{igProfil.takipSayisi.toLocaleString('tr-TR')}</p><p className="text-xs text-[#888]">Takip</p></div>
+                      <div><p className="text-lg font-bold">{igProfil.medyaSayisi.toLocaleString('tr-TR')}</p><p className="text-xs text-[#888]">Gönderi</p></div>
+                    </div>
+                  </div>
+
+                  {igInsights && (
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      <div className="bg-white border border-[#e5e5e5] rounded-2xl p-4 flex items-center gap-3">
+                        <Eye className="text-[#1a1a1a]" size={20} />
+                        <div><p className="text-lg font-bold">{igInsights.reach.toLocaleString('tr-TR')}</p><p className="text-xs text-[#888]">Erişim (son 7 gün)</p></div>
+                      </div>
+                      <div className="bg-white border border-[#e5e5e5] rounded-2xl p-4 flex items-center gap-3">
+                        <Users className="text-[#1a1a1a]" size={20} />
+                        <div><p className="text-lg font-bold">{igInsights.profilGoruntulenme.toLocaleString('tr-TR')}</p><p className="text-xs text-[#888]">Profil görüntülenme</p></div>
+                      </div>
+                      <div className="bg-white border border-[#e5e5e5] rounded-2xl p-4 flex items-center gap-3">
+                        <MousePointerClick className="text-[#1a1a1a]" size={20} />
+                        <div><p className="text-lg font-bold">{igInsights.webSiteTiklama.toLocaleString('tr-TR')}</p><p className="text-xs text-[#888]">Web sitesi tıklaması</p></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!!igMedyalar.length && (
+                    <div className="bg-white border border-[#e5e5e5] rounded-2xl p-5">
+                      <p className="text-sm font-bold text-[#1a1a1a] mb-3">Son paylaşımlar</p>
+                      <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                        {igMedyalar.map(m => (
+                          <a key={m.id} href={m.permalink} target="_blank" rel="noreferrer" className="group relative rounded-lg overflow-hidden aspect-square bg-[#f0f0f0]">
+                            {(m.thumbnailUrl || m.mediaUrl) && <img src={m.thumbnailUrl || m.mediaUrl} alt="" className="w-full h-full object-cover" />}
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-1 text-white text-xs">
+                              <span className="flex items-center gap-1"><Heart size={12} /> {m.begeni}</span>
+                              <span className="flex items-center gap-1"><MessageCircle size={12} /> {m.yorum}</span>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : null}
+            </div>
+          )}
 
           <div className="bg-white border border-[#e5e5e5] rounded-2xl overflow-hidden">
             {yukleniyor ? (

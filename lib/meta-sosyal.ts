@@ -115,3 +115,100 @@ export async function sayfaBilgisiGetir(sayfaId: string, token: string): Promise
     return { ok: false, hata: e?.message || 'Ağ hatası' }
   }
 }
+
+export type IgProfil = {
+  ad: string
+  kullaniciAdi: string
+  profilFotoUrl?: string
+  takipciSayisi: number
+  takipSayisi: number
+  medyaSayisi: number
+  biyografi?: string
+}
+
+// Instagram Business hesabının profil özetini getirir (takipçi sayısı dahil).
+export async function igProfilGetir(igHesapId: string, token: string): Promise<{ ok: boolean; profil?: IgProfil; hata?: string }> {
+  try {
+    const alanlar = 'name,username,profile_picture_url,followers_count,follows_count,media_count,biography'
+    const res = await fetch(`${GRAPH_URL}/${igHesapId}?fields=${alanlar}&access_token=${token}`)
+    const data = await res.json()
+    if (!res.ok) return { ok: false, hata: data?.error?.message || 'Profil bilgisi alınamadı' }
+    return {
+      ok: true,
+      profil: {
+        ad: data.name,
+        kullaniciAdi: data.username,
+        profilFotoUrl: data.profile_picture_url,
+        takipciSayisi: data.followers_count ?? 0,
+        takipSayisi: data.follows_count ?? 0,
+        medyaSayisi: data.media_count ?? 0,
+        biyografi: data.biography,
+      },
+    }
+  } catch (e: any) {
+    return { ok: false, hata: e?.message || 'Ağ hatası' }
+  }
+}
+
+export type IgHesapInsights = { reach: number; profilGoruntulenme: number; webSiteTiklama: number }
+
+// Son 7 günün hesap düzeyi insight'ları (erişim, profil görüntülenme, web sitesi tıklaması).
+export async function igHesapInsightsGetir(igHesapId: string, token: string): Promise<{ ok: boolean; insights?: IgHesapInsights; hata?: string }> {
+  try {
+    const metrikler = 'reach,profile_views,website_clicks'
+    const res = await fetch(
+      `${GRAPH_URL}/${igHesapId}/insights?metric=${metrikler}&period=day&metric_type=total_value&since=${Math.floor(Date.now() / 1000) - 7 * 86400}&until=${Math.floor(Date.now() / 1000)}&access_token=${token}`
+    )
+    const data = await res.json()
+    if (!res.ok) return { ok: false, hata: data?.error?.message || 'Insights alınamadı' }
+    const bul = (ad: string) => data.data?.find((d: any) => d.name === ad)?.total_value?.value ?? 0
+    return {
+      ok: true,
+      insights: {
+        reach: bul('reach'),
+        profilGoruntulenme: bul('profile_views'),
+        webSiteTiklama: bul('website_clicks'),
+      },
+    }
+  } catch (e: any) {
+    return { ok: false, hata: e?.message || 'Ağ hatası' }
+  }
+}
+
+export type IgMedyaOzet = {
+  id: string
+  tip: string
+  mediaUrl?: string
+  thumbnailUrl?: string
+  permalink: string
+  caption?: string
+  tarih: string
+  begeni: number
+  yorum: number
+}
+
+// Son paylaşılan medyaların temel performans özeti (beğeni/yorum).
+export async function igSonMedyalarGetir(igHesapId: string, token: string, limit = 12): Promise<{ ok: boolean; medyalar?: IgMedyaOzet[]; hata?: string }> {
+  try {
+    const alanlar = 'id,media_type,media_url,thumbnail_url,permalink,caption,timestamp,like_count,comments_count'
+    const res = await fetch(`${GRAPH_URL}/${igHesapId}/media?fields=${alanlar}&limit=${limit}&access_token=${token}`)
+    const data = await res.json()
+    if (!res.ok) return { ok: false, hata: data?.error?.message || 'Medya listesi alınamadı' }
+    return {
+      ok: true,
+      medyalar: (data.data || []).map((m: any) => ({
+        id: m.id,
+        tip: m.media_type,
+        mediaUrl: m.media_url,
+        thumbnailUrl: m.thumbnail_url,
+        permalink: m.permalink,
+        caption: m.caption,
+        tarih: m.timestamp,
+        begeni: m.like_count ?? 0,
+        yorum: m.comments_count ?? 0,
+      })),
+    }
+  } catch (e: any) {
+    return { ok: false, hata: e?.message || 'Ağ hatası' }
+  }
+}
