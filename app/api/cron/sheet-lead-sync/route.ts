@@ -93,13 +93,29 @@ export async function GET(req: NextRequest) {
         const firmaAdi = alanBul(baslikIndeksi, satir, 'şirket_adı', 'firma_adi', 'company_name')
         const hizmetIlgisi = alanBul(baslikIndeksi, satir, 'hangi_sektörde', 'sektor')
 
+        // Sheet'teki TÜM soru-cevapları (id/created_time gibi meta kolonlar hariç) kaybetmeden
+        // formYanitlari'na yaz — panelde tek tek sorular görünsün, hiçbiri sheet'te kalıp kaybolmasın.
+        const metaKolonlar = new Set(['id', 'created_time', 'ad_id', 'ad_name', 'adset_id', 'adset_name', 'campaign_id', 'campaign_name', 'form_id', 'is_organic', 'platform'])
+        const formYanitlari: Record<string, string> = {}
+        basliklar.forEach((baslik, i) => {
+          const deger = satir[i]?.trim()
+          if (baslik && deger && !metaKolonlar.has(baslik.toLowerCase())) {
+            formYanitlari[baslik] = deger
+          }
+        })
+        const mesajMetni = Object.entries(formYanitlari)
+          .map(([soru, cevap]) => `${soru}: ${cevap}`)
+          .join('\n')
+
         await createLead({
           adSoyad: adSoyad || undefined,
           telefon: telefon || undefined,
           email: email || undefined,
           firmaAdi: firmaAdi || undefined,
           hizmetIlgisi: hizmetIlgisi || undefined,
+          mesaj: mesajMetni || undefined,
           kaynak: kaynakEtiket,
+          formYanitlari,
         })
         eklendi++
       }

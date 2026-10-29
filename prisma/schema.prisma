@@ -295,23 +295,25 @@ model BankaHesabi {
 }
 
 model Lead {
-  id           String    @id @default(cuid())
-  adSoyad      String?
-  firmaAdi     String?
-  telefon      String?
-  email        String?
-  hizmetIlgisi String?
-  mesaj        String?
-  sehir        String?
-  kaynak       String    @default("Web Sitesi")
-  reklamDetay  String?
-  durum        String    @default("yeni_lead")
-  takipNotu    String?
-  musteriId    String?   @unique
-  musteri      Musteri?  @relation(fields: [musteriId], references: [id])
-  notlar       LeadNot[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  adSoyad         String?
+  firmaAdi        String?
+  telefon         String?
+  email           String?
+  hizmetIlgisi    String?
+  mesaj           String?
+  sehir           String?
+  kaynak          String    @default("Web Sitesi")
+  reklamDetay     String?
+  durum           String    @default("yeni_lead")
+  takipNotu       String?
+  formYanitlari   Json?
+  arastirmaDurumu String    @default("bekliyor")
+  musteriId       String?   @unique
+  musteri         Musteri?  @relation(fields: [musteriId], references: [id])
+  notlar          LeadNot[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model LeadNot {

@@ -28,6 +28,7 @@ export async function createLead(data: {
   sehir?: string
   kaynak: string
   reklamDetay?: string
+  formYanitlari?: Record<string, string>
 }) {
   const lead = await prisma.lead.create({
     data: {
@@ -40,6 +41,7 @@ export async function createLead(data: {
       sehir: data.sehir || null,
       kaynak: data.kaynak,
       reklamDetay: data.reklamDetay || null,
+      formYanitlari: data.formYanitlari || undefined,
     },
   })
 
